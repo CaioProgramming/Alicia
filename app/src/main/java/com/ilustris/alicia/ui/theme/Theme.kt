@@ -16,15 +16,15 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.ViewCompat
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    primary = Blue80,
+    secondary = DeepBlue80,
+    tertiary = Teal80
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
+    primary = Blue40,
+    secondary = DeepBlue40,
+    tertiary = Teal40
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),
@@ -55,8 +55,8 @@ fun AliciaTheme(
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
-            (view.context as Activity).window.statusBarColor = colorScheme.primary.toArgb()
-            ViewCompat.getWindowInsetsController(view)?.isAppearanceLightStatusBars = darkTheme
+            (view.context as Activity).window.statusBarColor = colorScheme.background.toArgb()
+            ViewCompat.getWindowInsetsController(view)?.isAppearanceLightStatusBars = !darkTheme
         }
     }
 

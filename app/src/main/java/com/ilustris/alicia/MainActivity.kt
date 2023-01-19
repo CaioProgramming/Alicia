@@ -1,35 +1,30 @@
 package com.ilustris.alicia
 
-import android.content.Context
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.activity.viewModels
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
-import com.ilustris.alicia.ui.components.MessageBubble
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.ilustris.alicia.features.home.presentation.HomeViewModel
+import com.ilustris.alicia.features.home.ui.HomeUI
+import com.ilustris.alicia.features.messages.domain.model.Action
+import com.ilustris.alicia.features.messages.domain.model.Message
+import com.ilustris.alicia.ui.components.MessageSuggestion
 import com.ilustris.alicia.ui.theme.AliciaTheme
-import com.smarttoolfactory.extendedcolors.ColorSwatch
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,48 +32,18 @@ class MainActivity : ComponentActivity() {
             AliciaTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
+                        )
                 ) {
-                    HomeUI(title = "Alicia app")
+                    HomeUI(title = "Alicia")
                 }
             }
         }
     }
 }
 
-@Composable
-fun HomeUI(title: String) {
-    Column(Modifier.padding(Dp(16f))) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.headlineLarge,
-            modifier = Modifier.padding(8.dp)
-        )
-        Text(
-            text = "Seu app para organizar suas finanças de um jeitinho diferente",
-            style = MaterialTheme.typography.headlineSmall,
-            modifier = Modifier.padding(8.dp)
-        )
-        MessageBubble(message = "Me conte todos os seus segredos rsrs")
-        Greeting("Oi, eu sou a Alicia, vamos economizar?")
-
-    }
-}
 
 
-@Composable
-fun Greeting(name: String) {
-    val context = LocalContext.current
-    Button(content = { Text(text = name, color = Color.White) }, onClick = {
-        Toast.makeText(context, "Compondo coisas por ai", Toast.LENGTH_SHORT).show()
-    })
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    AliciaTheme {
-        HomeUI(title = "Alicia app")
-    }
-}
