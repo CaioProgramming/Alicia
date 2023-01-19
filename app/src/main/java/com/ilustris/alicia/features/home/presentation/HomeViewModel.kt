@@ -7,7 +7,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
-public class HomeViewModel @Inject public constructor(val userUseCase: UserUseCase) : ViewModel() {
+class HomeViewModel @Inject constructor(private val userUseCase: UserUseCase) : ViewModel() {
 
 
 

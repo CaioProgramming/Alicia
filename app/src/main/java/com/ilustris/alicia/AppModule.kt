@@ -10,15 +10,18 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ActivityContext
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
 @Module
 object AppModule {
 
 
+    @Singleton
     @Provides
     fun providesDatabase(@ApplicationContext context: Context) : AliciaDatabase { return DatabaseBuilder(context).buildDataBase() }
 
+    @Singleton
     @Provides
     fun preferencesService(@ApplicationContext context: Context) : PreferencesService { return PreferencesService(context) }
 }

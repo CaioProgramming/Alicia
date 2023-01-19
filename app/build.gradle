@@ -1,6 +1,10 @@
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-kapt'
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+    id 'kotlin-kapt'
+    id 'dagger.hilt.android.plugin'
+}
+
 
 android {
     namespace 'com.ilustris.alicia'
@@ -87,26 +91,19 @@ dependencies {
 
     implementation("androidx.room:room-runtime:$roomVersion")
     kapt "androidx.room:room-compiler:$roomVersion"
+    implementation("androidx.room:room-ktx:$roomVersion")
+    implementation("androidx.room:room-guava:$roomVersion")
+    testImplementation("androidx.room:room-testing:$roomVersion")
+    // optional - Paging 3 Integration
+    implementation("androidx.room:room-paging:2.5.0")
+    kapt "androidx.room:room-compiler:$roomVersion"
 
 
     // Dagger - Hilt
     implementation "com.google.dagger:hilt-android:$hiltVersion"
     kapt "com.google.dagger:hilt-android-compiler:$hiltVersion"
+    implementation "androidx.hilt:hilt-navigation-compose:1.1.0-alpha01"
 
-    //hiltViewModel
-    implementation "androidx.hilt:hilt-navigation-compose:1.0.0"
-
-
-
-    implementation("androidx.room:room-ktx:$roomVersion")
-    implementation("androidx.room:room-guava:$roomVersion")
-
-    testImplementation("androidx.room:room-testing:$roomVersion")
-
-    // optional - Paging 3 Integration
-    implementation("androidx.room:room-paging:2.5.0")
-
-    kapt "androidx.room:room-compiler:$roomVersion"
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
