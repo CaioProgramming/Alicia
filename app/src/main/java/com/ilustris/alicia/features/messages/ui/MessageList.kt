@@ -10,8 +10,8 @@ import com.ilustris.alicia.features.messages.domain.model.Message
 import com.ilustris.alicia.features.messages.ui.components.MessageBubble
 
 @Composable
-fun MessagesList(modifier: Modifier, onSelectMessage: (Message) -> Unit) {
-    val messages = remember { MockData.messages }
+fun MessagesList(modifier: Modifier, appMessages:List<Message>, onSelectMessage: (Message) -> Unit) {
+    val messages = remember { appMessages }
     LazyColumn(
         reverseLayout = true,
         modifier = modifier

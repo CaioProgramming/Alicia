@@ -21,8 +21,8 @@ class PreferencesService @Inject constructor(context: Context) {
     }
 
 
-     fun getStringKey(key: String, value: String) = sharedPreferences.getString(key, null)
-
+     fun getStringKey(key: String) = sharedPreferences.getString(key, null)
+     fun getLongKey(key: String) = sharedPreferences.getLong(key, 0)
 
 }
 

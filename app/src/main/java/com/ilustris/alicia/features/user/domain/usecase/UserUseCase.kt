@@ -7,8 +7,8 @@ interface UserUseCase {
 
     suspend fun updateUser(user: User)
 
-    suspend fun saveUser(username: String, avatar: Int = 0)
+    suspend fun saveUser(username: String, avatar: Int = 0) : Flow<Long>
 
-    suspend fun getUserById(uid: Int) : Flow<User>
+    suspend fun getUserById() : Flow<User?>
 
 }

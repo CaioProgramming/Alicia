@@ -10,20 +10,16 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
-class UserRepositoryImpl @Inject constructor(private val userDao: UserDao, private val  preferencesService: PreferencesService) : UserRepository {
+class UserRepositoryImpl @Inject constructor(private val userDao: UserDao) : UserRepository {
 
     override suspend fun updateUser(user: User) {
         userDao.updateUser(user)
     }
 
-    override suspend fun saveUser(userName: String, avatar: Int) {
-        val newUser = userDao.saveUser(User(name = userName, avatar = avatar))
-        preferencesService.updateLongKey(USER_KEY, newUser)
+    override suspend fun saveUser(userName: String, avatar: Int) : Long {
+       return userDao.saveUser(User(name = userName, avatar = avatar))
     }
 
-    override suspend fun getUserByUid(uid: Int): Flow<User> = flow<User> {
-        val user = userDao.getUserById(uid)
-        emit(user)
-    }
+    override suspend fun getUserByUid(uid: Long): Flow<User?> = userDao.getUserById(uid)
 
 }

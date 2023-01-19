@@ -21,7 +21,7 @@ class UserDaoImpl @Inject constructor(private val databaseBuilder: DatabaseBuild
        database.userDao().updateUser(user)
     }
 
-    override suspend fun getUserById(uid: Int): User = database.userDao().getUserById(uid)
+    override fun getUserById(uid: Long): Flow<User?> = database.userDao().getUserById(uid)
 
 
 }

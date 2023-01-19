@@ -10,13 +10,20 @@ import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
+import com.airbnb.lottie.compose.*
+import com.ilustris.alicia.R
+import com.ilustris.alicia.features.home.presentation.HomeAction
 import com.ilustris.alicia.features.home.presentation.HomeViewModel
 import com.ilustris.alicia.features.messages.domain.model.Action
 import com.ilustris.alicia.features.messages.ui.MessagesList
@@ -32,7 +39,9 @@ fun HomeUI(title: String) {
 
 
     val viewModel: HomeViewModel = hiltViewModel()
+    val messages = viewModel.messages.observeAsState()
 
+    viewModel.launchAction(HomeAction.FetchUser)
 
     var sheetPlaceHolder by remember {
         mutableStateOf("Valor gasto")
@@ -48,21 +57,44 @@ fun HomeUI(title: String) {
     val scope = rememberCoroutineScope()
 
 
-    ModalBottomSheetLayout(sheetState = bottomSheetState, sheetShape = RoundedCornerShape(10.dp) , sheetContent = {
-        SheetInput( action = sheetAction , placeHolder = sheetPlaceHolder, onConfirmClick = {})
-    }) {
-        val context = LocalContext.current
+
+    ModalBottomSheetLayout(
+        sheetState = bottomSheetState,
+        sheetShape = RoundedCornerShape(10.dp),
+        sheetContent = {
+            SheetInput(action = sheetAction, placeHolder = sheetPlaceHolder, onConfirmClick = {})
+        }) {
+
         ConstraintLayout(modifier = Modifier.fillMaxSize()) {
 
-            val (toolbar, messageList) = createRefs()
+            val (toolbar, messageList, animation) = createRefs()
 
-            TopBar(title = title, icon = com.ilustris.alicia.R.drawable.cat, modifier = Modifier
+            val composition by rememberLottieComposition(
+                LottieCompositionSpec.RawRes(R.raw.cute_cat)
+            )
+            val progress by animateLottieCompositionAsState(
+                composition,
+                isPlaying = true,
+                iterations = LottieConstants.IterateForever
+            )
+
+            TopBar(title = title, icon = R.drawable.cat, modifier = Modifier
                 .fillMaxWidth()
                 .constrainAs(toolbar) {
                     top.linkTo(parent.top)
                 }
                 .background(color = MaterialTheme.colorScheme.background))
 
+
+            LottieAnimation(composition = composition, progress, Modifier.constrainAs(animation) {
+
+                top.linkTo(toolbar.bottom)
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
+                width = Dimension.value(200.dp)
+                height = Dimension.value(200.dp)
+
+            })
 
 
             MessagesList(modifier = Modifier.constrainAs(messageList) {
@@ -72,7 +104,7 @@ fun HomeUI(title: String) {
                 end.linkTo(parent.end, margin = 10.dp)
                 width = Dimension.fillToConstraints
                 height = Dimension.fillToConstraints
-            }) {
+            }, messages.value?.toList() ?: emptyList()) {
                 scope.launch {
                     when (it.action) {
                         Action.GAIN, Action.NAME, Action.GOAL, Action.LOSS -> {
@@ -89,9 +121,7 @@ fun HomeUI(title: String) {
                     }
 
                 }
-
             }
-
 
         }
     }
