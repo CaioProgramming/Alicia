@@ -31,13 +31,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             AliciaTheme {
                 // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(
-                            MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
-                        )
-                ) {
+                Surface(modifier = Modifier.fillMaxSize().background(color = MaterialTheme.colorScheme.surface)) {
                     HomeUI(title = "Alicia")
                 }
             }

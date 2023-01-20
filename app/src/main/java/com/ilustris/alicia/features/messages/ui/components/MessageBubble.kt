@@ -19,7 +19,7 @@ import com.ilustris.alicia.ui.theme.AliciaTheme
 fun MessageBubble(messageData: Message, onMessageClick: (Message) -> Unit) {
     val isUserMessage = messageData.action == Action.USER
     val shape = if (isUserMessage) RoundedCornerShape(15.dp, 15.dp, 0.dp, 15.dp) else RoundedCornerShape(15.dp,15.dp,15.dp,0.dp)
-    val color = if (isUserMessage) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+    val color = if (isUserMessage) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.tertiary.copy(alpha = 0.3f)
     val horizontalAlignment = if (isUserMessage) Alignment.End else Alignment.Start
     Column(horizontalAlignment = horizontalAlignment, modifier = Modifier.fillMaxWidth()) {
         Card(

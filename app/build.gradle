@@ -88,7 +88,7 @@ dependencies {
 
     implementation 'androidx.compose.material3:material3:1.1.0-alpha04'
     implementation "androidx.constraintlayout:constraintlayout-compose:1.0.1"
-    implementation 'com.github.SmartToolFactory:Compose-Extended-Colors:1.0.0-alpha07'
+    implementation("com.github.atick-faisal:compose-material-color:3.0.0")
     implementation "com.github.bumptech.glide:compose:1.0.0-alpha.1"
     implementation "com.airbnb.android:lottie-compose:$lottieVersion"
 
