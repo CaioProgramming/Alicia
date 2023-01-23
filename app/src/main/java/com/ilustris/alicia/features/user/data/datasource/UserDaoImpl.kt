@@ -1,6 +1,6 @@
 package com.ilustris.alicia.features.user.data.datasource
 
-import com.ilustris.alicia.features.user.data.User
+import com.ilustris.alicia.features.user.data.model.User
 import com.ilustris.alicia.utils.DatabaseBuilder
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject

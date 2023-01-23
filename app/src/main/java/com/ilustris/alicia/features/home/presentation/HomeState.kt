@@ -1,6 +1,6 @@
 package com.ilustris.alicia.features.home.presentation
 
-import com.ilustris.alicia.features.user.data.User
+import com.ilustris.alicia.features.user.data.model.User
 
 sealed class HomeState {
     object UserNotFoundState : HomeState()

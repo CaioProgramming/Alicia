@@ -1,6 +1,6 @@
 package com.ilustris.alicia.features.user.domain.repository
 
-import com.ilustris.alicia.features.user.data.User
+import com.ilustris.alicia.features.user.data.model.User
 import kotlinx.coroutines.flow.Flow
 
 interface UserRepository {

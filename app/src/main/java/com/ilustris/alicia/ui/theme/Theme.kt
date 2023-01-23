@@ -21,7 +21,7 @@ private val DarkColorScheme = darkColorScheme(
     primary = MaterialColor.Blue500,
     secondary = MaterialColor.Blue800,
     tertiary = MaterialColor.BlueA100,
-    background = MaterialColor.Gray900,
+    background = MaterialColor.Gray800,
     surface = MaterialColor.Black,
     secondaryContainer = MaterialColor.Gray900
 )
@@ -30,7 +30,7 @@ private val LightColorScheme = lightColorScheme(
     primary = MaterialColor.Blue500,
     secondary = MaterialColor.Blue800,
     tertiary = MaterialColor.LightBlueA100,
-    background = MaterialColor.Gray100,
+    background = MaterialColor.Gray200,
     surface = MaterialColor.White,
     secondaryContainer = MaterialColor.Gray100
 

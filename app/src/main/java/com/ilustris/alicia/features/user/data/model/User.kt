@@ -1,4 +1,4 @@
-package com.ilustris.alicia.features.user.data
+package com.ilustris.alicia.features.user.data.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
