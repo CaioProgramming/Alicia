@@ -1,5 +1,6 @@
 package com.ilustris.alicia.features.home.ui.components
 
+import android.icu.text.DecimalFormat
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
@@ -12,8 +13,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -23,51 +27,57 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ilustris.alicia.features.messages.data.model.Action
 import com.ilustris.alicia.ui.theme.toolbarColor
+import com.ilustris.alicia.utils.CurrencyInputTransformation
 
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
-fun SheetInput(action: Action, placeHolder: String, onConfirmClick: (String, Action) -> Unit) {
+fun SheetInput(
+    action: Action,
+    placeHolder: String,
+    title: String,
+    onConfirmClick: (String, String, Action) -> Unit
+) {
 
 
-    Column(modifier = Modifier
-        .background(color = toolbarColor(isSystemInDarkTheme()))
-        .padding(16.dp)
-        ) {
-        var message by remember {
+    Column(
+        modifier = Modifier
+            .background(color = toolbarColor(isSystemInDarkTheme()))
+            .padding(16.dp)
+    ) {
+        var spendValue by remember {
             mutableStateOf("")
         }
 
+        var description by remember {
+            mutableStateOf("")
+        }
+
+
         val keyboardController = LocalSoftwareKeyboardController.current
+        val focusManager = LocalFocusManager.current
 
 
         TextField(
-            value = message,
-            onValueChange = { message = it },
+            value = description,
+            onValueChange = { description = it },
             keyboardOptions = KeyboardOptions(
-                keyboardType = getKeyboardType(action),
-                imeAction = ImeAction.Done,
+                keyboardType = KeyboardType.Text,
+                imeAction = ImeAction.Next,
                 capitalization = KeyboardCapitalization.Words,
                 autoCorrect = false,
             ),
-            keyboardActions = KeyboardActions(
-                onDone = {
-                    keyboardController?.hide()
-                    onConfirmClick(message, action)
-                    message = ""
-                }
-
-            ),
+            keyboardActions = KeyboardActions(onNext = {
+                focusManager.moveFocus(FocusDirection.Down)
+            }),
             textStyle = MaterialTheme.typography.headlineMedium.copy(
-                fontWeight = FontWeight.W700,
-                textAlign = TextAlign.Center
+                fontWeight = FontWeight.Bold,
             ),
-            placeholder = {
+            label = {
                 Text(
-                    style = MaterialTheme.typography.headlineSmall,
-                    text = placeHolder,
+                    style = MaterialTheme.typography.bodySmall,
+                    text = title,
                     color = Color.Gray.copy(alpha = 0.5f),
-                    textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
                 )
             },
@@ -85,14 +95,72 @@ fun SheetInput(action: Action, placeHolder: String, onConfirmClick: (String, Act
                 .background(Color.Transparent)
         )
 
+        TextField(
+            value = spendValue,
+            onValueChange = {
+                spendValue = if (it.startsWith("0")) {
+                    ""
+                } else {
+                    it
+                }
+            },
+            visualTransformation = CurrencyInputTransformation(),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = getKeyboardType(action),
+                imeAction = ImeAction.Done,
+                capitalization = KeyboardCapitalization.Words,
+                autoCorrect = false,
+            ),
+            keyboardActions = KeyboardActions(
+                onDone = {
+                    keyboardController?.hide()
+                    onConfirmClick(description, spendValue, action)
+                    spendValue = ""
+                }
+
+            ),
+            textStyle = MaterialTheme.typography.headlineMedium.copy(
+                fontWeight = FontWeight.W700,
+            ),
+            placeholder = {
+                Text(
+                    style = MaterialTheme.typography.headlineSmall,
+                    text = placeHolder,
+                    color = Color.Gray.copy(alpha = 0.5f),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+            leadingIcon = {
+                Text(
+                    text = "R$", style = MaterialTheme.typography.bodySmall.copy(
+                        fontWeight = FontWeight.W300,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                )
+            },
+            singleLine = true,
+            colors = TextFieldDefaults.textFieldColors(
+                textColor = MaterialTheme.colorScheme.onBackground,
+                unfocusedIndicatorColor = Color.Transparent,
+                focusedIndicatorColor = Color.Transparent,
+                disabledTextColor = Color.Transparent,
+                containerColor = Color.Transparent,
+                focusedLabelColor = MaterialTheme.colorScheme.onBackground
+            ),
+
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.Transparent)
+        )
+
         Button(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(5.dp),
 
             onClick = {
                 keyboardController?.hide()
-                onConfirmClick(message, action)
-                message = ""
+                onConfirmClick(description, spendValue, action)
+                spendValue = ""
             }) {
             Text(text = "Confirmar", modifier = Modifier.padding(8.dp))
         }
@@ -101,7 +169,7 @@ fun SheetInput(action: Action, placeHolder: String, onConfirmClick: (String, Act
 
 fun getKeyboardType(action: Action): KeyboardType {
     return when (action) {
-        Action.GAIN, Action.LOSS, Action.GOAL -> KeyboardType.Decimal
+        Action.GAIN, Action.LOSS, Action.GOAL -> KeyboardType.NumberPassword
         Action.NAME -> KeyboardType.Text
         else -> KeyboardType.Text
     }
@@ -112,7 +180,8 @@ fun getKeyboardType(action: Action): KeyboardType {
 fun sheetPreview() {
     SheetInput(
         action = Action.NAME,
-        placeHolder = "Como devo lhe chamar?",
-        onConfirmClick = { message, action ->
+        placeHolder = "0,00",
+        title = "Nome da despesa",
+        onConfirmClick = { description, message, action ->
         })
 }

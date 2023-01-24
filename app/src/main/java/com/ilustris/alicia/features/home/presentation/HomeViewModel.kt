@@ -26,27 +26,52 @@ class HomeViewModel @Inject constructor(
     private val messagesUseCase: MessagesUseCase
 ) : ViewModel() {
 
+    init {
+        getUser()
+    }
+
+
     val messages = messagesUseCase.getMessages()
 
-    val suggestions: Flow<List<Suggestion>> = flowOf(emptyList())
+    val suggestions: Flow<ArrayList<Suggestion>> = flowOf(ArrayList())
 
     private fun saveUser(name: String) {
         viewModelScope.launch {
             userUseCase.saveUser(name)
             updateMessages(Message("Oi Alicia pode me chamar de $name :)", Action.USER))
+            delay(5000)
             updateMessages(MessagePresets.getGreeting(name))
             updateMessages(MessagePresets.introductionMessages)
+            updateSuggestionsForDefaultActions()
         }
     }
 
-    init {
-        getUser()
-    }
 
     fun launchAction(homeAction: HomeAction) {
         when (homeAction) {
             HomeAction.FetchUser -> getUser()
             is HomeAction.SaveUser -> saveUser(homeAction.name)
+            is HomeAction.SaveGoal -> saveGoal(homeAction.description, homeAction.value)
+            is HomeAction.SaveLoss -> saveLoss(homeAction.description, homeAction.value)
+            is HomeAction.SaveProfit -> saveProfit(homeAction.description, homeAction.value)
+        }
+    }
+
+    private fun saveGoal(description: String, value: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+
+        }
+    }
+
+    private fun saveLoss(description: String, value: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+
+        }
+    }
+
+    private fun saveProfit(description: String, value: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+
         }
     }
 
@@ -60,7 +85,7 @@ class HomeViewModel @Inject constructor(
         Log.i(javaClass.simpleName, "updateMessages: Updating messages adding -> $message")
         viewModelScope.launch(Dispatchers.IO) {
             message.forEach {
-                delay(1000)
+                delay(5000)
                 messagesUseCase.saveMessage(it)
             }
         }
@@ -71,9 +96,10 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             val user = userUseCase.getUserById()
             if (user == null) {
-                updateMessages(MessagePresets.newUserMessages)
-
-
+                if (messages.first().isEmpty()) {
+                    updateMessages(MessagePresets.newUserMessages)
+                }
+                updateSuggestionsForNewUser()
             } else {
                 val lastMessage = messages.first().last()
                 val today = Calendar.getInstance()
@@ -83,6 +109,25 @@ class HomeViewModel @Inject constructor(
                 if (lastMessageDate.get(Calendar.DAY_OF_YEAR) != today.get(Calendar.DAY_OF_YEAR)) {
                     updateMessages(MessagePresets.getGreeting(user.name))
                 }
+                updateSuggestionsForDefaultActions()
+            }
+        }
+    }
+
+    private fun updateSuggestionsForNewUser() {
+        viewModelScope.launch(Dispatchers.IO) {
+            suggestions.collect {
+                it.clear()
+                it.addAll(MessagePresets.newUserSuggestions)
+            }
+        }
+    }
+
+    private fun updateSuggestionsForDefaultActions() {
+        viewModelScope.launch(Dispatchers.IO) {
+            suggestions.collect {
+                it.clear()
+                it.addAll(MessagePresets.commonSuggestions())
             }
         }
     }

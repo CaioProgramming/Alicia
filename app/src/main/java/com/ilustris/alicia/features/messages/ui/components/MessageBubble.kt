@@ -42,9 +42,6 @@ fun MessageBubble(messageData: Message, onMessageClick: (Message) -> Unit) {
             Card(
                 shape = shape,
                 elevation = CardDefaults.cardElevation(0.dp),
-                onClick = {
-                    onMessageClick(messageData)
-                },
                 modifier = Modifier
                     .padding(16.dp)
                     .animateEnterExit(
