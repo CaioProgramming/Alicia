@@ -2,6 +2,7 @@ package com.ilustris.alicia.features.messages.data.datasource
 
 import com.ilustris.alicia.features.messages.data.model.Action
 import com.ilustris.alicia.features.messages.data.model.Message
+import com.ilustris.alicia.features.messages.domain.model.Suggestion
 
 object MessagePresets {
 
@@ -29,6 +30,11 @@ object MessagePresets {
         Message("Antes da gente começar, me fala o seu nome por favor? \uD83E\uDD79", Action.NAME),
         Message("ps: clica na minha última mensagem \uD83D\uDE17")
     )
+
+
+    val newUserSuggestions = listOf(Suggestion("Meu nome é...", Action.NAME))
+
+    val commonSuggestions = listOf(Suggestion("Hoje eu comprei...", Action.LOSS), Suggestion("Hoje eu ganhei...", Action.GAIN))
 
 
 }

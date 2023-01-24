@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.ilustris.alicia.features.messages.data.datasource.MessagePresets
 import com.ilustris.alicia.features.messages.data.model.Action
 import com.ilustris.alicia.features.messages.data.model.Message
+import com.ilustris.alicia.features.messages.domain.model.Suggestion
 import com.ilustris.alicia.features.messages.domain.usecase.MessagesUseCase
 import com.ilustris.alicia.features.user.domain.usecase.UserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,6 +27,8 @@ class HomeViewModel @Inject constructor(
 ) : ViewModel() {
 
     val messages = messagesUseCase.getMessages()
+
+    val suggestions: Flow<List<Suggestion>> = flowOf(emptyList())
 
     private fun saveUser(name: String) {
         viewModelScope.launch {
@@ -69,6 +72,8 @@ class HomeViewModel @Inject constructor(
             val user = userUseCase.getUserById()
             if (user == null) {
                 updateMessages(MessagePresets.newUserMessages)
+
+
             } else {
                 val lastMessage = messages.first().last()
                 val today = Calendar.getInstance()

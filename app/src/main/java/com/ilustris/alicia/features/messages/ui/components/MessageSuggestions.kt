@@ -1,7 +1,6 @@
-package com.ilustris.alicia.ui.components
+package com.ilustris.alicia.features.messages.ui.components
 
 import android.widget.Toast
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
