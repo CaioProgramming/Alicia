@@ -1,6 +1,6 @@
 package com.ilustris.alicia.features.user.data.datasource
 
-import com.ilustris.alicia.features.user.data.User
+import com.ilustris.alicia.features.user.data.model.User
 import com.ilustris.alicia.utils.DatabaseBuilder
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -21,7 +21,7 @@ class UserDaoImpl @Inject constructor(private val databaseBuilder: DatabaseBuild
        database.userDao().updateUser(user)
     }
 
-    override suspend fun getUserById(uid: Int): User = database.userDao().getUserById(uid)
+    override fun getUserById(uid: Long): Flow<User?> = database.userDao().getUserById(uid)
 
 
 }

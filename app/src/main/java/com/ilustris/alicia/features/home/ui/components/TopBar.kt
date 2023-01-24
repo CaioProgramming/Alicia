@@ -1,4 +1,4 @@
-package com.ilustris.alicia.ui.components
+package com.ilustris.alicia.features.home.ui.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -12,10 +12,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.constraintlayout.compose.Dimension
+import com.ilustris.alicia.R
+import com.ilustris.alicia.ui.theme.AliciaTheme
 
 @Composable
 fun TopBar(
@@ -23,33 +27,48 @@ fun TopBar(
     title: String,
     icon: Int,
 ) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center,
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
     ) {
+
+        Image(
+            painterResource(id = icon),
+            contentDescription = "",
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .size(70.dp, 70.dp)
+                .clip(CircleShape)
+                .background(color = MaterialTheme.colorScheme.primary)
+                .padding(4.dp)
+        )
 
         Text(
             text = title,
             style = MaterialTheme
                 .typography
-                .headlineMedium
-                .copy(color = MaterialTheme.colorScheme.onBackground, fontWeight = FontWeight.W600),
-            modifier = Modifier.padding(16.dp)
+                .bodyMedium
+                .copy(color = MaterialTheme.colorScheme.onBackground),
+            modifier = Modifier.padding(8.dp)
         )
+
 
 
     }
 }
 
-@Preview(name = "TopBarr")
+@Preview(name = "TopBar")
 @Composable
 private fun PreviewTopBarr() {
-    TopBar(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(color = MaterialTheme.colorScheme.surface),
-        icon = com.ilustris.alicia.R.drawable.girl,
-        title = "Alicia"
-    )
+    AliciaTheme {
+        TopBar(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(color = MaterialTheme.colorScheme.surface),
+            icon = R.drawable.girl,
+            title = "Alicia"
+        )
+    }
+
 }

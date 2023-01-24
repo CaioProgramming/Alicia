@@ -2,6 +2,7 @@ package com.ilustris.alicia.utils
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Log
 import com.ilustris.alicia.BuildConfig
 import javax.inject.Inject
 
@@ -17,12 +18,13 @@ class PreferencesService @Inject constructor(context: Context) {
     }
 
     fun updateLongKey(key: String, value: Long) {
-        getEditor().putLong(key, value)
+        Log.i(javaClass.simpleName, "updating key $key with value $value")
+        getEditor().putLong(key, value).commit()
     }
 
 
-     fun getStringKey(key: String, value: String) = sharedPreferences.getString(key, null)
-
+     fun getStringKey(key: String) = sharedPreferences.getString(key, null)
+     fun getLongKey(key: String) = sharedPreferences.getLong(key, 0)
 
 }
 

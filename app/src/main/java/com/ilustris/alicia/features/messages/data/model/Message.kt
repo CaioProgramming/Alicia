@@ -1,4 +1,4 @@
-package com.ilustris.alicia.features.messages.domain.model
+package com.ilustris.alicia.features.messages.data.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -15,6 +15,6 @@ data class Message(
 
 
 enum class Action {
-    NONE, GAIN, LOSS, GOAL, NAME, USER
+    NONE, GAIN, LOSS, GOAL, NAME, USER, HEADER
 }
 
