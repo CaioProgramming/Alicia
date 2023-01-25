@@ -1,6 +1,5 @@
 package com.ilustris.alicia.features.home.ui.components
 
-import android.icu.text.DecimalFormat
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
@@ -14,18 +13,18 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ilustris.alicia.features.messages.data.model.Action
+import com.ilustris.alicia.features.messages.data.model.Type
 import com.ilustris.alicia.ui.theme.toolbarColor
 import com.ilustris.alicia.utils.CurrencyInputTransformation
 
@@ -33,10 +32,11 @@ import com.ilustris.alicia.utils.CurrencyInputTransformation
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun SheetInput(
-    action: Action,
+    type: Type,
     placeHolder: String,
     title: String,
-    onConfirmClick: (String, String, Action) -> Unit
+    focusRequester: FocusRequester,
+    onConfirmClick: (String, String, Type) -> Unit
 ) {
 
 
@@ -52,6 +52,7 @@ fun SheetInput(
         var description by remember {
             mutableStateOf("")
         }
+
 
 
         val keyboardController = LocalSoftwareKeyboardController.current
@@ -73,6 +74,14 @@ fun SheetInput(
             textStyle = MaterialTheme.typography.headlineMedium.copy(
                 fontWeight = FontWeight.Bold,
             ),
+            placeholder = {
+                Text(
+                    style = MaterialTheme.typography.headlineSmall,
+                    text = placeHolder,
+                    color = Color.Gray.copy(alpha = 0.5f),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
             label = {
                 Text(
                     style = MaterialTheme.typography.bodySmall,
@@ -92,8 +101,12 @@ fun SheetInput(
             ),
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.Transparent)
+                .background(Color.Transparent).focusRequester(focusRequester)
         )
+
+       /* LaunchedEffect(Unit) {
+            focusRequester.requestFocus()
+        } */
 
         TextField(
             value = spendValue,
@@ -106,16 +119,19 @@ fun SheetInput(
             },
             visualTransformation = CurrencyInputTransformation(),
             keyboardOptions = KeyboardOptions(
-                keyboardType = getKeyboardType(action),
+                keyboardType = getKeyboardType(type),
                 imeAction = ImeAction.Done,
                 capitalization = KeyboardCapitalization.Words,
                 autoCorrect = false,
             ),
             keyboardActions = KeyboardActions(
                 onDone = {
-                    keyboardController?.hide()
-                    onConfirmClick(description, spendValue, action)
+                    val movimentationValue = spendValue
+                    val movimentationDescription = description
+                    onConfirmClick(movimentationDescription, movimentationValue, type)
                     spendValue = ""
+                    description = ""
+                    keyboardController?.hide()
                 }
 
             ),
@@ -156,32 +172,36 @@ fun SheetInput(
         Button(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(5.dp),
-
+            enabled = description.isNotEmpty() && spendValue.isNotEmpty(),
             onClick = {
-                keyboardController?.hide()
-                onConfirmClick(description, spendValue, action)
                 spendValue = ""
+                description = ""
+                keyboardController?.hide()
+                onConfirmClick(description, spendValue, type)
             }) {
             Text(text = "Confirmar", modifier = Modifier.padding(8.dp))
         }
     }
 }
 
-fun getKeyboardType(action: Action): KeyboardType {
-    return when (action) {
-        Action.GAIN, Action.LOSS, Action.GOAL -> KeyboardType.NumberPassword
-        Action.NAME -> KeyboardType.Text
+fun getKeyboardType(type: Type): KeyboardType {
+    return when (type) {
+        Type.GAIN, Type.LOSS, Type.GOAL -> KeyboardType.NumberPassword
+        Type.NAME -> KeyboardType.Text
         else -> KeyboardType.Text
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun sheetPreview() {
-    SheetInput(
-        action = Action.NAME,
+fun SheetPreview() {
+    val focusRequester = remember { FocusRequester() }
+
+   return SheetInput(
+        type = Type.NAME,
         placeHolder = "0,00",
         title = "Nome da despesa",
+        focusRequester = focusRequester,
         onConfirmClick = { description, message, action ->
         })
 }

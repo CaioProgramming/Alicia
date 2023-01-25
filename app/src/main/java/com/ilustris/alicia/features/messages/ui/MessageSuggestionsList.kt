@@ -28,13 +28,13 @@ fun MessageSuggestionsList(
 
     val suggestions = remember { suggestions }
 
+    val gridCells = if (suggestions.value.size == 1) StaggeredGridCells.Fixed(1) else StaggeredGridCells.Adaptive(170.dp)
 
-    LazyVerticalStaggeredGrid(
+
+    LazyRow(
         modifier = modifier,
-        columns = StaggeredGridCells.Adaptive(150.dp),
-        horizontalArrangement = Arrangement.Center,
-        verticalArrangement = Arrangement.Center,
-        contentPadding = PaddingValues(10.dp)
+        horizontalArrangement = Arrangement.Start,
+
     ) {
 
         items(suggestions.value) {

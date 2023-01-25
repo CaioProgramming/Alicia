@@ -10,6 +10,7 @@ import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -19,10 +20,9 @@ import com.airbnb.lottie.compose.*
 import com.ilustris.alicia.R
 import com.ilustris.alicia.features.home.presentation.HomeAction
 import com.ilustris.alicia.features.home.presentation.HomeViewModel
-import com.ilustris.alicia.features.messages.data.model.Action
+import com.ilustris.alicia.features.messages.data.model.Type
 import com.ilustris.alicia.features.messages.ui.MessagesList
 import com.ilustris.alicia.features.home.ui.components.SheetInput
-import com.ilustris.alicia.features.messages.data.model.Message
 import com.ilustris.alicia.features.home.ui.components.TopBar
 import com.ilustris.alicia.features.messages.ui.MessageSuggestionsList
 import com.ilustris.alicia.ui.theme.AliciaTheme
@@ -39,22 +39,28 @@ fun HomeUI(title: String) {
     val suggestionsList = viewModel.suggestions.collectAsState(initial = emptyList())
 
     var sheetPlaceHolder by remember {
-        mutableStateOf("Valor gasto")
+        mutableStateOf("O que você comprou?")
     }
 
     var sheetTitle by remember {
         mutableStateOf("Comprinha do mês")
     }
 
-    var sheetAction by remember {
-        mutableStateOf(Action.NAME)
+    var sheetType by remember {
+        mutableStateOf(Type.NAME)
     }
 
-    val bottomSheetState =
-        rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
+    val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
 
     val scope = rememberCoroutineScope()
 
+    val focusRequester = remember { FocusRequester() }
+
+    if (bottomSheetState.isVisible) {
+        LaunchedEffect(Unit) {
+            focusRequester.requestFocus()
+        }
+    }
 
 
     ModalBottomSheetLayout(
@@ -63,17 +69,20 @@ fun HomeUI(title: String) {
         sheetContent = {
             SheetInput(
                 title = sheetTitle,
-                action = sheetAction,
+                type = sheetType,
                 placeHolder = sheetPlaceHolder,
+                focusRequester = focusRequester,
                 onConfirmClick = { description, value, action ->
                     scope.launch {
                         bottomSheetState.hide()
+                        focusRequester.freeFocus()
                     }
                     when (action) {
-                        Action.NAME -> viewModel.launchAction(HomeAction.SaveUser(value))
-                        Action.GAIN -> viewModel.launchAction(HomeAction.SaveProfit(description, value))
-                        Action.LOSS -> viewModel.launchAction(HomeAction.SaveLoss(description, value))
-                        Action.GOAL -> viewModel.launchAction(HomeAction.SaveGoal(description, value))
+                        Type.NAME -> viewModel.launchAction(HomeAction.SaveUser(value))
+                        Type.GAIN -> viewModel.launchAction(HomeAction.SaveProfit(description, value))
+                        Type.LOSS -> viewModel.launchAction(HomeAction.SaveLoss(description, value))
+                        Type.GOAL -> viewModel.launchAction(HomeAction.SaveGoal(description, value))
+                        else -> {}
 
                     }
                 })
@@ -122,49 +131,38 @@ fun HomeUI(title: String) {
                 .constrainAs(messageList) {
                     bottom.linkTo(suggestions.top)
                     top.linkTo(toolbar.bottom)
-                    start.linkTo(parent.start, margin = 16.dp)
-                    end.linkTo(parent.end, margin = 16.dp)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
                     width = Dimension.fillToConstraints
                     height = Dimension.fillToConstraints
                 }
-                .padding(vertical = 8.dp), messages) {
-                scope.launch {
-                    when (it.action) {
-                        Action.GAIN, Action.NAME, Action.GOAL, Action.LOSS -> {
-                            sheetPlaceHolder = getPlaceHolderMessage(it.action)
-                            sheetAction = it.action
-                            bottomSheetState.show()
-                        }
+                .padding(horizontal = 16.dp, vertical = 8.dp), messages)
 
-                        else -> {
-
-                        }
-                    }
-
-                }
-            }
 
             MessageSuggestionsList(
-                modifier = Modifier.constrainAs(suggestions) {
-                    bottom.linkTo(parent.bottom)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                    width = Dimension.matchParent
-                    height = Dimension.preferredWrapContent
-                }.padding(16.dp),
+                modifier = Modifier
+                    .constrainAs(suggestions) {
+                        bottom.linkTo(parent.bottom)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                        width = Dimension.matchParent
+                        height = Dimension.preferredWrapContent
+                    }
+                    .background(toolbarColor(isSystemInDarkTheme()))
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
                 suggestions = suggestionsList,
                 onSelectSuggestion = { suggestion, value ->
                     scope.launch {
-                        when(suggestion.action) {
-                            Action.NAME -> {
+                        when(suggestion.type) {
+                            Type.NAME -> {
                                 value?.let {
                                     viewModel.launchAction(HomeAction.SaveUser(value))
                                 }
                             }
                             else -> {
                                 sheetTitle = suggestion.name
-                                sheetAction = suggestion.action
-                                sheetPlaceHolder = getPlaceHolderMessage(suggestion.action)
+                                sheetType = suggestion.type
+                                sheetPlaceHolder = getPlaceHolderMessage(suggestion.type)
                                 bottomSheetState.show()
                             }
 
@@ -180,15 +178,16 @@ fun HomeUI(title: String) {
 
 }
 
-fun getPlaceHolderMessage(action: Action): String {
-    return when (action) {
-        Action.NONE -> ""
-        Action.GAIN -> "Valor ganho"
-        Action.LOSS -> "Valor gasto"
-        Action.GOAL -> "Valor da meta"
-        Action.NAME -> "Qual o seu nome"
-        Action.USER -> ""
-        Action.HEADER -> ""
+fun getPlaceHolderMessage(type: Type): String {
+    return when (type) {
+        Type.NONE -> ""
+        Type.GAIN -> "Com o que você ganhou?"
+        Type.LOSS -> "Com o que você gastou?"
+        Type.GOAL -> "Qual o seu objetivo"
+        Type.NAME -> "Como posso te chamar?"
+        Type.USER -> ""
+        Type.HEADER -> ""
+        Type.HISTORY -> ""
     }
 
 }

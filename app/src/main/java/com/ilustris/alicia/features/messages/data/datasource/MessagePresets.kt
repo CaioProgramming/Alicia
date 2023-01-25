@@ -1,6 +1,6 @@
 package com.ilustris.alicia.features.messages.data.datasource
 
-import com.ilustris.alicia.features.messages.data.model.Action
+import com.ilustris.alicia.features.messages.data.model.Type
 import com.ilustris.alicia.features.messages.data.model.Message
 import com.ilustris.alicia.features.messages.domain.model.Suggestion
 
@@ -20,40 +20,45 @@ object MessagePresets {
 
     val introductionMessages = listOf(
         Message("Estou aqui para te ajudar a organizar sua vida financeira, de uma forma mais prática através dessa conversa."),
-        Message("Você pode me informar seus ganhos \uD83D\uDCB8", action = Action.GAIN),
-        Message("seus gastos também \uD83E\uDD11", action = Action.LOSS),
-        Message("e até definir metas \uD83C\uDFAF", action = Action.GOAL)
+        Message("Você pode me informar seus ganhos \uD83D\uDCB8.", type = Type.GAIN),
+        Message("seus gastos \uD83E\uDD11", type = Type.LOSS),
+        Message("e até definir metas \uD83C\uDFAF", type = Type.GOAL),
+        Message(
+            "Ah é claro, você pode sempre me pedir seu histórico do app e ver como está sua jornada financeira.",
+            type = Type.NONE
+        ),
+        Message(
+            "Você só precisa selecionar um dos botões aqui embaixo para começar.",
+            type = Type.NONE
+        )
     )
 
     val newUserMessages = listOf(
-        Message("Oie, parece que você é novo por aqui"),
-        Message("Antes da gente começar, me fala o seu nome por favor? \uD83E\uDD79", Action.NAME)
-    )
-
-    private val lossSuggestionMessages = listOf(
-        "Fiz umas comprinhas",
-        "Os boletos chegaram",
-        "Continhas novas"
+        Message("Oie, parece que você é novo por aqui."),
+        Message("Antes da gente começar, me fala o seu nome por favor? \uD83E\uDD79", Type.NAME)
     )
 
 
-    private val gainSuggestionsMessages = listOf(
-        "Pagaram uma divída",
-        "Din din caiu",
+    private val profitMessages = listOf(
+        "Ai simm hein!! Com isso você tem guardado $PROFIT_PLACEHOLDER.",
+        "Boooa! Agora já são $PROFIT_PLACEHOLDER na conta!",
+        "Bom trabalho de pouquinho em poquinho vamos chegando nas nossas metas, com mais esse dinheirinho vc já tem guaradado $PROFIT_PLACEHOLDER.",
+        "Gostei de ver!! Esse valor vai ajudar muito no futuro você vai ver, agora já tem $PROFIT_PLACEHOLDER!"
     )
 
-    private val goalSuggestionsMessages = listOf(
-        "Vou fazer um projetinho",
-        "Quero comprar uma coisa"
+   fun getProfitMessage(value: String) =
+        profitMessages.random().replace(PROFIT_PLACEHOLDER, value)
+
+    private val lossMessages = listOf(
+        "Puuts! Fazer oque né as vezes temos que gastar uns trocados mesmo, agora na conta tem $PROFIT_PLACEHOLDER.",
+        "Parece que foi dia de maldade mesmo né, fica esperto como o valor que temos guardado $PROFIT_PLACEHOLDER.",
+        "É por isso que dizem que tem os dias de luta e os dias de glória né, hoje a luta foi no seu bolso hahaha :P, se liga hein esse é quanto temos agora $PROFIT_PLACEHOLDER." ,
+        "A vida do trabalhador não é fácil mesmo! Ainda bem que eu sou só um aplicativo, agora temos $PROFIT_PLACEHOLDER na conta."
     )
 
-    val newUserSuggestions = listOf(Suggestion("Você pode me chamar de ", Action.NAME))
-
-    fun commonSuggestions() = listOf(
-        Suggestion(lossSuggestionMessages.random(), Action.LOSS),
-        Suggestion(gainSuggestionsMessages.random(), Action.GAIN),
-        Suggestion(goalSuggestionsMessages.random(), Action.GOAL)
-    )
+    fun getLossMessage(value: String) = lossMessages.random().replace(PROFIT_PLACEHOLDER, value)
 
 
 }
+
+private const val PROFIT_PLACEHOLDER = "{value}"

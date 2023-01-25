@@ -6,8 +6,8 @@ import java.math.BigDecimal
 
 @Entity
 data class Movimentation(
-    @PrimaryKey
-    val id: Int,
+    @PrimaryKey(autoGenerate = true)
+    val id: Int = 0,
     val value: Double,
     val description: String,
     val type: MovimentationType = MovimentationType.UNKNOWN
