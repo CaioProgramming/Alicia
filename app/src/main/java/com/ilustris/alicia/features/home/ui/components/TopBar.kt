@@ -1,5 +1,6 @@
 package com.ilustris.alicia.features.home.ui.components
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -25,7 +26,7 @@ import com.ilustris.alicia.ui.theme.AliciaTheme
 fun TopBar(
     modifier: Modifier = Modifier,
     title: String,
-    icon: Int,
+    @DrawableRes icon: Int,
 ) {
     Column(
         verticalArrangement = Arrangement.Center,

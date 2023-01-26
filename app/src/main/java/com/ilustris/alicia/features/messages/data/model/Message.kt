@@ -7,14 +7,14 @@ import androidx.room.PrimaryKey
 @Entity
 data class Message(
     val message: String,
-    val action: Action = Action.NONE,
+    val type: Type = Type.NONE,
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val sentTime: Long = 0,
 )
 
 
-enum class Action {
-    NONE, GAIN, LOSS, GOAL, NAME, USER, HEADER
+enum class Type {
+    NONE, GAIN, LOSS, GOAL, NAME, USER, HEADER, HISTORY
 }
 

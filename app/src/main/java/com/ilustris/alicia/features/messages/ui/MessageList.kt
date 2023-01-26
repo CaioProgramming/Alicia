@@ -1,28 +1,39 @@
 package com.ilustris.alicia.features.messages.ui
 
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import com.ilustris.alicia.features.home.ui.MockData
+
 import com.ilustris.alicia.features.messages.data.model.Message
 import com.ilustris.alicia.features.messages.ui.components.MessageBubble
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun MessagesList(modifier: Modifier, appMessages: State<List<Message>>, onSelectMessage: (Message) -> Unit) {
+fun MessagesList(modifier: Modifier, appMessages: State<List<Message>>) {
     val messages = remember { appMessages }
+    val scrollState = rememberLazyListState()
+
     LazyColumn(
         reverseLayout = true,
-        modifier = modifier
+        modifier = modifier,
+        state = scrollState
     ) {
-        itemsIndexed(messages.value) { index, message ->
-            MessageBubble(message, onSelectMessage)
+        itemsIndexed(messages.value, key = { index, item -> item.id }) { index, message ->
+            MessageBubble(message, modifier = Modifier.animateItemPlacement())
         }
     }
+
+    LaunchedEffect(messages.value.size) {
+        if (messages.value.isNotEmpty()) {
+            scrollState.animateScrollToItem(0)
+        }
+    }
+
 }
 

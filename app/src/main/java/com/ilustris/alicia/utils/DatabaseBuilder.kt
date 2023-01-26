@@ -8,5 +8,9 @@ import javax.inject.Inject
 
 class DatabaseBuilder @Inject constructor(@ApplicationContext private val context: Context) {
 
-    fun buildDataBase() = Room.databaseBuilder(context, AliciaDatabase::class.java, AliciaDatabase::class.java.simpleName).build()
+    fun buildDataBase() = Room.databaseBuilder(
+        context,
+        AliciaDatabase::class.java,
+        AliciaDatabase::class.java.simpleName
+    ).fallbackToDestructiveMigration().build()
 }
