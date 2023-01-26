@@ -76,7 +76,7 @@ class HomeViewModel @Inject constructor(
     private fun saveLoss(description: String, value: String, type: Type) {
         viewModelScope.launch(Dispatchers.IO) {
             finnanceUseCase.saveMovimentation(description, value, type)
-            updateMessages(Message("Eeeeita teve que gastar com $description..."))
+            updateMessages(Message("Tive que gastar com $description...", type = Type.USER))
             movimentation.collect {
                 val newAmount = it.sumOf { movements -> movements.value }
                 updateMessages(Message(MessagePresets.getLossMessage(NumberFormat.getCurrencyInstance().format(newAmount))))
@@ -88,7 +88,7 @@ class HomeViewModel @Inject constructor(
     private fun saveProfit(description: String, value: String, type: Type) {
         viewModelScope.launch(Dispatchers.IO) {
             finnanceUseCase.saveMovimentation(description, value, type)
-            updateMessages(Message("Hummm ganhou uma graninha com $description!"))
+            updateMessages(Message("Ganhei uma grana com $description!", Type.USER))
             movimentation.collect {
                 val newAmount = it.sumOf { movements -> movements.value }
                 updateMessages(Message(MessagePresets.getProfitMessage(NumberFormat.getCurrencyInstance().format(newAmount))))

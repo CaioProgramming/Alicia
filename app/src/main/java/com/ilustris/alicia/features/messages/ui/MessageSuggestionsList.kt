@@ -3,6 +3,7 @@ package com.ilustris.alicia.features.messages.ui
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -30,17 +31,25 @@ fun MessageSuggestionsList(
 
     val gridCells = if (suggestions.value.size == 1) StaggeredGridCells.Fixed(1) else StaggeredGridCells.Adaptive(170.dp)
 
+    if (suggestions.value.size == 1) {
+        Row(modifier = modifier) {
+            MessageSuggestion(
+                suggestion = suggestions.value.first(),
+                onSelectSuggestion = onSelectSuggestion
+            )
+        }
 
-    LazyRow(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.Start,
+    } else {
+        LazyRow(
+            modifier = modifier,
+            horizontalArrangement = Arrangement.SpaceEvenly,
 
-    ) {
+            ) {
 
-        items(suggestions.value) {
-            MessageSuggestion(suggestion = it, onSelectSuggestion = onSelectSuggestion)
+            items(suggestions.value) {
+                MessageSuggestion(suggestion = it, onSelectSuggestion = onSelectSuggestion)
+            }
         }
     }
-
 
 }

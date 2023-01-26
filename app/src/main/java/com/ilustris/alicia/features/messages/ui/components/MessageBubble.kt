@@ -24,7 +24,7 @@ import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
-fun MessageBubble(messageData: Message) {
+fun MessageBubble(messageData: Message, modifier: Modifier) {
     val date = Calendar.getInstance()
     var visible = remember {
         MutableTransitionState(false).apply {
@@ -41,51 +41,38 @@ fun MessageBubble(messageData: Message) {
     val textColor =
         if (isUserMessage) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onBackground
     val horizontalAlignment = if (isUserMessage) Alignment.End else Alignment.Start
-    AnimatedVisibility(
-        visibleState = visible,
-        enter = scaleIn() + expandHorizontally(expandFrom = horizontalAlignment),
-        exit = scaleOut() + shrinkHorizontally(shrinkTowards = horizontalAlignment)
-    ) {
-        if (messageData.type != Type.HEADER) {
-            Column(horizontalAlignment = horizontalAlignment, modifier = Modifier.fillMaxWidth()) {
-                Card(
-                    shape = shape,
-                    elevation = CardDefaults.cardElevation(0.dp),
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp, vertical = 4.dp)
-                        .animateEnterExit(
-                            enter = slideInHorizontally(),
-                            exit = slideOutHorizontally()
-                        ),
-                    colors = CardDefaults.cardColors(containerColor = color)
-                ) {
-                    Text(
-                        text = messageData.message,
-                        style = MaterialTheme.typography.bodyLarge.copy(color = textColor),
-                        modifier = Modifier.padding(16.dp)
-
-                    )
-                }
+    if (messageData.type != Type.HEADER) {
+        Column(horizontalAlignment = horizontalAlignment, modifier = Modifier.fillMaxWidth()) {
+            Card(
+                shape = shape,
+                elevation = CardDefaults.cardElevation(0.dp),
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                colors = CardDefaults.cardColors(containerColor = color)
+            ) {
                 Text(
-                    text = date.time.format(DateFormats.HH_MM),
-                    style = MaterialTheme.typography.labelSmall.copy(
-                        color = MaterialTheme.colorScheme.onBackground.copy(
-                            alpha = 0.4f
-                        )
-                    ), modifier = Modifier.padding(horizontal = 16.dp)
+                    text = messageData.message,
+                    style = MaterialTheme.typography.bodyLarge.copy(color = textColor),
+                    modifier = Modifier.padding(16.dp)
                 )
             }
-
-        } else {
             Text(
-                text = messageData.message,
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.labelMedium,
+                text = date.time.format(DateFormats.HH_MM),
+                style = MaterialTheme.typography.labelSmall.copy(
+                    color = MaterialTheme.colorScheme.onBackground.copy(
+                        alpha = 0.4f
+                    )
+                ), modifier = Modifier.padding(horizontal = 16.dp)
             )
         }
-    }
 
+    } else {
+        Text(
+            text = messageData.message,
+            modifier = Modifier.fillMaxWidth(),
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.labelMedium,
+        )
+    }
 }
 
 fun getCardShape(isUserMessage: Boolean) = if (isUserMessage) RoundedCornerShape(
@@ -101,6 +88,7 @@ fun DefaultPreview() {
     AliciaTheme {
         Column {
             MessageBubble(
+                modifier = Modifier.fillMaxWidth(),
                 messageData = Message(
                     "25 de Janeiro",
                     type = Type.HEADER,
@@ -109,6 +97,7 @@ fun DefaultPreview() {
             )
 
             MessageBubble(
+                modifier = Modifier.fillMaxWidth(),
                 messageData = Message(
                     "Oi Alicia",
                     type = Type.USER,
@@ -116,6 +105,7 @@ fun DefaultPreview() {
                 )
             )
             MessageBubble(
+                modifier = Modifier.fillMaxWidth(),
                 messageData = Message(
                     "Oi eu sou a Alicia",
                     type = Type.NONE,
@@ -123,6 +113,7 @@ fun DefaultPreview() {
                 )
             )
             MessageBubble(
+                modifier = Modifier.fillMaxWidth(),
                 messageData = Message(
                     "Como posso chamar você?",
                     type = Type.NAME,
@@ -130,6 +121,7 @@ fun DefaultPreview() {
                 )
             )
             MessageBubble(
+                modifier = Modifier.fillMaxWidth(),
                 messageData = Message(
                     "Fala ai, quanto vc ganhou hoje?",
                     type = Type.GAIN,
