@@ -4,10 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ModalBottomSheetLayout
-import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -50,7 +47,8 @@ fun HomeUI(title: String) {
         mutableStateOf(Type.NAME)
     }
 
-    val bottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
+    val bottomSheetState =
+        rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
 
     val scope = rememberCoroutineScope()
 
@@ -79,7 +77,12 @@ fun HomeUI(title: String) {
                     }
                     when (action) {
                         Type.NAME -> viewModel.launchAction(HomeAction.SaveUser(value))
-                        Type.GAIN -> viewModel.launchAction(HomeAction.SaveProfit(description, value))
+                        Type.GAIN -> viewModel.launchAction(
+                            HomeAction.SaveProfit(
+                                description,
+                                value
+                            )
+                        )
                         Type.LOSS -> viewModel.launchAction(HomeAction.SaveLoss(description, value))
                         Type.GOAL -> viewModel.launchAction(HomeAction.SaveGoal(description, value))
                         else -> {}
@@ -90,7 +93,7 @@ fun HomeUI(title: String) {
 
         ConstraintLayout(modifier = Modifier.fillMaxSize()) {
 
-            val (toolbar, messageList, suggestions, animation) = createRefs()
+            val (toolbar, messageList, suggestions, divider, animation) = createRefs()
 
             val composition by rememberLottieComposition(
                 LottieCompositionSpec.RawRes(R.raw.cute_cat)
@@ -139,6 +142,14 @@ fun HomeUI(title: String) {
                 .padding(horizontal = 16.dp, vertical = 8.dp), messages)
 
 
+            Divider(modifier = Modifier.constrainAs(divider) {
+                bottom.linkTo(suggestions.top)
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
+                width = Dimension.matchParent
+                height = Dimension.value(2.dp)
+            }, color = toolbarColor(isSystemInDarkTheme()).copy(alpha = 0.4f))
+
             MessageSuggestionsList(
                 modifier = Modifier
                     .constrainAs(suggestions) {
@@ -148,17 +159,21 @@ fun HomeUI(title: String) {
                         width = Dimension.matchParent
                         height = Dimension.preferredWrapContent
                     }
-                    .background(toolbarColor(isSystemInDarkTheme()))
                     .padding(horizontal = 16.dp, vertical = 8.dp),
                 suggestions = suggestionsList,
                 onSelectSuggestion = { suggestion, value ->
                     scope.launch {
-                        when(suggestion.type) {
+                        when (suggestion.type) {
                             Type.NAME -> {
                                 value?.let {
                                     viewModel.launchAction(HomeAction.SaveUser(value))
                                 }
                             }
+
+                            Type.HISTORY -> {
+                                viewModel.launchAction(HomeAction.GetHistory)
+                            }
+
                             else -> {
                                 sheetTitle = suggestion.name
                                 sheetType = suggestion.type

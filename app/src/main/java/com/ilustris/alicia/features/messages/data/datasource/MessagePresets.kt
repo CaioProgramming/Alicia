@@ -20,7 +20,7 @@ object MessagePresets {
 
     val introductionMessages = listOf(
         Message("Estou aqui para te ajudar a organizar sua vida financeira, de uma forma mais prática através dessa conversa."),
-        Message("Você pode me informar seus ganhos \uD83D\uDCB8.", type = Type.GAIN),
+        Message("Você pode me informar seus ganhos \uD83D\uDCB8", type = Type.GAIN),
         Message("seus gastos \uD83E\uDD11", type = Type.LOSS),
         Message("e até definir metas \uD83C\uDFAF", type = Type.GOAL),
         Message(
@@ -42,7 +42,7 @@ object MessagePresets {
     private val profitMessages = listOf(
         "Ai simm hein!! Com isso você tem guardado $PROFIT_PLACEHOLDER.",
         "Boooa! Agora já são $PROFIT_PLACEHOLDER na conta!",
-        "Bom trabalho de pouquinho em poquinho vamos chegando nas nossas metas, com mais esse dinheirinho vc já tem guaradado $PROFIT_PLACEHOLDER.",
+        "Bom trabalho de pouquinho em poquinho vamos chegando nas nossas metas, com mais esse dinheirinho vc já tem guardado $PROFIT_PLACEHOLDER.",
         "Gostei de ver!! Esse valor vai ajudar muito no futuro você vai ver, agora já tem $PROFIT_PLACEHOLDER!"
     )
 

@@ -11,6 +11,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -41,7 +42,14 @@ fun MessageBubble(messageData: Message, modifier: Modifier) {
     val textColor =
         if (isUserMessage) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onBackground
     val horizontalAlignment = if (isUserMessage) Alignment.End else Alignment.Start
-    if (messageData.type != Type.HEADER) {
+    if(messageData.type == Type.HEADER) {
+        Text(
+            text = messageData.message,
+            modifier = Modifier.fillMaxWidth().padding(8.dp),
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.W400),
+        )
+    } else {
         Column(horizontalAlignment = horizontalAlignment, modifier = Modifier.fillMaxWidth()) {
             Card(
                 shape = shape,
@@ -64,15 +72,8 @@ fun MessageBubble(messageData: Message, modifier: Modifier) {
                 ), modifier = Modifier.padding(horizontal = 16.dp)
             )
         }
-
-    } else {
-        Text(
-            text = messageData.message,
-            modifier = Modifier.fillMaxWidth(),
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.labelMedium,
-        )
     }
+
 }
 
 fun getCardShape(isUserMessage: Boolean) = if (isUserMessage) RoundedCornerShape(
