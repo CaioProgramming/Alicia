@@ -32,6 +32,7 @@ import com.ilustris.alicia.R
 import com.ilustris.alicia.features.messages.data.datasource.MessagePresets
 import com.ilustris.alicia.features.messages.data.datasource.SuggestionsPresets
 import com.ilustris.alicia.features.messages.data.model.Type
+import com.ilustris.alicia.features.messages.domain.model.Action
 import com.ilustris.alicia.features.messages.domain.model.Suggestion
 import com.ilustris.alicia.ui.theme.AliciaTheme
 
@@ -43,8 +44,8 @@ fun MessageSuggestion(
 ) {
 
 
-    when (suggestion.type) {
-        Type.NAME -> inputSuggestion(
+    when (suggestion.action) {
+        Action.NAME -> inputSuggestion(
             suggestion = suggestion,
             onSelectSuggestion = onSelectSuggestion
         )
@@ -56,11 +57,11 @@ fun MessageSuggestion(
                 FilledIconButton(
                     onClick = { onSelectSuggestion(suggestion, null) },
                     colors = IconButtonDefaults.filledIconButtonColors(
-                        containerColor = getSuggestionButtonColor(suggestion.type)
+                        containerColor = getSuggestionButtonColor(suggestion.action)
                     )
                 ) {
                     Image(
-                        imageVector = ImageVector.vectorResource(id = getSuggestionIcon(suggestion.type)),
+                        imageVector = ImageVector.vectorResource(id = getSuggestionIcon(suggestion.action)),
                         contentDescription = "enviar",
                     )
                 }
@@ -75,22 +76,22 @@ fun MessageSuggestion(
     }
 }
 
-fun getSuggestionIcon(type: Type): Int {
-    return when (type) {
-        Type.GAIN -> R.drawable.iconmonstr_coin_8
-        Type.LOSS -> R.drawable.iconmonstr_download_10
-        Type.GOAL -> R.drawable.iconmonstr_target_4
-        Type.HISTORY -> R.drawable.iconmonstr_time_4
+fun getSuggestionIcon(action: Action): Int {
+    return when (action) {
+        Action.PROFIT -> R.drawable.iconmonstr_coin_8
+        Action.LOSS -> R.drawable.iconmonstr_download_10
+        Action.GOAL -> R.drawable.iconmonstr_target_4
+        Action.HISTORY -> R.drawable.iconmonstr_time_4
         else -> R.drawable.girl_face
     }
 }
 
-fun getSuggestionButtonColor(type: Type): Color {
-    return when (type) {
-        Type.GAIN -> MaterialColor.GreenA100
-        Type.LOSS -> MaterialColor.RedA100
-        Type.GOAL -> MaterialColor.OrangeA100
-        Type.HISTORY -> MaterialColor.BlueGray200
+fun getSuggestionButtonColor(action: Action): Color {
+    return when (action) {
+        Action.PROFIT -> MaterialColor.GreenA100
+        Action.LOSS -> MaterialColor.RedA100
+        Action.GOAL -> MaterialColor.OrangeA100
+        Action.HISTORY -> MaterialColor.BlueGray200
         else -> MaterialColor.Purple300
     }
 }

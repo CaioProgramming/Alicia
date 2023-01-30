@@ -5,6 +5,9 @@ import com.ilustris.alicia.features.finnance.data.model.Movimentation
 import com.ilustris.alicia.features.finnance.domain.repository.FinnanceRepository
 import com.ilustris.alicia.features.messages.data.model.Type
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
 class FinnanceUseCaseImpl @Inject constructor(private val finnanceRepository: FinnanceRepository) :
@@ -17,7 +20,24 @@ class FinnanceUseCaseImpl @Inject constructor(private val finnanceRepository: Fi
         return finnanceRepository.saveMovimentation(movimentation)
     }
 
-    override fun getMovimentations(): Flow<List<Movimentation>> = finnanceRepository.getMovimentations()
+    override fun getProfit(): Flow<List<Movimentation>> = flow {
+        finnanceRepository.getMovimentations().collect {
+            emit(it.filter { movimentation -> movimentation.value > 0 })
+        }
+    }
+    override fun getLoss(): Flow<List<Movimentation>> = flow {
+        finnanceRepository.getMovimentations().collect {
+            emit(it.filter { movimentation -> movimentation.value < 0 })
+        }
+    }
+
+    override fun getAmount(): Flow<Double> = flow {
+        finnanceRepository.getMovimentations().collect {
+            emit(it.sumOf { movimentation -> movimentation.value })
+        }
+    }
+
+    override fun getAllMovimentations(): Flow<List<Movimentation>> = finnanceRepository.getMovimentations()
 
     override fun getGoals(): Flow<List<Goal>> {
         TODO("Not yet implemented")

@@ -7,9 +7,12 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
+import java.text.DecimalFormat
 import java.text.NumberFormat
 
-fun Double.formatToCurrencyText() = NumberFormat.getCurrencyInstance().format(this)
+fun Double.formatToCurrencyText() : String {
+    return String.format("R$%,.2f", this)
+}
 
 fun Modifier.bottomBorder(strokeWidth: Dp, color: Color) = composed(
     factory = {

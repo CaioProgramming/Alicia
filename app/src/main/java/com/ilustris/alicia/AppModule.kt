@@ -1,6 +1,7 @@
 package com.ilustris.alicia
 
 import android.content.Context
+import com.ilustris.alicia.features.messages.domain.mapper.MessageMapper
 import com.ilustris.alicia.utils.AliciaDatabase
 import com.ilustris.alicia.utils.DatabaseBuilder
 import com.ilustris.alicia.utils.PreferencesService
@@ -24,4 +25,8 @@ object AppModule {
     @Singleton
     @Provides
     fun preferencesService(@ApplicationContext context: Context) : PreferencesService { return PreferencesService(context) }
+
+    @Singleton
+    @Provides
+    fun providesMessageMapper() : MessageMapper { return MessageMapper() }
 }

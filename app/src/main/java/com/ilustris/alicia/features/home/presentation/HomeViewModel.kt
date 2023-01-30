@@ -4,17 +4,15 @@ package com.ilustris.alicia.features.home.presentation
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ilustris.alicia.features.finnance.data.model.Movimentation
 import com.ilustris.alicia.features.finnance.domain.usecase.FinnanceUseCase
 import com.ilustris.alicia.features.messages.data.datasource.MessagePresets
 import com.ilustris.alicia.features.messages.data.datasource.SuggestionsPresets
 import com.ilustris.alicia.features.messages.data.model.Type
 import com.ilustris.alicia.features.messages.data.model.Message
+import com.ilustris.alicia.features.messages.domain.model.MessageInfo
 import com.ilustris.alicia.features.messages.domain.model.Suggestion
 import com.ilustris.alicia.features.messages.domain.usecase.MessagesUseCase
 import com.ilustris.alicia.features.user.domain.usecase.UserUseCase
-import com.ilustris.alicia.utils.DateFormats
-import com.ilustris.alicia.utils.format
 import com.ilustris.alicia.utils.formatToCurrencyText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -35,7 +33,10 @@ class HomeViewModel @Inject constructor(
 
 
     val messages = messagesUseCase.getMessages()
-    val movimentation = finnanceUseCase.getMovimentations()
+    val profit = finnanceUseCase.getProfit()
+    val loss = finnanceUseCase.getLoss()
+    val amount = finnanceUseCase.getAmount()
+    val movimentations = finnanceUseCase.getAllMovimentations()
 
     val suggestions: Flow<ArrayList<Suggestion>> = flowOf(ArrayList())
 
@@ -48,7 +49,6 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             userUseCase.saveUser(name)
             updateMessages(Message("Oi Alicia pode me chamar de $name :)", Type.USER))
-            delay(5000)
             updateMessages(MessagePresets.getGreeting(name))
             updateMessages(MessagePresets.introductionMessages)
             updateSuggestionsForDefaultActions()
@@ -74,94 +74,36 @@ class HomeViewModel @Inject constructor(
     private fun getHistory() {
         updateMessages(Message("Quero ver meu histórico de transações", Type.USER))
         updateMessages(Message("É pra já! vou pegar essas informações para você, 1 minutinho por favor."))
-        viewModelScope.launch(Dispatchers.IO) {
-            movimentation.collect { movimentations ->
-                if (movimentations.isNotEmpty()) {
-                    val amount = movimentations.sumOf { movements -> movements.value }
-                    updateMessages(Message("Começando pelo saldo, você tem ${amount.formatToCurrencyText()}"))
-                    val spendsList = movimentations.filter { it.value < 0 }
-                    if (spendsList.isNotEmpty()) {
-                        updateMessages(Message("Vamos falar de gastos? Aqui estão todo seus gastos desde que começou a usar o app: "))
-                        updateMessages(Message(buildStatementList(spendsList)))
-                    }
-
-                    val profitList = movimentations.filter { it.value > 0 }
-                    if (profitList.isNotEmpty()) {
-                        updateMessages(Message("Seus rendimentos foram bem legais, da uma olhada"))
-                        updateMessages(Message(buildStatementList(profitList)))
-                    }
-                    if (amount > 0 && spendsList.isNotEmpty()) {
-                        updateMessages(Message("Mesmo com gastos você ainda está positivo, continue assim para alcançar suas metas! :)"))
-                    }
-                } else {
-                    updateMessages(
-                        Message(
-                            "Pare que você não salvou nenhuma movimentação ainda, então não tem nada que eu possa te mostrar.",
-                            Type.HISTORY
-                        )
-                    )
-                }
-                this.coroutineContext.job.cancel()
-            }
-        }
-    }
-
-    private fun buildStatementList(movimentations: List<Movimentation>): String {
-        return movimentations.map {
-            "${it.description}:  ${(it.value / 100).formatToCurrencyText()}"
-        }.toString()
-            .replace(",", "")  //remove the commas
-            .replace("[", "")  //remove the right bracket
-            .replace("]", "")  //remove the left bracket
-            .trim()
+        updateMessages(Message("Da uma olhada no seu saldo", Type.AMOUNT))
+        updateMessages(Message("Vamos falar de gastos? Aqui estão todo seus gastos desde que começou a usar o app",  type = Type.LOSS_HISTORY))
+        updateMessages(Message("Seus rendimentos foram bem legais, da uma olhada.", type = Type.PROFIT_HISTORY))
     }
 
     private fun saveGoal(description: String, value: String) {
         viewModelScope.launch(Dispatchers.IO) {
-
         }
     }
 
     private fun saveLoss(description: String, value: String, type: Type) {
         viewModelScope.launch(Dispatchers.IO) {
             finnanceUseCase.saveMovimentation(description, value, type)
-            updateMessages(Message("Tive que gastar com $description...", type = Type.USER))
-            movimentation.collect {
-                val newAmount = it.sumOf { movements -> movements.value }
-                updateMessages(
-                    Message(
-                        MessagePresets.getLossMessage(
-                            NumberFormat.getCurrencyInstance().format(newAmount)
-                        )
-                    )
-                )
-                this.coroutineContext.job.cancel()
-            }
+            updateMessages(Message("Tive que gastar ${(value.toDouble() / 100).formatToCurrencyText()} com $description...", type = Type.USER))
+
         }
     }
 
     private fun saveProfit(description: String, value: String, type: Type) {
         viewModelScope.launch(Dispatchers.IO) {
             finnanceUseCase.saveMovimentation(description, value, type)
-            updateMessages(Message("Ganhei uma grana com $description!", Type.USER))
-            movimentation.collect {
-                val newAmount = it.sumOf { movements -> movements.value }
-                updateMessages(
-                    Message(
-                        MessagePresets.getProfitMessage(
-                            NumberFormat.getCurrencyInstance().format(newAmount)
-                        )
-                    )
-                )
-                this.coroutineContext.job.cancel()
-            }
+            updateMessages(Message("Consegui ${(value.toDouble() / 100).formatToCurrencyText()} com $description!", Type.USER))
         }
     }
 
     private fun updateMessages(message: Message) {
         Log.i(javaClass.simpleName, "updateMessages: Updating messages adding -> $message")
         viewModelScope.launch(Dispatchers.IO) {
-            delay(1000)
+            val delayTime = if (message.type == Type.USER) 200L else 1500L
+            delay(delayTime)
             messagesUseCase.saveMessage(message)
         }
     }
@@ -189,7 +131,7 @@ class HomeViewModel @Inject constructor(
                 val lastMessage = messages.first().last()
                 val today = Calendar.getInstance()
                 val lastMessageDate = Calendar.getInstance().apply {
-                    timeInMillis = lastMessage.sentTime
+                    timeInMillis = lastMessage.message.sentTime
                 }
                 if (lastMessageDate.get(Calendar.DAY_OF_YEAR) != today.get(Calendar.DAY_OF_YEAR)) {
                     updateMessages(MessagePresets.getGreeting(user.name))

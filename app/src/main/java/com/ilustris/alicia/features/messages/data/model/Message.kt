@@ -1,7 +1,9 @@
 package com.ilustris.alicia.features.messages.data.model
 
 import androidx.room.Entity
+import androidx.room.Ignore
 import androidx.room.PrimaryKey
+import com.ilustris.alicia.features.finnance.data.model.Movimentation
 
 
 @Entity
@@ -15,6 +17,6 @@ data class Message(
 
 
 enum class Type {
-    NONE, GAIN, LOSS, GOAL, NAME, USER, HEADER, HISTORY
+    NONE, GAIN, LOSS, GOAL, NAME, USER, HEADER, AMOUNT, PROFIT_HISTORY, LOSS_HISTORY
 }
 

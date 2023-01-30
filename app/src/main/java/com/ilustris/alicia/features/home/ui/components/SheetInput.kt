@@ -24,7 +24,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ilustris.alicia.features.messages.data.model.Type
+import com.ilustris.alicia.features.messages.domain.model.Action
 import com.ilustris.alicia.ui.theme.toolbarColor
 import com.ilustris.alicia.utils.CurrencyInputTransformation
 
@@ -32,11 +32,11 @@ import com.ilustris.alicia.utils.CurrencyInputTransformation
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun SheetInput(
-    type: Type,
+    action: Action,
     placeHolder: String,
     title: String,
     focusRequester: FocusRequester,
-    onConfirmClick: (String, String, Type) -> Unit
+    onConfirmClick: (String, String, Action) -> Unit
 ) {
 
 
@@ -119,7 +119,7 @@ fun SheetInput(
             },
             visualTransformation = CurrencyInputTransformation(),
             keyboardOptions = KeyboardOptions(
-                keyboardType = getKeyboardType(type),
+                keyboardType = getKeyboardType(action),
                 imeAction = ImeAction.Done,
                 capitalization = KeyboardCapitalization.Words,
                 autoCorrect = false,
@@ -128,7 +128,7 @@ fun SheetInput(
                 onDone = {
                     val movimentationValue = spendValue
                     val movimentationDescription = description
-                    onConfirmClick(movimentationDescription, movimentationValue, type)
+                    onConfirmClick(movimentationDescription, movimentationValue,action)
                     spendValue = ""
                     description = ""
                     keyboardController?.hide()
@@ -177,18 +177,18 @@ fun SheetInput(
                 spendValue = ""
                 description = ""
                 keyboardController?.hide()
-                onConfirmClick(description, spendValue, type)
+                onConfirmClick(description, spendValue, action)
             }) {
             Text(text = "Confirmar", modifier = Modifier.padding(8.dp))
         }
     }
 }
 
-fun getKeyboardType(type: Type): KeyboardType {
-    return when (type) {
-        Type.GAIN, Type.LOSS, Type.GOAL -> KeyboardType.NumberPassword
-        Type.NAME -> KeyboardType.Text
-        else -> KeyboardType.Text
+fun getKeyboardType(action: Action): KeyboardType {
+    return when (action) {
+        Action.NAME -> KeyboardType.Text
+        else -> KeyboardType.NumberPassword
+
     }
 }
 
@@ -198,7 +198,7 @@ fun SheetPreview() {
     val focusRequester = remember { FocusRequester() }
 
    return SheetInput(
-        type = Type.NAME,
+        action = Action.NAME,
         placeHolder = "0,00",
         title = "Nome da despesa",
         focusRequester = focusRequester,
