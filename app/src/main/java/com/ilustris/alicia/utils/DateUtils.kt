@@ -5,6 +5,7 @@ import java.util.*
 
 enum class DateFormats(val formatted: String) {
     DD_OF_MM_FROM_YYYY("dd 'de' MMMM 'de' yyyy"),
+    DD_OF_MM("dd 'de' MMMM"),
     DD_MM_YYY("DD/MM/YYY"),
     MM_DD_YYY("MM/DD/YY"),
     M_D_Y("Month D, Yr"),

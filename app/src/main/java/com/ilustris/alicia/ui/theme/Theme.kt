@@ -21,9 +21,8 @@ private val DarkColorScheme = darkColorScheme(
     primary = MaterialColor.Blue500,
     secondary = MaterialColor.Blue800,
     tertiary = MaterialColor.BlueA100,
-    background = MaterialColor.Gray800,
-    surface = MaterialColor.Black,
-    secondaryContainer = MaterialColor.Gray900
+    background = MaterialColor.Black,
+    surface = MaterialColor.Gray900
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -31,6 +30,7 @@ private val LightColorScheme = lightColorScheme(
     secondary = MaterialColor.Blue800,
     tertiary = MaterialColor.LightBlueA100,
     background = MaterialColor.White,
+    surface = MaterialColor.Gray500
 
 
     /* Other default colors to override
@@ -75,6 +75,6 @@ fun AliciaTheme(
 }
 
 
-fun toolbarColor(darkTheme: Boolean) = if (darkTheme) MaterialColor.Black else MaterialColor.Gray100
+fun toolbarColor(darkTheme: Boolean) = if (darkTheme) MaterialColor.Black else MaterialColor.White
 
 

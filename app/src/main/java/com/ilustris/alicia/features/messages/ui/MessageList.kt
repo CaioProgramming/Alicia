@@ -9,13 +9,16 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import com.ilustris.alicia.features.finnance.data.model.Movimentation
 
 import com.ilustris.alicia.features.messages.data.model.Message
+import com.ilustris.alicia.features.messages.data.model.Type
+import com.ilustris.alicia.features.messages.domain.model.MessageInfo
 import com.ilustris.alicia.features.messages.ui.components.MessageBubble
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun MessagesList(modifier: Modifier, appMessages: State<List<Message>>) {
+fun MessagesList(modifier: Modifier, appMessages: State<List<MessageInfo>>, profits: List<Movimentation>, losses: List<Movimentation>, amount: Double) {
     val messages = remember { appMessages }
     val scrollState = rememberLazyListState()
 
@@ -24,8 +27,9 @@ fun MessagesList(modifier: Modifier, appMessages: State<List<Message>>) {
         modifier = modifier,
         state = scrollState
     ) {
-        itemsIndexed(messages.value, key = { index, item -> item.id }) { index, message ->
-            MessageBubble(message, modifier = Modifier.animateItemPlacement())
+        itemsIndexed(messages.value, key = { index, item -> item.message.id }) { index, message ->
+            val movementList = if (message.message.type == Type.PROFIT_HISTORY) profits else if (message.message.type == Type.LOSS_HISTORY) losses else emptyList()
+            MessageBubble(message, movementList, modifier = Modifier.animateItemPlacement(), amount)
         }
     }
 

@@ -9,11 +9,11 @@ import com.ilustris.alicia.features.messages.data.datasource.MessagePresets
 import com.ilustris.alicia.features.messages.data.datasource.SuggestionsPresets
 import com.ilustris.alicia.features.messages.data.model.Type
 import com.ilustris.alicia.features.messages.data.model.Message
+import com.ilustris.alicia.features.messages.domain.model.MessageInfo
 import com.ilustris.alicia.features.messages.domain.model.Suggestion
 import com.ilustris.alicia.features.messages.domain.usecase.MessagesUseCase
 import com.ilustris.alicia.features.user.domain.usecase.UserUseCase
-import com.ilustris.alicia.utils.DateFormats
-import com.ilustris.alicia.utils.format
+import com.ilustris.alicia.utils.formatToCurrencyText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -33,15 +33,15 @@ class HomeViewModel @Inject constructor(
 
 
     val messages = messagesUseCase.getMessages()
-    val movimentation = finnanceUseCase.getMovimentations()
-
-    val messagesGroup: Flow<ArrayList<Message>> = flowOf(ArrayList())
+    val profit = finnanceUseCase.getProfit()
+    val loss = finnanceUseCase.getLoss()
+    val amount = finnanceUseCase.getAmount()
+    val movimentations = finnanceUseCase.getAllMovimentations()
 
     val suggestions: Flow<ArrayList<Suggestion>> = flowOf(ArrayList())
 
     init {
         getUser()
-        mapMessages()
     }
 
 
@@ -49,7 +49,6 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             userUseCase.saveUser(name)
             updateMessages(Message("Oi Alicia pode me chamar de $name :)", Type.USER))
-            delay(5000)
             updateMessages(MessagePresets.getGreeting(name))
             updateMessages(MessagePresets.introductionMessages)
             updateSuggestionsForDefaultActions()
@@ -63,43 +62,48 @@ class HomeViewModel @Inject constructor(
             is HomeAction.SaveUser -> saveUser(homeAction.name)
             is HomeAction.SaveGoal -> saveGoal(homeAction.description, homeAction.value)
             is HomeAction.SaveLoss -> saveLoss(homeAction.description, homeAction.value, Type.LOSS)
-            is HomeAction.SaveProfit -> saveProfit(homeAction.description, homeAction.value, Type.GAIN)
+            is HomeAction.SaveProfit -> saveProfit(
+                homeAction.description,
+                homeAction.value,
+                Type.GAIN
+            )
+            HomeAction.GetHistory -> getHistory()
         }
+    }
+
+    private fun getHistory() {
+        updateMessages(Message("Quero ver meu histórico de transações", Type.USER))
+        updateMessages(Message("É pra já! vou pegar essas informações para você, 1 minutinho por favor."))
+        updateMessages(Message("Da uma olhada no seu saldo", Type.AMOUNT))
+        updateMessages(Message("Vamos falar de gastos? Aqui estão todo seus gastos desde que começou a usar o app",  type = Type.LOSS_HISTORY))
+        updateMessages(Message("Seus rendimentos foram bem legais, da uma olhada.", type = Type.PROFIT_HISTORY))
     }
 
     private fun saveGoal(description: String, value: String) {
         viewModelScope.launch(Dispatchers.IO) {
-
         }
     }
 
     private fun saveLoss(description: String, value: String, type: Type) {
         viewModelScope.launch(Dispatchers.IO) {
             finnanceUseCase.saveMovimentation(description, value, type)
-            updateMessages(Message("Tive que gastar com $description...", type = Type.USER))
-            movimentation.collect {
-                val newAmount = it.sumOf { movements -> movements.value }
-                updateMessages(Message(MessagePresets.getLossMessage(NumberFormat.getCurrencyInstance().format(newAmount))))
-                this.coroutineContext.job.cancel()
-            }
+            updateMessages(Message("Tive que gastar ${(value.toDouble() / 100).formatToCurrencyText()} com $description...", type = Type.USER))
+
         }
     }
 
     private fun saveProfit(description: String, value: String, type: Type) {
         viewModelScope.launch(Dispatchers.IO) {
             finnanceUseCase.saveMovimentation(description, value, type)
-            updateMessages(Message("Ganhei uma grana com $description!", Type.USER))
-            movimentation.collect {
-                val newAmount = it.sumOf { movements -> movements.value }
-                updateMessages(Message(MessagePresets.getProfitMessage(NumberFormat.getCurrencyInstance().format(newAmount))))
-                this.coroutineContext.job.cancel()
-            }
+            updateMessages(Message("Consegui ${(value.toDouble() / 100).formatToCurrencyText()} com $description!", Type.USER))
         }
     }
 
     private fun updateMessages(message: Message) {
         Log.i(javaClass.simpleName, "updateMessages: Updating messages adding -> $message")
         viewModelScope.launch(Dispatchers.IO) {
+            val delayTime = if (message.type == Type.USER) 200L else 1500L
+            delay(delayTime)
             messagesUseCase.saveMessage(message)
         }
     }
@@ -108,7 +112,7 @@ class HomeViewModel @Inject constructor(
         Log.i(javaClass.simpleName, "updateMessages: Updating messages adding -> $message")
         viewModelScope.launch(Dispatchers.IO) {
             message.forEach {
-                delay(5000)
+                delay(2000)
                 messagesUseCase.saveMessage(it)
             }
         }
@@ -127,7 +131,7 @@ class HomeViewModel @Inject constructor(
                 val lastMessage = messages.first().last()
                 val today = Calendar.getInstance()
                 val lastMessageDate = Calendar.getInstance().apply {
-                    timeInMillis = lastMessage.sentTime
+                    timeInMillis = lastMessage.message.sentTime
                 }
                 if (lastMessageDate.get(Calendar.DAY_OF_YEAR) != today.get(Calendar.DAY_OF_YEAR)) {
                     updateMessages(MessagePresets.getGreeting(user.name))
@@ -152,42 +156,6 @@ class HomeViewModel @Inject constructor(
                 it.clear()
                 it.addAll(SuggestionsPresets.commonSuggestions())
             }
-        }
-    }
-
-    private fun updatedGroupMessages(messages: List<Message>) {
-        viewModelScope.launch(Dispatchers.IO) {
-            messagesGroup.collect {
-                it.clear()
-                it.addAll(messages)
-            }
-        }
-    }
-
-    private fun mapMessages() = viewModelScope.launch {
-        messages.collect {
-            val messagesGrouped = ArrayList<Message>()
-            val groupedByDay = it.groupBy {
-                val calendar = Calendar.getInstance().apply {
-                    timeInMillis = it.sentTime
-                }
-                calendar[Calendar.DAY_OF_YEAR]
-            }
-            groupedByDay.forEach { (day, messages) ->
-                val firstMessage = messages.first()
-                val calendar = Calendar.getInstance().apply {
-                    timeInMillis = firstMessage.sentTime
-                }
-                val dayMessage = firstMessage.copy(
-                    message = calendar.time.format(DateFormats.EE_D_MMM_YYY),
-                    type = Type.HEADER
-                )
-                messagesGrouped.add(dayMessage)
-                messages.forEach { message ->
-                    messagesGrouped.add(message)
-                }
-            }
-            updatedGroupMessages(messagesGrouped)
         }
     }
 

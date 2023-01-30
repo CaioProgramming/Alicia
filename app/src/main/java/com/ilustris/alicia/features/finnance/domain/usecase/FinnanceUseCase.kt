@@ -10,7 +10,11 @@ interface FinnanceUseCase {
 
     suspend fun saveMovimentation(description: String, value: String, type: Type): Long
 
-    fun getMovimentations() : Flow<List<Movimentation>>
+    fun getProfit() : Flow<List<Movimentation>>
+    fun getLoss() : Flow<List<Movimentation>>
+    fun getAmount() : Flow<Double>
+
+    fun getAllMovimentations(): Flow<List<Movimentation>>
 
     fun getGoals() : Flow<List<Goal>>
 

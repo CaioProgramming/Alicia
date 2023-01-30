@@ -9,6 +9,7 @@ sealed class HomeAction {
     data class SaveLoss(val description: String, val value: String) : HomeAction()
     data class SaveProfit(val description: String, val value: String) : HomeAction()
     data class SaveGoal(val description: String, val value: String) : HomeAction()
+    object GetHistory: HomeAction()
 
 
 
