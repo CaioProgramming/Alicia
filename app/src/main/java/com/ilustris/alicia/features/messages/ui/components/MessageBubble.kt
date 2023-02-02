@@ -1,11 +1,9 @@
 package com.ilustris.alicia.features.messages.ui.components
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -16,22 +14,25 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ilustris.alicia.features.finnance.data.model.Movimentation
-import com.ilustris.alicia.features.messages.data.model.Type
+import com.ilustris.alicia.features.finnance.domain.data.MovimentationInfo
+import com.ilustris.alicia.features.finnance.ui.CardStatement
 import com.ilustris.alicia.features.messages.data.model.Message
+import com.ilustris.alicia.features.messages.data.model.Type
 import com.ilustris.alicia.features.messages.domain.model.MessageInfo
 import com.ilustris.alicia.ui.theme.AliciaTheme
-import com.ilustris.alicia.ui.theme.toolbarColor
 import com.ilustris.alicia.utils.DateFormats
 import com.ilustris.alicia.utils.format
-import java.util.Calendar
+import java.util.*
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MessageBubble(
     messageData: MessageInfo,
-    movimentations: List<Movimentation> = emptyList(),
+    movimentations: List<MovimentationInfo> = emptyList(),
     modifier: Modifier,
     amount: Double = 0.0
 ) {
+
     val date = Calendar.getInstance()
     val message = messageData.message
 
@@ -41,8 +42,10 @@ fun MessageBubble(
     val color =
         if (isUserMessage) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondaryContainer
     val textColor =
-        if (isUserMessage) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.secondary
+        if (isUserMessage) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondaryContainer
     val horizontalAlignment = if (isUserMessage) Alignment.End else Alignment.Start
+    val showDate = remember { mutableStateOf(false) }
+
     if (message.type == Type.HEADER) {
         Text(
             text = message.message,
@@ -56,10 +59,14 @@ fun MessageBubble(
         Column(
             horizontalAlignment = horizontalAlignment, modifier = Modifier
                 .fillMaxWidth()
+                .padding(8.dp)
                 .wrapContentHeight()
         ) {
             Card(
                 shape = shape,
+                onClick = {
+                    showDate.value = !showDate.value
+                },
                 elevation = CardDefaults.cardElevation(0.dp),
                 modifier = modifier.padding(horizontal = 16.dp, vertical = 4.dp),
                 colors = CardDefaults.cardColors(containerColor = color)
@@ -69,34 +76,36 @@ fun MessageBubble(
                     style = MaterialTheme.typography.bodyLarge.copy(color = textColor),
                     modifier = Modifier.padding(16.dp)
                 )
-                if (messageData.observeMovimentations) {
-                    when(message.type) {
-                        Type.AMOUNT ->AmountComponent(amount = amount)
-                        Type.PROFIT_HISTORY,
-                        Type.LOSS_HISTORY ->  Column(
-                            modifier = Modifier
-                                .padding(8.dp)
-                                .background(
-                                    color = toolbarColor(isSystemInDarkTheme()),
-                                    shape = shape
-                                )
-                        ) {
-                            movimentations.forEach {
-                                StatementComponent(description = it.description, value = it.value)
-                            }
+            }
+            AnimatedVisibility(visible = showDate.value) {
+                Text(
+                    text = date.time.format(DateFormats.HH_MM),
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        color = MaterialTheme.colorScheme.onBackground.copy(
+                            alpha = 0.4f
+                        )
+                    ), modifier = Modifier.padding(horizontal = 16.dp)
+                )
+            }
+
+            if (messageData.observeMovimentations) {
+                when (message.type) {
+                    Type.AMOUNT -> AmountComponent(amount = amount)
+                    Type.PROFIT_HISTORY,
+                    Type.LOSS_HISTORY -> LazyRow(
+                        modifier = modifier,
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        items(movimentations) {
+                            CardStatement(
+                                tag = it.tag,
+                                movimentations = it.movimentations
+                            )
                         }
                     }
                 }
             }
         }
-        Text(
-            text = date.time.format(DateFormats.HH_MM),
-            style = MaterialTheme.typography.labelSmall.copy(
-                color = MaterialTheme.colorScheme.onBackground.copy(
-                    alpha = 0.4f
-                )
-            ), modifier = Modifier.padding(horizontal = 16.dp)
-        )
     }
 }
 
@@ -178,7 +187,11 @@ fun DefaultPreview() {
                 messageData = MessageInfo(
                     Message("Aqui estão seus gastos!", type = Type.PROFIT_HISTORY),
                     listOf(
-                        Movimentation(description = "Nike Air", value = 500.00)
+                        Movimentation(
+                            description = "Nike Air",
+                            value = 500.00,
+                            spendAt = Random().nextLong()
+                        )
                     ),
                     true,
                 ),

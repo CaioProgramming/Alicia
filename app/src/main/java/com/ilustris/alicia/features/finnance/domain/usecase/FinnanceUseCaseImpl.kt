@@ -2,32 +2,48 @@ package com.ilustris.alicia.features.finnance.domain.usecase
 
 import com.ilustris.alicia.features.finnance.data.model.Goal
 import com.ilustris.alicia.features.finnance.data.model.Movimentation
+import com.ilustris.alicia.features.finnance.data.model.Tag
+import com.ilustris.alicia.features.finnance.domain.data.MovimentationInfo
+import com.ilustris.alicia.features.finnance.domain.mapper.MovimentationMapper
 import com.ilustris.alicia.features.finnance.domain.repository.FinnanceRepository
 import com.ilustris.alicia.features.messages.data.model.Type
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flow
+import java.util.*
 import javax.inject.Inject
 
-class FinnanceUseCaseImpl @Inject constructor(private val finnanceRepository: FinnanceRepository) :
+class FinnanceUseCaseImpl @Inject constructor(
+    private val finnanceRepository: FinnanceRepository,
+    private val movimentationMapper: MovimentationMapper
+) :
     FinnanceUseCase {
 
-    override suspend fun saveMovimentation(description: String, value: String, type: Type): Long {
+    override suspend fun saveMovimentation(
+        description: String,
+        value: String,
+        tag: Tag,
+        type: Type
+    ): Long {
         val doubleValue = value.toDouble() / 100
         val decimalValue = if (type == Type.GAIN) doubleValue else doubleValue.unaryMinus()
-        val movimentation = Movimentation(value = decimalValue, description = description)
+        val movimentation = Movimentation(
+            value = decimalValue,
+            description = description,
+            tag = tag,
+            spendAt = Calendar.getInstance().timeInMillis
+        )
         return finnanceRepository.saveMovimentation(movimentation)
     }
 
-    override fun getProfit(): Flow<List<Movimentation>> = flow {
+    override fun getProfit(): Flow<List<MovimentationInfo>> = flow {
         finnanceRepository.getMovimentations().collect {
-            emit(it.filter { movimentation -> movimentation.value > 0 })
+            emit(movimentationMapper.mapMovimentations(it.filter { movimentation -> movimentation.value > 0 }))
         }
     }
-    override fun getLoss(): Flow<List<Movimentation>> = flow {
+
+    override fun getLoss(): Flow<List<MovimentationInfo>> = flow {
         finnanceRepository.getMovimentations().collect {
-            emit(it.filter { movimentation -> movimentation.value < 0 })
+            emit(movimentationMapper.mapMovimentations(it.filter { movimentation -> movimentation.value < 0 }))
         }
     }
 

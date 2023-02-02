@@ -7,6 +7,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.tooling.preview.Preview
@@ -19,12 +20,11 @@ import com.airbnb.lottie.compose.*
 import com.ilustris.alicia.R
 import com.ilustris.alicia.features.home.presentation.HomeAction
 import com.ilustris.alicia.features.home.presentation.HomeViewModel
-import com.ilustris.alicia.features.messages.data.model.Type
-import com.ilustris.alicia.features.messages.ui.MessagesList
 import com.ilustris.alicia.features.home.ui.components.SheetInput
 import com.ilustris.alicia.features.home.ui.components.TopBar
 import com.ilustris.alicia.features.messages.domain.model.Action
 import com.ilustris.alicia.features.messages.ui.MessageSuggestionsList
+import com.ilustris.alicia.features.messages.ui.MessagesList
 import com.ilustris.alicia.ui.theme.AliciaTheme
 import com.ilustris.alicia.ui.theme.toolbarColor
 import kotlinx.coroutines.launch
@@ -36,7 +36,7 @@ fun HomeUI(title: String) {
 
     val viewModel: HomeViewModel = hiltViewModel()
     val messages = viewModel.messages.collectAsState(initial = emptyList())
-    val suggestionsList = viewModel.suggestions.collectAsState(initial = emptyList())
+    val suggestionsList = viewModel.suggestions.observeAsState(initial = ArrayList())
     val profitList = viewModel.profit.collectAsState(initial = emptyList())
     val lossList = viewModel.loss.collectAsState(initial = emptyList())
     val amount = viewModel.amount.collectAsState(initial = 0.00)
@@ -68,14 +68,15 @@ fun HomeUI(title: String) {
 
     ModalBottomSheetLayout(
         sheetState = bottomSheetState,
-        sheetShape = RoundedCornerShape(10.dp),
+        sheetShape = RoundedCornerShape(15.dp),
+
         sheetContent = {
             SheetInput(
                 title = sheetTitle,
                 action = sheetAction,
                 placeHolder = sheetPlaceHolder,
                 focusRequester = focusRequester,
-                onConfirmClick = { description, value, action ->
+                onConfirmClick = { description, value, tag, action ->
                     scope.launch {
                         bottomSheetState.hide()
                         focusRequester.freeFocus()
@@ -85,19 +86,22 @@ fun HomeUI(title: String) {
                         Action.PROFIT -> viewModel.launchAction(
                             HomeAction.SaveProfit(
                                 description,
-                                value
+                                value,
+                                tag
                             )
                         )
                         Action.LOSS -> viewModel.launchAction(
                             HomeAction.SaveLoss(
                                 description,
-                                value
+                                value,
+                                tag
                             )
                         )
                         Action.GOAL -> viewModel.launchAction(
                             HomeAction.SaveGoal(
                                 description,
-                                value
+                                value,
+                                tag
                             )
                         )
                         Action.HISTORY, Action.BALANCE, Action.LOSS_HISTORY, Action.PROFIT_HISTORY, Action.GOAL_HISTORY -> viewModel.launchAction(
@@ -125,10 +129,10 @@ fun HomeUI(title: String) {
             )
 
             TopBar(title = title, icon = R.drawable.pretty_girl, onClickNavigation = {},
+                isTyping = viewModel.aliciaTyping.value ?: false,
                 modifier = Modifier
                     .fillMaxWidth()
                     .constrainAs(toolbar) { top.linkTo(parent.top) }
-                    .background(color = toolbarColor(isSystemInDarkTheme()))
             )
 
 
@@ -150,20 +154,21 @@ fun HomeUI(title: String) {
 
 
 
-            MessagesList(modifier = Modifier
-                .constrainAs(messageList) {
-                    bottom.linkTo(suggestions.top)
-                    top.linkTo(toolbar.bottom)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                    width = Dimension.fillToConstraints
-                    height = Dimension.fillToConstraints
-                }
-                .padding(horizontal = 16.dp, vertical = 8.dp),
+            MessagesList(
+                modifier = Modifier
+                    .constrainAs(messageList) {
+                        bottom.linkTo(suggestions.top)
+                        top.linkTo(toolbar.bottom)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                        width = Dimension.fillToConstraints
+                        height = Dimension.fillToConstraints
+                    },
                 messages,
                 profitList.value,
                 lossList.value,
-                amount.value)
+                amount.value
+            )
 
 
             Divider(modifier = Modifier.constrainAs(divider) {
@@ -182,32 +187,30 @@ fun HomeUI(title: String) {
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
                         width = Dimension.matchParent
-                        height = Dimension.preferredWrapContent
-                    }
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                suggestions = suggestionsList,
-                onSelectSuggestion = { suggestion, value ->
-                    scope.launch {
-                        when (suggestion.action) {
-                            Action.NAME -> {
-                                value?.let {
-                                    viewModel.launchAction(HomeAction.SaveUser(value))
-                                }
-                            }
-                            Action.BALANCE, Action.HISTORY, Action.PROFIT_HISTORY, Action.LOSS_HISTORY -> viewModel.launchAction(
-                                HomeAction.GetHistory
-                            )
-                            else -> {
-                                sheetTitle = suggestion.name
-                                sheetAction = suggestion.action
-                                sheetPlaceHolder = getPlaceHolderMessage(suggestion.action)
-                                bottomSheetState.show()
+                        height = Dimension.wrapContent
+                    },
+                suggestions = suggestionsList
+            ) { suggestion, value ->
+                scope.launch {
+                    when (suggestion.action) {
+                        Action.NAME -> {
+                            value?.let {
+                                viewModel.launchAction(HomeAction.SaveUser(value))
                             }
                         }
-
+                        Action.BALANCE, Action.HISTORY, Action.PROFIT_HISTORY, Action.LOSS_HISTORY -> viewModel.launchAction(
+                            HomeAction.GetHistory
+                        )
+                        else -> {
+                            sheetTitle = suggestion.name
+                            sheetAction = suggestion.action
+                            sheetPlaceHolder = getPlaceHolderMessage(suggestion.action)
+                            bottomSheetState.show()
+                        }
                     }
+
                 }
-            )
+            }
 
         }
     }

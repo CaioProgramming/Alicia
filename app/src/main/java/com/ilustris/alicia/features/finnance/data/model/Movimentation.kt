@@ -2,7 +2,6 @@ package com.ilustris.alicia.features.finnance.data.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import java.math.BigDecimal
 
 @Entity
 data class Movimentation(
@@ -10,10 +9,8 @@ data class Movimentation(
     val id: Int = 0,
     val value: Double,
     val description: String,
-    val type: MovimentationType = MovimentationType.UNKNOWN
+    val tag: Tag = Tag.UNKNOWN,
+    val spendAt: Long
 )
 
 
-enum class MovimentationType {
-    FOOD, CLOTHING, TECH, TRIP, UNKNOWN
-}

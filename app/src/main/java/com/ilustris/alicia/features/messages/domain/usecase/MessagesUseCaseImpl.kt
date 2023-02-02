@@ -1,7 +1,6 @@
 package com.ilustris.alicia.features.messages.domain.usecase
 
 import android.icu.util.Calendar
-import com.ilustris.alicia.features.finnance.data.model.Movimentation
 import com.ilustris.alicia.features.messages.data.model.Message
 import com.ilustris.alicia.features.messages.data.model.Type
 import com.ilustris.alicia.features.messages.domain.mapper.MessageMapper
@@ -13,7 +12,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
-class MessagesUseCaseImpl @Inject constructor(private val repository: MessageRepository, private val messageMapper: MessageMapper) :
+class MessagesUseCaseImpl @Inject constructor(
+    private val repository: MessageRepository,
+    private val messageMapper: MessageMapper
+) :
     MessagesUseCase {
 
     override suspend fun saveMessage(message: Message) {
@@ -27,6 +29,13 @@ class MessagesUseCaseImpl @Inject constructor(private val repository: MessageRep
             val mappedMessages = mapMessages(it)
             emit(mappedMessages)
         }
+    }
+
+    override suspend fun getLastMessage(): MessageInfo? {
+        repository.getLastMessage()?.let {
+            return messageMapper.mapMessageToInfo(it)
+        }
+        return null
     }
 
 
@@ -48,7 +57,7 @@ class MessagesUseCaseImpl @Inject constructor(private val repository: MessageRep
                 message = calendar.time.format(DateFormats.DD_OF_MM),
                 type = Type.HEADER
             )
-           val messagesInfo = messages.map { messageMapper.mapMessageToInfo(it) }
+            val messagesInfo = messages.map { messageMapper.mapMessageToInfo(it) }
             messagesGrouped.addAll(messagesInfo)
             messagesGrouped.add(messagesGrouped.size, messageMapper.mapMessageToInfo(dayMessage))
         }

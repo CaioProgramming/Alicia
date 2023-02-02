@@ -11,9 +11,12 @@ import kotlinx.coroutines.flow.Flow
 interface MessageDao {
 
     @Insert
-    suspend fun saveMessage(message: Message) : Long
+    suspend fun saveMessage(message: Message): Long
 
     @Query("SELECT * FROM MESSAGE ORDER BY sentTime DESC")
-    fun getMessages() : Flow<List<Message>>
+    fun getMessages(): Flow<List<Message>>
+
+    @Query("SELECT * FROM MESSAGE ORDER BY sentTime DESC LIMIT 1")
+    fun getLastMessage(): List<Message>
 
 }

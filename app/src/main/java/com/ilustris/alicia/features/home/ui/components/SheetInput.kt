@@ -1,13 +1,19 @@
 package com.ilustris.alicia.features.home.ui.components
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -24,40 +30,53 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.ilustris.alicia.features.finnance.data.model.Tag
 import com.ilustris.alicia.features.messages.domain.model.Action
 import com.ilustris.alicia.ui.theme.toolbarColor
 import com.ilustris.alicia.utils.CurrencyInputTransformation
 
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
+@OptIn(
+    ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class,
+    ExperimentalMaterialApi::class
+)
 @Composable
 fun SheetInput(
     action: Action,
     placeHolder: String,
     title: String,
     focusRequester: FocusRequester,
-    onConfirmClick: (String, String, Action) -> Unit
+    onConfirmClick: (String, String, Tag, Action) -> Unit
 ) {
+    var spendValue by remember {
+        mutableStateOf("")
+    }
 
+    var description by remember {
+        mutableStateOf("")
+    }
+
+    var tag by remember {
+        mutableStateOf(Tag.UNKNOWN)
+    }
+
+    var categoryVisible by remember {
+        mutableStateOf(false)
+    }
+
+    val scope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier
             .background(color = toolbarColor(isSystemInDarkTheme()))
             .padding(16.dp)
+            .fillMaxWidth()
+            .wrapContentHeight()
     ) {
-        var spendValue by remember {
-            mutableStateOf("")
-        }
-
-        var description by remember {
-            mutableStateOf("")
-        }
-
 
 
         val keyboardController = LocalSoftwareKeyboardController.current
         val focusManager = LocalFocusManager.current
-
 
         TextField(
             value = description,
@@ -101,12 +120,10 @@ fun SheetInput(
             ),
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.Transparent).focusRequester(focusRequester)
+                .background(Color.Transparent)
+                .focusRequester(focusRequester)
         )
 
-       /* LaunchedEffect(Unit) {
-            focusRequester.requestFocus()
-        } */
 
         TextField(
             value = spendValue,
@@ -126,12 +143,8 @@ fun SheetInput(
             ),
             keyboardActions = KeyboardActions(
                 onDone = {
-                    val movimentationValue = spendValue
-                    val movimentationDescription = description
-                    onConfirmClick(movimentationDescription, movimentationValue,action)
-                    spendValue = ""
-                    description = ""
                     keyboardController?.hide()
+                    categoryVisible = !categoryVisible
                 }
 
             ),
@@ -171,17 +184,53 @@ fun SheetInput(
 
         Button(
             modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.Transparent,
+                contentColor = MaterialTheme.colorScheme.onBackground
+            ),
+
+            onClick = {
+                categoryVisible = !categoryVisible
+            }) {
+            Text(text = tag.emoji)
+            Text(text = tag.description)
+        }
+
+        AnimatedVisibility(
+            visible = categoryVisible,
+            enter = expandVertically(tween(500)),
+            exit = shrinkVertically(tween(500))
+        ) {
+            EmojiSheet(onSelectTag = {
+                tag = it
+                categoryVisible = false
+            })
+        }
+
+
+        Button(
+            modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(5.dp),
             enabled = description.isNotEmpty() && spendValue.isNotEmpty(),
             onClick = {
+                val movimentationDescription = description
+                val movimentationValue = spendValue
+                val movimentationTag = tag
                 spendValue = ""
                 description = ""
+                tag = Tag.UNKNOWN
                 keyboardController?.hide()
-                onConfirmClick(description, spendValue, action)
+                onConfirmClick(
+                    movimentationDescription,
+                    movimentationValue,
+                    movimentationTag,
+                    action
+                )
             }) {
             Text(text = "Confirmar", modifier = Modifier.padding(8.dp))
         }
     }
+
 }
 
 fun getKeyboardType(action: Action): KeyboardType {
@@ -197,11 +246,11 @@ fun getKeyboardType(action: Action): KeyboardType {
 fun SheetPreview() {
     val focusRequester = remember { FocusRequester() }
 
-   return SheetInput(
+    return SheetInput(
         action = Action.NAME,
         placeHolder = "0,00",
         title = "Nome da despesa",
         focusRequester = focusRequester,
-        onConfirmClick = { description, message, action ->
+        onConfirmClick = { description, message, tag, action ->
         })
 }
