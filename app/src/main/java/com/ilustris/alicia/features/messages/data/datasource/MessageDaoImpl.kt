@@ -14,6 +14,7 @@ class MessageDaoImpl @Inject constructor (private val databaseBuilder: DatabaseB
 
 
     override fun getMessages(): Flow<List<Message>> = database.messageDao().getMessages()
+    override fun getLastMessage(): List<Message> = database.messageDao().getLastMessage()
 
 
 }

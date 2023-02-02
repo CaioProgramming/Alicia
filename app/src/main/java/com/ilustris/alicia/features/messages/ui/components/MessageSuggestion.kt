@@ -12,12 +12,10 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.vectorResource
@@ -29,14 +27,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ilustris.alicia.R
-import com.ilustris.alicia.features.messages.data.datasource.MessagePresets
 import com.ilustris.alicia.features.messages.data.datasource.SuggestionsPresets
-import com.ilustris.alicia.features.messages.data.model.Type
 import com.ilustris.alicia.features.messages.domain.model.Action
 import com.ilustris.alicia.features.messages.domain.model.Suggestion
 import com.ilustris.alicia.ui.theme.AliciaTheme
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun MessageSuggestion(
     suggestion: Suggestion,
@@ -50,28 +45,24 @@ fun MessageSuggestion(
             onSelectSuggestion = onSelectSuggestion
         )
         else -> {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.padding(8.dp)
-            ) {
-                FilledIconButton(
-                    onClick = { onSelectSuggestion(suggestion, null) },
-                    colors = IconButtonDefaults.filledIconButtonColors(
-                        containerColor = getSuggestionButtonColor(suggestion.action)
-                    )
-                ) {
-                    Image(
-                        imageVector = ImageVector.vectorResource(id = getSuggestionIcon(suggestion.action)),
-                        contentDescription = "enviar",
-                    )
-                }
+            Button(
+                modifier = Modifier
+                    .padding(8.dp)
+                    .border(
+                        1.dp,
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
+                        shape = RoundedCornerShape(25.dp)
+                    ),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent
+                ),
+                onClick = { onSelectSuggestion(suggestion, null) }) {
                 Text(
                     text = suggestion.name,
-                    style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.colorScheme.onBackground),
+                    style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onBackground),
                     textAlign = TextAlign.Center
                 )
             }
-
         }
     }
 }
@@ -128,7 +119,7 @@ fun inputSuggestion(suggestion: Suggestion, onSelectSuggestion: (Suggestion, Str
             Text(
                 style = MaterialTheme.typography.bodyMedium,
                 text = suggestion.name,
-                color = Color.Gray.copy(alpha = 0.5f),
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
                 modifier = Modifier.fillMaxWidth()
             )
         },
@@ -159,8 +150,13 @@ fun inputSuggestion(suggestion: Suggestion, onSelectSuggestion: (Suggestion, Str
         },
         modifier = Modifier
             .fillMaxWidth()
+            .padding(8.dp)
             .wrapContentHeight()
-            .border(1.dp, MaterialColor.Gray200, shape = RoundedCornerShape(25.dp))
+            .border(
+                1.dp,
+                MaterialTheme.colorScheme.onBackground.copy(0.5f),
+                shape = RoundedCornerShape(25.dp)
+            )
 
     )
 }
@@ -168,10 +164,10 @@ fun inputSuggestion(suggestion: Suggestion, onSelectSuggestion: (Suggestion, Str
 @Preview(showBackground = true)
 @Composable
 fun suggestionPreview() {
-    return AliciaTheme() {
+    return AliciaTheme {
         Column(modifier = Modifier.padding(16.dp)) {
             MessageSuggestion(
-                SuggestionsPresets.commonSuggestions().first(),
+                SuggestionsPresets.commonSuggestions.first(),
                 onSelectSuggestion = { suggestion, value ->
                 })
             MessageSuggestion(

@@ -11,5 +11,6 @@ class MessageRepositoryImpl @Inject constructor(private val messageDao: MessageD
     override suspend fun saveMessage(message: Message): Long = messageDao.saveMessage(message)
 
     override fun getMessages(): Flow<List<Message>> = messageDao.getMessages()
+    override suspend fun getLastMessage(): Message? = messageDao.getLastMessage().lastOrNull()
 
 }

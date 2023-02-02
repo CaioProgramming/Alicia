@@ -12,7 +12,7 @@ interface MovimentationDao {
     @Insert
     suspend fun saveMovimentation(movimentation: Movimentation) : Long
 
-    @Query("Select * from Movimentation")
+    @Query("Select * from Movimentation ORDER BY spendAt DESC")
     fun getMovimentations() : Flow<List<Movimentation>>
 
 }

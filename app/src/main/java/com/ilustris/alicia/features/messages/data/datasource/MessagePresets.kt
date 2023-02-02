@@ -1,8 +1,7 @@
 package com.ilustris.alicia.features.messages.data.datasource
 
-import com.ilustris.alicia.features.messages.data.model.Type
 import com.ilustris.alicia.features.messages.data.model.Message
-import com.ilustris.alicia.features.messages.domain.model.Suggestion
+import com.ilustris.alicia.features.messages.data.model.Type
 
 object MessagePresets {
 
@@ -41,8 +40,8 @@ object MessagePresets {
 
     private val profitMessages = listOf(
         "Ai simm hein!! Com isso você tem guardado $PROFIT_PLACEHOLDER.",
-        "Boooa! Agora já são $PROFIT_PLACEHOLDER na conta!",
-        "Bom trabalho de pouquinho em poquinho vamos chegando nas nossas metas, com mais esse dinheirinho vc já tem guardado $PROFIT_PLACEHOLDER.",
+        "Boooa! Mais $PROFIT_PLACEHOLDER na conta!",
+        "Bom trabalho de pouquinho em poquinho vamos chegando nas nossas metas, com mais esse dinheirinho vc já tem guardou mais $PROFIT_PLACEHOLDER.",
         "Gostei de ver!! Esse valor vai ajudar muito no futuro você vai ver, agora já tem $PROFIT_PLACEHOLDER!"
     )
 
@@ -51,9 +50,9 @@ object MessagePresets {
 
     private val lossMessages = listOf(
         "Puuts! Fazer oque né as vezes temos que gastar uns trocados mesmo, agora na conta tem $PROFIT_PLACEHOLDER.",
-        "Parece que foi dia de maldade mesmo né, fica esperto como o valor que temos guardado $PROFIT_PLACEHOLDER.",
-        "É por isso que dizem que tem os dias de luta e os dias de glória né, hoje a luta foi no seu bolso hahaha :P, se liga hein esse é quanto temos agora $PROFIT_PLACEHOLDER." ,
-        "A vida do trabalhador não é fácil mesmo! Ainda bem que eu sou só um aplicativo, agora temos $PROFIT_PLACEHOLDER na conta."
+        "Ok anotado seu gasto de $PROFIT_PLACEHOLDER.",
+        "É por isso que dizem que tem os dias de luta e os dias de glória né, hoje a luta foi no seu bolso hahaha acabou gastando $PROFIT_PLACEHOLDER.",
+        "A vida do trabalhador não é fácil mesmo! Ainda bem que eu sou só um aplicativo, vc acabou de perder $PROFIT_PLACEHOLDER na conta."
     )
 
     fun getLossMessage(value: String) = lossMessages.random().replace(PROFIT_PLACEHOLDER, value)
