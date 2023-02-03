@@ -8,17 +8,16 @@ import androidx.lifecycle.viewModelScope
 import com.ilustris.alicia.features.finnance.data.model.Tag
 import com.ilustris.alicia.features.finnance.domain.usecase.FinnanceUseCase
 import com.ilustris.alicia.features.messages.data.datasource.MessagePresets
-import com.ilustris.alicia.features.messages.data.datasource.SuggestionsPresets
 import com.ilustris.alicia.features.messages.data.model.Message
 import com.ilustris.alicia.features.messages.data.model.Type
 import com.ilustris.alicia.features.messages.domain.model.MessageInfo
-import com.ilustris.alicia.features.messages.domain.model.Suggestion
 import com.ilustris.alicia.features.messages.domain.usecase.MessagesUseCase
 import com.ilustris.alicia.features.user.domain.usecase.UserUseCase
 import com.ilustris.alicia.utils.formatToCurrencyText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.lastOrNull
 import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
@@ -35,9 +34,8 @@ class HomeViewModel @Inject constructor(
     val profit = finnanceUseCase.getProfit()
     val loss = finnanceUseCase.getLoss()
     val amount = finnanceUseCase.getAmount()
-    val aliciaTyping = MutableLiveData<Boolean>()
+    val showInput: MutableLiveData<Boolean> = MutableLiveData()
 
-    val suggestions: MutableLiveData<ArrayList<Suggestion>> = MutableLiveData()
 
     init {
         getUser()
@@ -50,8 +48,6 @@ class HomeViewModel @Inject constructor(
             updateMessages(Message("Oi Alicia pode me chamar de $name :)", Type.USER))
             updateMessages(MessagePresets.getGreeting(name))
             updateMessages(MessagePresets.introductionMessages)
-            updateSuggestionsForDefaultActions()
-
         }
     }
 
@@ -76,7 +72,7 @@ class HomeViewModel @Inject constructor(
                 homeAction.description,
                 homeAction.value,
                 homeAction.tag,
-                Type.GAIN
+                Type.PROFIT
             )
             HomeAction.GetHistory -> getHistory()
         }
@@ -84,27 +80,35 @@ class HomeViewModel @Inject constructor(
 
     private fun getHistory() {
         updateMessages(Message("Quero ver meu histórico de transações", Type.USER))
-        updateMessages(
-            listOf(
-                Message("É pra já! vou pegar essas informações para você, 1 minutinho por favor."),
-                Message("Da uma olhada no seu saldo", Type.AMOUNT),
-                Message(
-                    "Vamos falar de gastos? Aqui estão todo seus gastos desde que começou a usar o app",
-                    type = Type.LOSS_HISTORY
-                ),
-                Message(
-                    "Seus rendimentos foram bem legais, da uma olhada.",
-                    type = Type.PROFIT_HISTORY
+        viewModelScope.launch(Dispatchers.IO) {
+            val currentAmount = amount.lastOrNull()
+            if (currentAmount == 0.0 || currentAmount == null) {
+                updateMessages(Message("Bom você ainda não salvou nenhuma movimentação, não posso te ajudar nessa."))
+            } else {
+                updateMessages(
+                    listOf(
+                        Message("É pra já! vou pegar essas informações para você, 1 minutinho por favor."),
+                        Message("Da uma olhada no seu saldo", Type.AMOUNT),
+                        Message(
+                            "Vamos falar de gastos? Aqui estão todo seus gastos desde que começou a usar o app",
+                            type = Type.LOSS_HISTORY
+                        ),
+                        Message(
+                            "Seus rendimentos foram bem legais, da uma olhada.",
+                            type = Type.PROFIT_HISTORY
+                        )
+                    )
                 )
-            )
-        ) {
-            updateSuggestionsForDefaultActions()
+            }
+
         }
+
 
     }
 
     private fun saveGoal(description: String, value: String, tag: Tag) {
         viewModelScope.launch(Dispatchers.IO) {
+
         }
     }
 
@@ -118,8 +122,7 @@ class HomeViewModel @Inject constructor(
                     type = Type.USER
                 )
             )
-            updateMessages(Message(MessagePresets.getLossMessage(savedValue)))
-            updateSuggestionsForDefaultActions()
+            updateMessages(MessagePresets.getLossMessage(savedValue, tag))
         }
     }
 
@@ -128,8 +131,7 @@ class HomeViewModel @Inject constructor(
             val savedValue = (value.toDouble() / 100).formatToCurrencyText()
             finnanceUseCase.saveMovimentation(description, value, tag, type)
             updateMessages(Message("Consegui $savedValue com $description!", Type.USER))
-            updateMessages(Message(MessagePresets.getProfitMessage(savedValue)))
-            updateSuggestionsForDefaultActions()
+            updateMessages(MessagePresets.getProfitMessage(savedValue, tag))
         }
     }
 
@@ -176,24 +178,16 @@ class HomeViewModel @Inject constructor(
                 if (shouldSendNewMessage(lastMessage)) {
                     updateMessages(MessagePresets.getGreeting(user.name))
                 }
-                updateSuggestionsForDefaultActions()
             }
         }
     }
 
     private fun updateSuggestionsForNewUser() {
-        suggestions.postValue(ArrayList(SuggestionsPresets.newUserSuggestions))
-    }
-
-    private fun updateSuggestionsForDefaultActions() {
-        suggestions.postValue(ArrayList(SuggestionsPresets.commonSuggestions))
-
+        showInput.postValue(true)
     }
 
     private fun hideActions() {
-        viewModelScope.launch(Dispatchers.IO) {
-            suggestions.postValue(ArrayList())
-        }
+        showInput.postValue(false)
     }
 
 }

@@ -1,20 +1,38 @@
+@file:OptIn(ExperimentalMaterialApi::class)
+
 package com.ilustris.alicia.features.home.ui
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
-import androidx.constraintlayout.compose.Visibility
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.airbnb.lottie.compose.*
 import com.ilustris.alicia.R
@@ -23,20 +41,19 @@ import com.ilustris.alicia.features.home.presentation.HomeViewModel
 import com.ilustris.alicia.features.home.ui.components.SheetInput
 import com.ilustris.alicia.features.home.ui.components.TopBar
 import com.ilustris.alicia.features.messages.domain.model.Action
-import com.ilustris.alicia.features.messages.ui.MessageSuggestionsList
 import com.ilustris.alicia.features.messages.ui.MessagesList
 import com.ilustris.alicia.ui.theme.AliciaTheme
 import com.ilustris.alicia.ui.theme.toolbarColor
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterialApi::class)
+@ExperimentalComposeUiApi
 @Composable
 fun HomeUI(title: String) {
 
 
     val viewModel: HomeViewModel = hiltViewModel()
     val messages = viewModel.messages.collectAsState(initial = emptyList())
-    val suggestionsList = viewModel.suggestions.observeAsState(initial = ArrayList())
+    val showInput = viewModel.showInput.observeAsState(initial = false)
     val profitList = viewModel.profit.collectAsState(initial = emptyList())
     val lossList = viewModel.loss.collectAsState(initial = emptyList())
     val amount = viewModel.amount.collectAsState(initial = 0.00)
@@ -52,6 +69,8 @@ fun HomeUI(title: String) {
         mutableStateOf(Action.NAME)
     }
 
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     val bottomSheetState =
         rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
 
@@ -64,7 +83,6 @@ fun HomeUI(title: String) {
             focusRequester.requestFocus()
         }
     }
-
 
     ModalBottomSheetLayout(
         sheetState = bottomSheetState,
@@ -129,7 +147,6 @@ fun HomeUI(title: String) {
             )
 
             TopBar(title = title, icon = R.drawable.pretty_girl, onClickNavigation = {},
-                isTyping = viewModel.aliciaTyping.value ?: false,
                 modifier = Modifier
                     .fillMaxWidth()
                     .constrainAs(toolbar) { top.linkTo(parent.top) }
@@ -168,28 +185,6 @@ fun HomeUI(title: String) {
                 profitList.value,
                 lossList.value,
                 amount.value
-            )
-
-
-            Divider(modifier = Modifier.constrainAs(divider) {
-                bottom.linkTo(suggestions.top)
-                start.linkTo(parent.start)
-                end.linkTo(parent.end)
-                width = Dimension.matchParent
-                height = Dimension.value(2.dp)
-                visibility = Visibility.Gone
-            }, color = MaterialTheme.colorScheme.surface.copy(alpha = 0.4f))
-
-            MessageSuggestionsList(
-                modifier = Modifier
-                    .constrainAs(suggestions) {
-                        bottom.linkTo(parent.bottom)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                        width = Dimension.matchParent
-                        height = Dimension.wrapContent
-                    },
-                suggestions = suggestionsList
             ) { suggestion, value ->
                 scope.launch {
                     when (suggestion.action) {
@@ -202,7 +197,7 @@ fun HomeUI(title: String) {
                             HomeAction.GetHistory
                         )
                         else -> {
-                            sheetTitle = suggestion.name
+                            sheetTitle = suggestion.action.description
                             sheetAction = suggestion.action
                             sheetPlaceHolder = getPlaceHolderMessage(suggestion.action)
                             bottomSheetState.show()
@@ -212,10 +207,86 @@ fun HomeUI(title: String) {
                 }
             }
 
+
+            chatInput(modifier = Modifier
+                .constrainAs(suggestions) {
+                    bottom.linkTo(parent.bottom)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                    width = Dimension.matchParent
+                    height = if (showInput.value) Dimension.wrapContent else Dimension.value(0.dp)
+                }, onDone = {
+                keyboardController?.hide()
+                viewModel.launchAction(HomeAction.SaveUser(it))
+            })
         }
     }
 
 
+}
+
+@Composable
+fun chatInput(modifier: Modifier, onDone: (String) -> Unit) {
+    var message by remember {
+        mutableStateOf("")
+    }
+
+    TextField(
+        value = message,
+        onValueChange = { message = it },
+        textStyle = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.W400),
+        placeholder = {
+            androidx.compose.material3.Text(
+                style = MaterialTheme.typography.bodyMedium,
+                text = Action.NAME.description,
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Text,
+            imeAction = ImeAction.Done,
+            capitalization = KeyboardCapitalization.Words,
+            autoCorrect = false,
+        ),
+        keyboardActions = KeyboardActions(onDone = {
+            onDone(message)
+            message = ""
+        }),
+        trailingIcon = {
+            IconButton(
+                onClick = {
+                    onDone(message)
+                    message = ""
+                },
+            ) {
+                Image(
+                    imageVector = ImageVector.vectorResource(id = R.drawable.ic_round_send_24),
+                    colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.primary),
+                    contentDescription = "enviar",
+                )
+            }
+        },
+        colors = TextFieldDefaults.textFieldColors(
+            textColor = MaterialTheme.colorScheme.onBackground,
+            unfocusedIndicatorColor = Color.Transparent,
+            focusedIndicatorColor = Color.Transparent,
+            backgroundColor = Color.Transparent,
+            disabledTextColor = Color.Transparent,
+            focusedLabelColor = MaterialTheme.colorScheme.onBackground
+        ),
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+            .wrapContentHeight()
+            .border(
+                1.dp,
+                MaterialTheme.colorScheme.onBackground.copy(0.5f),
+                shape = RoundedCornerShape(25.dp)
+            )
+
+    )
 }
 
 fun getPlaceHolderMessage(action: Action): String {
@@ -229,6 +300,7 @@ fun getPlaceHolderMessage(action: Action): String {
 
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {

@@ -13,12 +13,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ilustris.alicia.features.finnance.data.model.Movimentation
 import com.ilustris.alicia.features.finnance.domain.data.MovimentationInfo
 import com.ilustris.alicia.features.finnance.ui.CardStatement
 import com.ilustris.alicia.features.messages.data.model.Message
 import com.ilustris.alicia.features.messages.data.model.Type
 import com.ilustris.alicia.features.messages.domain.model.MessageInfo
+import com.ilustris.alicia.features.messages.domain.model.Suggestion
+import com.ilustris.alicia.features.messages.ui.MessageSuggestionsList
 import com.ilustris.alicia.ui.theme.AliciaTheme
 import com.ilustris.alicia.utils.DateFormats
 import com.ilustris.alicia.utils.format
@@ -30,12 +31,12 @@ fun MessageBubble(
     messageData: MessageInfo,
     movimentations: List<MovimentationInfo> = emptyList(),
     modifier: Modifier,
-    amount: Double = 0.0
+    amount: Double = 0.0,
+    onSelectSuggestion: (Suggestion, String?) -> Unit
 ) {
 
     val date = Calendar.getInstance()
     val message = messageData.message
-
     date.timeInMillis = message.sentTime
     val isUserMessage = message.type == Type.USER
     val shape = getCardShape(isUserMessage)
@@ -45,6 +46,7 @@ fun MessageBubble(
         if (isUserMessage) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondaryContainer
     val horizontalAlignment = if (isUserMessage) Alignment.End else Alignment.Start
     val showDate = remember { mutableStateOf(false) }
+
 
     if (message.type == Type.HEADER) {
         Text(
@@ -87,7 +89,13 @@ fun MessageBubble(
                     ), modifier = Modifier.padding(horizontal = 16.dp)
                 )
             }
-
+            if (messageData.attachedSuggestions.isNotEmpty()) {
+                MessageSuggestionsList(
+                    modifier = Modifier.wrapContentSize(),
+                    suggestions = messageData.attachedSuggestions,
+                    onSelectSuggestion = onSelectSuggestion
+                )
+            }
             if (messageData.observeMovimentations) {
                 when (message.type) {
                     Type.AMOUNT -> AmountComponent(amount = amount)
@@ -103,6 +111,7 @@ fun MessageBubble(
                             )
                         }
                     }
+                    else -> {}
                 }
             }
         }
@@ -130,7 +139,8 @@ fun DefaultPreview() {
                         type = Type.HEADER,
                         sentTime = 1674477903527
                     )
-                )
+                ),
+                onSelectSuggestion = { suggestion, s -> }
             )
 
             MessageBubble(
@@ -141,7 +151,8 @@ fun DefaultPreview() {
                         type = Type.USER,
                         sentTime = 1674477903527
                     )
-                )
+                ),
+                onSelectSuggestion = { suggestion, s -> }
             )
             MessageBubble(
                 modifier = Modifier.fillMaxWidth(),
@@ -151,7 +162,8 @@ fun DefaultPreview() {
                         type = Type.NONE,
                         sentTime = 1674477903527
                     )
-                )
+                ),
+                onSelectSuggestion = { suggestion, s -> }
             )
 
             MessageBubble(
@@ -162,39 +174,35 @@ fun DefaultPreview() {
                         type = Type.NAME,
                         sentTime = 1674477903527
                     )
-                )
+                ),
+                onSelectSuggestion = { suggestion, s -> }
             )
             MessageBubble(
                 modifier = Modifier.fillMaxWidth(),
                 messageData = MessageInfo(
                     Message(
                         "Fala ai, quanto vc ganhou hoje?",
-                        type = Type.GAIN,
+                        type = Type.PROFIT,
                         sentTime = 1674477903527
                     )
-                )
+                ),
+                onSelectSuggestion = { suggestion, s -> }
             )
             MessageBubble(
                 messageData = MessageInfo(
                     Message("Seu saldo é de ", type = Type.AMOUNT),
                     observeMovimentations = true
                 ),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                onSelectSuggestion = { suggestion, s -> }
             )
             MessageBubble(
                 amount = 400.0,
                 modifier = Modifier.fillMaxWidth(),
                 messageData = MessageInfo(
                     Message("Aqui estão seus gastos!", type = Type.PROFIT_HISTORY),
-                    listOf(
-                        Movimentation(
-                            description = "Nike Air",
-                            value = 500.00,
-                            spendAt = Random().nextLong()
-                        )
-                    ),
-                    true,
                 ),
+                onSelectSuggestion = { suggestion, s -> }
             )
         }
     }

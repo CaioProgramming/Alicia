@@ -37,12 +37,11 @@ fun TopBar(
     modifier: Modifier = Modifier,
     title: String,
     @DrawableRes icon: Int,
-    isTyping: Boolean = false,
     onClickNavigation: () -> Unit
 ) {
     ConstraintLayout(
         modifier
-            .padding(vertical = 8.dp)
+            .padding(vertical = 4.dp)
             .background(toolbarColor(isSystemInDarkTheme()))
     ) {
         val (profile, moreButton, divider) = createRefs()
@@ -76,7 +75,7 @@ fun TopBar(
                 contentDescription = "",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
-                    .size(70.dp, 70.dp)
+                    .size(60.dp)
                     .clip(CircleShape)
                     .drawBehind {
                         rotate(rotationAnimation.value) {
@@ -92,7 +91,7 @@ fun TopBar(
                     .typography
                     .bodySmall
                     .copy(color = MaterialTheme.colorScheme.onBackground),
-                modifier = Modifier.padding(8.dp)
+                modifier = Modifier.padding(vertical = 4.dp)
             )
 
 
