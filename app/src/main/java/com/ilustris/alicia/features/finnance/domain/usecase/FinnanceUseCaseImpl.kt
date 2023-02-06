@@ -25,7 +25,7 @@ class FinnanceUseCaseImpl @Inject constructor(
         type: Type
     ): Long {
         val doubleValue = value.toDouble() / 100
-        val decimalValue = if (type == Type.GAIN) doubleValue else doubleValue.unaryMinus()
+        val decimalValue = if (type == Type.PROFIT) doubleValue else doubleValue.unaryMinus()
         val movimentation = Movimentation(
             value = decimalValue,
             description = description,
@@ -33,6 +33,17 @@ class FinnanceUseCaseImpl @Inject constructor(
             spendAt = Calendar.getInstance().timeInMillis
         )
         return finnanceRepository.saveMovimentation(movimentation)
+    }
+
+    override suspend fun saveGoal(description: String, value: String, tag: Tag): Long {
+        val doubleValue = value.toDouble() / 100
+        val goal = Goal(
+            description = description,
+            value = doubleValue,
+            tag = tag,
+            createdAt = Calendar.getInstance().timeInMillis
+        )
+        return finnanceRepository.saveGoals(goal)
     }
 
     override fun getProfit(): Flow<List<MovimentationInfo>> = flow {
@@ -55,8 +66,6 @@ class FinnanceUseCaseImpl @Inject constructor(
 
     override fun getAllMovimentations(): Flow<List<Movimentation>> = finnanceRepository.getMovimentations()
 
-    override fun getGoals(): Flow<List<Goal>> {
-        TODO("Not yet implemented")
-    }
+    override fun getGoals(): Flow<List<Goal>> = finnanceRepository.getGoals()
 
 }

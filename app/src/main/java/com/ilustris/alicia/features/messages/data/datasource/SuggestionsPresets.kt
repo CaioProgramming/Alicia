@@ -15,13 +15,13 @@ object SuggestionsPresets {
         "Quero comprar uma coisa"
     )
 
-    val newUserSuggestions = listOf(Suggestion("Você pode me chamar de ", Action.NAME))
+    val newUserSuggestions = listOf(Suggestion(Action.NAME))
 
-   val commonSuggestions = listOf(
-       Suggestion("Novo ganho", Action.PROFIT),
-       Suggestion("Novo gasto", Action.LOSS),
-       Suggestion("Nova meta", Action.GOAL),
-       Suggestion("Ver histórico", Action.HISTORY)
-   )
+    val commonSuggestions = listOf(
+        Suggestion(Action.PROFIT),
+        Suggestion(Action.LOSS),
+        Suggestion(Action.GOAL),
+        Suggestion(Action.HISTORY)
+    )
 
 }

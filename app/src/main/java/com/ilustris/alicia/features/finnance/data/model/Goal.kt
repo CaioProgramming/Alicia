@@ -2,13 +2,13 @@ package com.ilustris.alicia.features.finnance.data.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import java.math.BigDecimal
 
 @Entity
 data class Goal(
-    @PrimaryKey
-    val id: Int,
+    @PrimaryKey(autoGenerate = true)
+    val id: Int = 0,
     val value: Double,
-    val name: String,
-    val description: String
+    val description: String,
+    val createdAt: Long,
+    val tag: Tag
 )

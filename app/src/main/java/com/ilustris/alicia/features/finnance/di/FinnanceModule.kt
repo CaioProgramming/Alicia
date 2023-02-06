@@ -1,5 +1,7 @@
 package com.ilustris.alicia.features.finnance.di
 
+import com.ilustris.alicia.features.finnance.data.datasource.GoalDao
+import com.ilustris.alicia.features.finnance.data.datasource.GoalDaoImpl
 import com.ilustris.alicia.features.finnance.data.datasource.MovimentationDao
 import com.ilustris.alicia.features.finnance.data.datasource.MovimentationDaoImpl
 import com.ilustris.alicia.features.finnance.data.repository.FinnanceRepositoryImpl
@@ -17,14 +19,18 @@ import dagger.hilt.android.components.ViewModelComponent
 abstract class FinnanceModule {
 
     @Binds
-    abstract fun bindsMovimentationDao(movimentationDao: MovimentationDaoImpl) : MovimentationDao
+    abstract fun bindsMovimentationDao(movimentationDao: MovimentationDaoImpl): MovimentationDao
 
     @Binds
-    abstract fun bindsFinnanceRepository(finnanceRepositoryImpl: FinnanceRepositoryImpl) : FinnanceRepository
+    abstract fun goalDao(goalDao: GoalDaoImpl): GoalDao
 
 
     @Binds
-    abstract fun bindsFinnanceUseCase(finnanceUseCaseImpl: FinnanceUseCaseImpl) : FinnanceUseCase
+    abstract fun bindsFinnanceRepository(finnanceRepositoryImpl: FinnanceRepositoryImpl): FinnanceRepository
+
+
+    @Binds
+    abstract fun bindsFinnanceUseCase(finnanceUseCaseImpl: FinnanceUseCaseImpl): FinnanceUseCase
 
 
 }

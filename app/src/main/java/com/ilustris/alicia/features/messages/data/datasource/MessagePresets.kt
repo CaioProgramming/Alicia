@@ -1,63 +1,81 @@
 package com.ilustris.alicia.features.messages.data.datasource
 
+import com.ilustris.alicia.features.finnance.data.model.Tag
+import com.ilustris.alicia.features.messages.data.datasource.presets.BillsPresets
+import com.ilustris.alicia.features.messages.data.datasource.presets.DefaultPresets
+import com.ilustris.alicia.features.messages.data.datasource.presets.ShoppingPresets
+import com.ilustris.alicia.features.messages.data.datasource.presets.UserPresets
 import com.ilustris.alicia.features.messages.data.model.Message
 import com.ilustris.alicia.features.messages.data.model.Type
+import com.ilustris.alicia.features.messages.domain.model.Action
 
 object MessagePresets {
 
-    fun getGreeting(name: String) = greetingMessages(name).random()
-
-    private fun greetingMessages(name: String) = listOf(
-        Message("Oie $name"),
-        Message("Ei $name, tudo bem?"),
-        Message("Oiii $name."),
-        Message("Salve salve $name"),
-        Message("Olá olá $name"),
-        Message("Você de novo $name?")
-    )
-
+    fun getGreeting(name: String) = Message(UserPresets.getGreetingMessage(name))
 
     val introductionMessages = listOf(
-        Message("Estou aqui para te ajudar a organizar sua vida financeira, de uma forma mais prática através dessa conversa."),
-        Message("Você pode me informar seus ganhos \uD83D\uDCB8", type = Type.GAIN),
-        Message("seus gastos \uD83E\uDD11", type = Type.LOSS),
-        Message("e até definir metas \uD83C\uDFAF", type = Type.GOAL),
+        Message("Você pode me ver como quiser, amiga, conhecida, sua ex... Mas meu objetivo aqui é te ajudar com sua vida financeira, podemos dizer que um diário de finanças né."),
         Message(
-            "Ah é claro, você pode sempre me pedir seu histórico do app e ver como está sua jornada financeira.",
-            type = Type.NONE
+            "Nessa conversa você pode me falar de tudo, seus rendimentos, gastos e até metas desde comprar um pastel na feira até comprar um apartamento, vou te ajudar a acompanhar tudo da melhor forma possível.",
+            type = Type.NONE,
+            extraActions = listOf(Action.PROFIT.name, Action.LOSS.name, Action.GOAL.name).toString()
         ),
         Message(
-            "Você só precisa selecionar um dos botões aqui embaixo para começar.",
-            type = Type.NONE
-        )
+            "Ah é claro, você pode sempre me pedir seu histórico do app e ver como está sua jornada financeira.",
+            type = Type.NONE,
+            extraActions = listOf(Action.HISTORY.name).toString()
+        ),
     )
 
     val newUserMessages = listOf(
         Message("Oie, parece que você é novo por aqui."),
-        Message("Antes da gente começar, me fala o seu nome por favor? \uD83E\uDD79", Type.NAME)
+        Message("Antes da gente começar, me fala o seu nome por favor? \uD83E\uDD79", Type.NONE)
     )
 
+    fun getProfitMessage(value: String, tag: Tag): Message {
+        return Message(
+            when (tag) {
+                Tag.BILLS -> BillsPresets().getProfitMessage(value)
+                Tag.SHOPPING -> ShoppingPresets().getProfitMessage(value)
+                else -> DefaultPresets().getProfitMessage(value)
+            },
+            extraActions = listOf(
+                Action.LOSS.name,
+                Action.HISTORY.name,
+                Action.GOAL.name,
+            ).toString()
+        )
+    }
 
-    private val profitMessages = listOf(
-        "Ai simm hein!! Com isso você tem guardado $PROFIT_PLACEHOLDER.",
-        "Boooa! Mais $PROFIT_PLACEHOLDER na conta!",
-        "Bom trabalho de pouquinho em poquinho vamos chegando nas nossas metas, com mais esse dinheirinho vc já tem guardou mais $PROFIT_PLACEHOLDER.",
-        "Gostei de ver!! Esse valor vai ajudar muito no futuro você vai ver, agora já tem $PROFIT_PLACEHOLDER!"
+    fun getLossMessage(value: String, tag: Tag): Message {
+        return Message(
+            when (tag) {
+                Tag.BILLS -> BillsPresets().getLossMessage(value)
+                Tag.SHOPPING -> ShoppingPresets().getLossMessage(value)
+                else -> DefaultPresets().getLossMessage(value)
+            },
+            extraActions = listOf(
+                Action.PROFIT.name,
+                Action.HISTORY.name,
+                Action.GOAL.name,
+            ).toString()
+        )
+    }
+
+    fun getGoalMessage(tag: Tag, description: String) = Message(
+        DefaultPresets().getGoalMessage(description), type = Type.GOAL, extraActions = listOf(
+            Action.PROFIT.name,
+            Action.LOSS.name,
+        ).toString()
     )
 
-   fun getProfitMessage(value: String) =
-        profitMessages.random().replace(PROFIT_PLACEHOLDER, value)
-
-    private val lossMessages = listOf(
-        "Puuts! Fazer oque né as vezes temos que gastar uns trocados mesmo, agora na conta tem $PROFIT_PLACEHOLDER.",
-        "Ok anotado seu gasto de $PROFIT_PLACEHOLDER.",
-        "É por isso que dizem que tem os dias de luta e os dias de glória né, hoje a luta foi no seu bolso hahaha acabou gastando $PROFIT_PLACEHOLDER.",
-        "A vida do trabalhador não é fácil mesmo! Ainda bem que eu sou só um aplicativo, vc acabou de perder $PROFIT_PLACEHOLDER na conta."
+    fun keepGoingMessage() = Message(
+        "Me fala ai como estão as coisas?",
+        extraActions = listOf(
+            Action.PROFIT.name,
+            Action.LOSS.name,
+            Action.GOAL.name,
+        ).toString()
     )
-
-    fun getLossMessage(value: String) = lossMessages.random().replace(PROFIT_PLACEHOLDER, value)
-
-
 }
 
-private const val PROFIT_PLACEHOLDER = "{value}"

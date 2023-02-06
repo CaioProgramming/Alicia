@@ -9,10 +9,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import com.ilustris.alicia.features.finnance.data.model.Goal
 import com.ilustris.alicia.features.finnance.domain.data.MovimentationInfo
 
 import com.ilustris.alicia.features.messages.data.model.Type
 import com.ilustris.alicia.features.messages.domain.model.MessageInfo
+import com.ilustris.alicia.features.messages.domain.model.Suggestion
 import com.ilustris.alicia.features.messages.ui.components.MessageBubble
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -22,7 +24,10 @@ fun MessagesList(
     appMessages: State<List<MessageInfo>>,
     profits: List<MovimentationInfo>,
     losses: List<MovimentationInfo>,
-    amount: Double
+    goals: List<Goal>,
+    amount: Double,
+    onSelectSuggestion: (Suggestion, String?) -> Unit
+
 ) {
     val messages = remember { appMessages }
     val scrollState = rememberLazyListState()
@@ -35,7 +40,14 @@ fun MessagesList(
         itemsIndexed(messages.value, key = { index, item -> item.message.id }) { index, message ->
             val movementList =
                 if (message.message.type == Type.PROFIT_HISTORY) profits else if (message.message.type == Type.LOSS_HISTORY) losses else emptyList()
-            MessageBubble(message, movementList, modifier = Modifier.animateItemPlacement(), amount)
+            MessageBubble(
+                message,
+                movementList,
+                goals,
+                modifier = Modifier.animateItemPlacement(),
+                amount,
+                onSelectSuggestion
+            )
         }
     }
 

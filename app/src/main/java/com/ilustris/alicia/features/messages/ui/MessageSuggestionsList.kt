@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import com.ilustris.alicia.features.messages.domain.model.Suggestion
@@ -16,13 +15,13 @@ import com.ilustris.alicia.features.messages.ui.components.MessageSuggestion
 @Composable
 fun MessageSuggestionsList(
     modifier: Modifier,
-    suggestions: State<ArrayList<Suggestion>?>,
+    suggestions: List<Suggestion>,
     onSelectSuggestion: (Suggestion, String?) -> Unit
 ) {
 
     val suggestions = remember { suggestions }
 
-    suggestions.value?.let { suggestionList ->
+    suggestions.let { suggestionList ->
         if (suggestionList.size == 1) {
             Row(modifier = modifier) {
                 MessageSuggestion(
