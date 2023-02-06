@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -24,7 +25,11 @@ import java.util.*
 import kotlin.random.Random
 
 @Composable
-fun StatementComponent(movimentation: Movimentation, modifier: Modifier) {
+fun StatementComponent(
+    movimentation: Movimentation,
+    modifier: Modifier,
+    clipText: Boolean = true, textColor: Color = MaterialTheme.colorScheme.onSecondary
+) {
     var visible by remember {
         mutableStateOf(true).apply {
             this.value = true
@@ -48,15 +53,17 @@ fun StatementComponent(movimentation: Movimentation, modifier: Modifier) {
                 .fillMaxWidth()
                 .padding(8.dp)
         ) {
+            val endIndex = minOf(movimentation.description.length, 10)
+
+            val description = if (clipText) movimentation.description.substring(0, endIndex)
+                .replaceRange(endIndex - 3, endIndex, "...") else movimentation.description
             Column(horizontalAlignment = Alignment.Start) {
-                val endIndex = minOf(movimentation.description.length, 10)
                 Text(
-                    text = movimentation.description.substring(0, endIndex)
-                        .replaceRange(endIndex - 3, endIndex, "..."),
+                    text = description,
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.W800,
                     textAlign = TextAlign.Start,
-                    color = MaterialTheme.colorScheme.onSecondary,
+                    color = textColor,
                     maxLines = 2,
                 )
                 Text(
@@ -64,7 +71,7 @@ fun StatementComponent(movimentation: Movimentation, modifier: Modifier) {
                     style = MaterialTheme.typography.labelSmall,
                     textAlign = TextAlign.Start,
                     fontWeight = FontWeight.W400,
-                    color = MaterialTheme.colorScheme.onSecondary.copy(alpha = 0.5f),
+                    color = textColor,
                     maxLines = 1,
                 )
             }
@@ -75,14 +82,14 @@ fun StatementComponent(movimentation: Movimentation, modifier: Modifier) {
                     fontWeight = FontWeight.W500,
                     textAlign = TextAlign.End,
                     style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSecondary
+                    color = textColor
                 )
                 Text(
                     text = formattedDate,
                     fontWeight = FontWeight.W300,
                     textAlign = TextAlign.End,
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSecondary.copy(alpha = 0.5f)
+                    color = textColor.copy(alpha = 0.5f)
                 )
             }
         }

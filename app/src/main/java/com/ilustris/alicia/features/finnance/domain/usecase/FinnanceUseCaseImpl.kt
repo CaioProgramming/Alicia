@@ -64,7 +64,11 @@ class FinnanceUseCaseImpl @Inject constructor(
         }
     }
 
-    override fun getAllMovimentations(): Flow<List<Movimentation>> = finnanceRepository.getMovimentations()
+    override fun getAllMovimentations(): Flow<List<MovimentationInfo>> = flow {
+        finnanceRepository.getMovimentations().collect {
+            emit(movimentationMapper.mapMovimentations(it))
+        }
+    }
 
     override fun getGoals(): Flow<List<Goal>> = finnanceRepository.getGoals()
 

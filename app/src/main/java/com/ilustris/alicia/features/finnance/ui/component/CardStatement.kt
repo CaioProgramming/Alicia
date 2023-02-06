@@ -1,8 +1,10 @@
-package com.ilustris.alicia.features.finnance.ui
+package com.ilustris.alicia.features.finnance.ui.component
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -23,9 +25,9 @@ import com.ilustris.alicia.ui.theme.toolbarColor
 import com.ilustris.alicia.utils.formatToCurrencyText
 import kotlin.random.Random
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
-fun CardStatement(tag: Tag, movimentations: List<Movimentation>) {
+fun CardStatement(tag: Tag, movimentations: List<Movimentation>, openStatement: (Int) -> Unit) {
 
     val spendValue = movimentations.sumOf { it.value }.formatToCurrencyText()
 
@@ -59,14 +61,21 @@ fun CardStatement(tag: Tag, movimentations: List<Movimentation>) {
             .padding(8.dp)
             .width(200.dp)
             .height(200.dp)
+            .combinedClickable(
+                onClick = {
+                    rotated = !rotated
+                },
+                onDoubleClick = {
+                    openStatement(tag.ordinal)
+                },
+                onLongClick = {
+                    openStatement(tag.ordinal)
+                }
+            )
             .graphicsLayer {
                 rotationY = rotation
                 cameraDistance = 8 * density
-            },
-
-        onClick = {
-            rotated = !rotated
-        }) {
+            }) {
         if (!rotated) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -82,17 +91,22 @@ fun CardStatement(tag: Tag, movimentations: List<Movimentation>) {
                 Text(
                     text = tag.description,
                     style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.W500
+                    fontWeight = FontWeight.W500,
+                    color = MaterialTheme.colorScheme.onBackground
                 )
                 Text(
                     text = spendValue,
                     style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Black
+                    fontWeight = FontWeight.Black,
+                    color = MaterialTheme.colorScheme.onBackground
+
                 )
                 Text(
                     text = cardDescription,
                     style = MaterialTheme.typography.labelSmall,
-                    fontWeight = FontWeight.W300
+                    fontWeight = FontWeight.W300,
+                    color = MaterialTheme.colorScheme.onBackground
+
                 )
             }
         } else {
@@ -154,6 +168,6 @@ fun statementPreview() {
                 description = "Nike Air",
                 spendAt = Random.nextLong()
             )
-        )
+        ), openStatement = { }
     )
 }

@@ -34,6 +34,8 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.airbnb.lottie.compose.*
 import com.ilustris.alicia.R
 import com.ilustris.alicia.features.home.presentation.HomeAction
@@ -48,7 +50,7 @@ import kotlinx.coroutines.launch
 
 @ExperimentalComposeUiApi
 @Composable
-fun HomeUI(title: String) {
+fun ChatScreen(title: String, navController: NavHostController) {
 
 
     val viewModel: HomeViewModel = hiltViewModel()
@@ -186,28 +188,33 @@ fun HomeUI(title: String) {
                 profitList.value,
                 lossList.value,
                 goals.value,
-                amount.value
-            ) { suggestion, value ->
-                scope.launch {
-                    when (suggestion.action) {
-                        Action.NAME -> {
-                            value?.let {
-                                viewModel.launchAction(HomeAction.SaveUser(value))
+                amount.value,
+                onSelectSuggestion = { suggestion, value ->
+                    scope.launch {
+                        when (suggestion.action) {
+                            Action.NAME -> {
+                                value?.let {
+                                    viewModel.launchAction(HomeAction.SaveUser(value))
+                                }
+                            }
+                            Action.BALANCE, Action.HISTORY, Action.PROFIT_HISTORY, Action.LOSS_HISTORY -> viewModel.launchAction(
+                                HomeAction.GetHistory
+                            )
+                            else -> {
+                                sheetTitle = suggestion.action.description
+                                sheetAction = suggestion.action
+                                sheetPlaceHolder = getPlaceHolderMessage(suggestion.action)
+                                bottomSheetState.show()
                             }
                         }
-                        Action.BALANCE, Action.HISTORY, Action.PROFIT_HISTORY, Action.LOSS_HISTORY -> viewModel.launchAction(
-                            HomeAction.GetHistory
-                        )
-                        else -> {
-                            sheetTitle = suggestion.action.description
-                            sheetAction = suggestion.action
-                            sheetPlaceHolder = getPlaceHolderMessage(suggestion.action)
-                            bottomSheetState.show()
-                        }
-                    }
 
+                    }
+                },
+                openStatement = {
+                    navController.currentBackStackEntry?.arguments?.putInt("tag", it)
+                    navController.navigate("statement/$it")
                 }
-            }
+            )
 
 
             chatInput(modifier = Modifier
@@ -307,6 +314,8 @@ fun getPlaceHolderMessage(action: Action): String {
 @Composable
 fun DefaultPreview() {
     AliciaTheme {
-        HomeUI(title = "Alicia app")
+        val navController = rememberNavController()
+
+        ChatScreen(title = "Alicia app", navController = navController)
     }
 }
