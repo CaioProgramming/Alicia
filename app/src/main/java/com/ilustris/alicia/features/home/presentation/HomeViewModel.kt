@@ -17,7 +17,7 @@ import com.ilustris.alicia.utils.formatToCurrencyText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.lastOrNull
+import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
@@ -34,6 +34,7 @@ class HomeViewModel @Inject constructor(
     val profit = finnanceUseCase.getProfit()
     val loss = finnanceUseCase.getLoss()
     val amount = finnanceUseCase.getAmount()
+    val goals = finnanceUseCase.getGoals()
     val showInput: MutableLiveData<Boolean> = MutableLiveData()
 
 
@@ -81,34 +82,35 @@ class HomeViewModel @Inject constructor(
     private fun getHistory() {
         updateMessages(Message("Quero ver meu histórico de transações", Type.USER))
         viewModelScope.launch(Dispatchers.IO) {
-            val currentAmount = amount.lastOrNull()
-            if (currentAmount == 0.0 || currentAmount == null) {
-                updateMessages(Message("Bom você ainda não salvou nenhuma movimentação, não posso te ajudar nessa."))
-            } else {
-                updateMessages(
-                    listOf(
-                        Message("É pra já! vou pegar essas informações para você, 1 minutinho por favor."),
-                        Message("Da uma olhada no seu saldo", Type.AMOUNT),
-                        Message(
-                            "Vamos falar de gastos? Aqui estão todo seus gastos desde que começou a usar o app",
-                            type = Type.LOSS_HISTORY
-                        ),
-                        Message(
-                            "Seus rendimentos foram bem legais, da uma olhada.",
-                            type = Type.PROFIT_HISTORY
+            amount.collect { currentAmount ->
+                if (currentAmount == 0.0) {
+                    updateMessages(Message("Bom você ainda não salvou nenhuma movimentação, não posso te ajudar nessa."))
+                } else {
+                    updateMessages(
+                        listOf(
+                            Message("É pra já! vou pegar essas informações para você, 1 minutinho por favor."),
+                            Message("Da uma olhada no seu saldo", Type.AMOUNT),
+                            Message(
+                                "Vamos falar de gastos? Aqui estão todo seus gastos desde que começou a usar o app",
+                                type = Type.LOSS_HISTORY
+                            ),
+                            Message(
+                                "Seus rendimentos foram bem legais, da uma olhada.",
+                                type = Type.PROFIT_HISTORY
+                            )
                         )
                     )
-                )
+                }
+                coroutineContext.job.cancel()
             }
 
         }
-
-
     }
 
     private fun saveGoal(description: String, value: String, tag: Tag) {
         viewModelScope.launch(Dispatchers.IO) {
-
+            finnanceUseCase.saveGoal(description, value, tag)
+            updateMessages(MessagePresets.getGoalMessage(tag, description))
         }
     }
 
@@ -177,6 +179,7 @@ class HomeViewModel @Inject constructor(
             } else {
                 if (shouldSendNewMessage(lastMessage)) {
                     updateMessages(MessagePresets.getGreeting(user.name))
+                    updateMessages(MessagePresets.keepGoingMessage())
                 }
             }
         }

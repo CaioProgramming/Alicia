@@ -1,6 +1,9 @@
 package com.ilustris.alicia.features.messages.data.datasource.presets
 
 class ShoppingPresets : PresetBase() {
+
+    override val goalMessages: List<String> = emptyList()
+
     override val lossMessages = listOf(
         "Todo mundo precisa de um mimo as vezes, o seu te custou $VALUE_PLACEHOLDER hahaha.",
         "Essa compra foi uma loucura hein teve que gastar $VALUE_PLACEHOLDER.",

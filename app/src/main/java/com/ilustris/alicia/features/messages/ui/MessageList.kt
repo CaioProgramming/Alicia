@@ -9,6 +9,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import com.ilustris.alicia.features.finnance.data.model.Goal
 import com.ilustris.alicia.features.finnance.domain.data.MovimentationInfo
 
 import com.ilustris.alicia.features.messages.data.model.Type
@@ -23,6 +24,7 @@ fun MessagesList(
     appMessages: State<List<MessageInfo>>,
     profits: List<MovimentationInfo>,
     losses: List<MovimentationInfo>,
+    goals: List<Goal>,
     amount: Double,
     onSelectSuggestion: (Suggestion, String?) -> Unit
 
@@ -41,6 +43,7 @@ fun MessagesList(
             MessageBubble(
                 message,
                 movementList,
+                goals,
                 modifier = Modifier.animateItemPlacement(),
                 amount,
                 onSelectSuggestion

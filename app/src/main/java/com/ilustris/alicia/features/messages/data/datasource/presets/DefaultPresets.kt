@@ -9,6 +9,12 @@ class DefaultPresets : PresetBase() {
         "A vida do trabalhador não é fácil mesmo! Ainda bem que eu sou só um aplicativo, vc acabou de perder $VALUE_PLACEHOLDER na conta."
     )
 
+    override val goalMessages: List<String> = listOf(
+        "Woow! Que legal sua meta $VALUE_PLACEHOLDER! vamos acompanhar melhor nossos gastos e rendimentos para chegar lá",
+        "Show show show! Essa meta $VALUE_PLACEHOLDER vai nos ajudar a ter mais organização com nossos gastos",
+        "É isso ai vamos fazer o máximo para conquistar $VALUE_PLACEHOLDER!"
+    )
+
     override val profitMessages = listOf(
         "Ai simm hein!! Com isso você tem guardado $VALUE_PLACEHOLDER.",
         "Boooa! Mais $VALUE_PLACEHOLDER na conta!",

@@ -38,7 +38,12 @@ object MessagePresets {
                 Tag.BILLS -> BillsPresets().getProfitMessage(value)
                 Tag.SHOPPING -> ShoppingPresets().getProfitMessage(value)
                 else -> DefaultPresets().getProfitMessage(value)
-            }
+            },
+            extraActions = listOf(
+                Action.LOSS.name,
+                Action.HISTORY.name,
+                Action.GOAL.name,
+            ).toString()
         )
     }
 
@@ -48,17 +53,28 @@ object MessagePresets {
                 Tag.BILLS -> BillsPresets().getLossMessage(value)
                 Tag.SHOPPING -> ShoppingPresets().getLossMessage(value)
                 else -> DefaultPresets().getLossMessage(value)
-            }
+            },
+            extraActions = listOf(
+                Action.PROFIT.name,
+                Action.HISTORY.name,
+                Action.GOAL.name,
+            ).toString()
         )
     }
 
+    fun getGoalMessage(tag: Tag, description: String) = Message(
+        DefaultPresets().getGoalMessage(description), type = Type.GOAL, extraActions = listOf(
+            Action.PROFIT.name,
+            Action.LOSS.name,
+        ).toString()
+    )
+
     fun keepGoingMessage() = Message(
-        "Se quiser saber mais alguma coisa só pedir :D",
+        "Me fala ai como estão as coisas?",
         extraActions = listOf(
             Action.PROFIT.name,
             Action.LOSS.name,
             Action.GOAL.name,
-            Action.HISTORY
         ).toString()
     )
 }

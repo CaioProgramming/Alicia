@@ -56,6 +56,7 @@ fun HomeUI(title: String) {
     val showInput = viewModel.showInput.observeAsState(initial = false)
     val profitList = viewModel.profit.collectAsState(initial = emptyList())
     val lossList = viewModel.loss.collectAsState(initial = emptyList())
+    val goals = viewModel.goals.collectAsState(initial = emptyList())
     val amount = viewModel.amount.collectAsState(initial = 0.00)
     var sheetPlaceHolder by remember {
         mutableStateOf("O que você comprou?")
@@ -184,6 +185,7 @@ fun HomeUI(title: String) {
                 messages,
                 profitList.value,
                 lossList.value,
+                goals.value,
                 amount.value
             ) { suggestion, value ->
                 scope.launch {

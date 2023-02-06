@@ -14,5 +14,6 @@ class BillsPresets : PresetBase() {
         "Sensacional!! Vida de executivo é assim mais recebe que paga $VALUE_PLACEHOLDER."
     )
 
+    override val goalMessages: List<String> = emptyList()
 
 }
