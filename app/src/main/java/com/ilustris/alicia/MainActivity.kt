@@ -29,7 +29,7 @@ class MainActivity : ComponentActivity() {
                             navController
                         )
                     }
-                    composable("statement/{tag}") {
+                    composable("statement") {
                         StatementScreen(navController = navController)
                     }
                 }

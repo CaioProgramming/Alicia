@@ -110,6 +110,13 @@ class HomeViewModel @Inject constructor(
     private fun saveGoal(description: String, value: String, tag: Tag) {
         viewModelScope.launch(Dispatchers.IO) {
             finnanceUseCase.saveGoal(description, value, tag)
+            updateMessages(
+                Message(
+                    "Meu próximo objetivo é juntar ${
+                        value.toDouble().formatToCurrencyText()
+                    } para conseguir $description :D"
+                )
+            )
             updateMessages(MessagePresets.getGoalMessage(tag, description))
         }
     }

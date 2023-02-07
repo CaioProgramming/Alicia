@@ -60,6 +60,9 @@ fun ChatScreen(title: String, navController: NavHostController) {
     val lossList = viewModel.loss.collectAsState(initial = emptyList())
     val goals = viewModel.goals.collectAsState(initial = emptyList())
     val amount = viewModel.amount.collectAsState(initial = 0.00)
+    val bannerVisible = remember {
+        mutableStateOf(false)
+    }
     var sheetPlaceHolder by remember {
         mutableStateOf("O que você comprou?")
     }
@@ -138,7 +141,7 @@ fun ChatScreen(title: String, navController: NavHostController) {
                 .background(color = toolbarColor(isSystemInDarkTheme()))
         ) {
 
-            val (toolbar, messageList, suggestions, divider, animation) = createRefs()
+            val (toolbar, messageList, suggestions, banner, animation) = createRefs()
 
             val composition by rememberLottieComposition(
                 LottieCompositionSpec.RawRes(R.raw.cute_cat)
@@ -211,13 +214,12 @@ fun ChatScreen(title: String, navController: NavHostController) {
                     }
                 },
                 openStatement = {
-                    navController.currentBackStackEntry?.arguments?.putInt("tag", it)
-                    navController.navigate("statement/$it")
+                    navController.navigate("statement")
                 }
             )
 
 
-            chatInput(modifier = Modifier
+            ChatInput(modifier = Modifier
                 .constrainAs(suggestions) {
                     bottom.linkTo(parent.bottom)
                     start.linkTo(parent.start)
@@ -235,14 +237,18 @@ fun ChatScreen(title: String, navController: NavHostController) {
 }
 
 @Composable
-fun chatInput(modifier: Modifier, onDone: (String) -> Unit) {
+fun ChatInput(modifier: Modifier, onDone: (String) -> Unit) {
     var message by remember {
         mutableStateOf("")
     }
 
     TextField(
         value = message,
-        onValueChange = { message = it },
+        onValueChange = {
+            if (it.length <= 45) {
+                message = it
+            }
+        },
         textStyle = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.W400),
         placeholder = {
             androidx.compose.material3.Text(

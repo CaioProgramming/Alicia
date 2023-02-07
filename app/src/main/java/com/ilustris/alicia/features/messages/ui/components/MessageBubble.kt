@@ -16,7 +16,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ilustris.alicia.features.finnance.data.model.Goal
 import com.ilustris.alicia.features.finnance.domain.data.MovimentationInfo
-import com.ilustris.alicia.features.finnance.ui.CardGoal
+import com.ilustris.alicia.features.finnance.ui.component.CardGoal
 import com.ilustris.alicia.features.finnance.ui.component.CardStatement
 import com.ilustris.alicia.features.messages.data.model.Message
 import com.ilustris.alicia.features.messages.data.model.Type
@@ -60,6 +60,7 @@ fun MessageBubble(
                 .fillMaxWidth()
                 .padding(8.dp),
             textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.onBackground,
             style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.W300),
         )
     } else {

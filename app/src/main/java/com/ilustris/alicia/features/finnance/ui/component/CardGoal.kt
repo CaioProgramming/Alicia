@@ -1,4 +1,4 @@
-package com.ilustris.alicia.features.finnance.ui
+package com.ilustris.alicia.features.finnance.ui.component
 
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
@@ -28,6 +28,9 @@ import kotlin.random.Random
 fun CardGoal(goal: Goal, amount: Double) {
     val progression = ((amount / goal.value)).toFloat()
 
+    var showedSnack by remember {
+        mutableStateOf(false)
+    }
     var progress by remember { mutableStateOf(0f) }
     val progressAnimDuration = 1500
     val progressAnimation by animateFloatAsState(
@@ -43,6 +46,10 @@ fun CardGoal(goal: Goal, amount: Double) {
     )
     val textColor =
         if (progression > 1f) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onBackground
+    val snackState = remember { SnackbarHostState() }
+    val snackScope = rememberCoroutineScope()
+
+
 
     Card(
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground.copy(alpha = 0.1f)),

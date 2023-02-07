@@ -14,13 +14,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.drawscope.scale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.ilustris.alicia.utils.formatToCurrencyText
 
@@ -28,7 +29,7 @@ import com.ilustris.alicia.utils.formatToCurrencyText
 fun AmountComponent(amount: Double) {
 
     var value by remember { mutableStateOf(0.0) }
-    val daysCounter by animateFloatAsState(
+    val valueCounter by animateFloatAsState(
         targetValue = value.toFloat(),
         animationSpec = tween(
             durationMillis = 2000,
@@ -39,28 +40,36 @@ fun AmountComponent(amount: Double) {
         value = amount
     }
 
-    var visible by remember {
+    val visible by remember {
         mutableStateOf(true).apply {
             this.value = true
         }
     }
     val infiniteTransition = rememberInfiniteTransition()
-    val offsetAnimation by infiniteTransition.animateValue(
-        initialValue = 0.dp,
-        targetValue = 25.dp,
-        typeConverter = Dp.VectorConverter,
+
+    val colors = listOf(
+        Color.Transparent,
+        MaterialTheme.colorScheme.background.copy(alpha = 0.5f),
+    )
+
+    val fontsize =
+        with(LocalDensity.current) { MaterialTheme.typography.headlineLarge.fontSize.toPx() }
+    val fontsizeDouble = fontsize * 3
+
+    val offsetAnimation = infiniteTransition.animateFloat(
+        initialValue = 0.5f,
+        targetValue = fontsizeDouble,
         animationSpec = infiniteRepeatable(
-            animation = tween(3500, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
+            tween(1000, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse,
         )
     )
-    val colors = listOf(
-        MaterialTheme.colorScheme.onBackground,
-        MaterialTheme.colorScheme.primary,
-        MaterialTheme.colorScheme.secondary,
-        MaterialTheme.colorScheme.onBackground,
+
+    val brush = Brush.linearGradient(
+        colors,
+        start = Offset(offsetAnimation.value, offsetAnimation.value),
+        end = Offset(x = offsetAnimation.value + fontsize, y = offsetAnimation.value),
     )
-    val brush = Brush.radialGradient(colors)
 
     AnimatedVisibility(
         visible = visible,
@@ -86,18 +95,16 @@ fun AmountComponent(amount: Double) {
                     .drawWithCache {
                         onDrawWithContent {
                             drawContent()
-                            scale(offsetAnimation.value) {
-                                drawRect(
-                                    brush,
-                                    blendMode = BlendMode.SrcIn,
-                                )
-                            }
+                            drawRect(
+                                brush,
+                                blendMode = BlendMode.SrcAtop,
+                            )
                         }
                     },
-                text = daysCounter.toDouble().formatToCurrencyText(false),
+                text = valueCounter.toDouble().formatToCurrencyText(false),
                 style = MaterialTheme.typography.headlineLarge.copy(
                     fontWeight = FontWeight.Black,
-                    color = MaterialTheme.colorScheme.onBackground
+                    color = MaterialTheme.colorScheme.primary,
                 )
             )
         }
