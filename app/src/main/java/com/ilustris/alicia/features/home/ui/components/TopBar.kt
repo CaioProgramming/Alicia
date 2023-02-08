@@ -16,7 +16,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
@@ -30,6 +29,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Visibility
 import com.ilustris.alicia.R
 import com.ilustris.alicia.ui.theme.AliciaTheme
+import com.ilustris.alicia.ui.theme.aliciaBrush
 import com.ilustris.alicia.ui.theme.toolbarColor
 
 @Composable
@@ -51,13 +51,7 @@ fun TopBar(
             targetValue = 360f,
             animationSpec = infiniteRepeatable(tween(1500, easing = LinearEasing))
         )
-        val aliciaBrush = Brush.linearGradient(
-            (listOf(
-                MaterialTheme.colorScheme.primary,
-                MaterialTheme.colorScheme.secondary,
-                MaterialTheme.colorScheme.tertiary
-            ))
-        )
+        val aliciaBrush = aliciaBrush()
         Column(
             modifier = Modifier.constrainAs(profile) {
                 start.linkTo(parent.start)

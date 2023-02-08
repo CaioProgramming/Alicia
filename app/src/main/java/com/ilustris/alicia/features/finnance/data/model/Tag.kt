@@ -1,21 +1,24 @@
 package com.ilustris.alicia.features.finnance.data.model
 
-enum class Tag(val emoji: String, val description: String) {
+import ai.atick.material.MaterialColor
+import androidx.compose.ui.graphics.Color
 
-    PETS("🐶", "Pets"),
-    WORK("💼", "Trabalho"),
-    GROCERIES("🧁", "Doces"),
-    HEALTH("💊", "Saúde"),
-    GIFTS("🎁", "Presentes"),
-    BILLS("🪙", "Contas"),
-    TRANSPORT("🚗", "Transporte"),
-    CLOTHES("👕", "Roupas"),
-    EDUCATION("📓", "Educação"),
-    ENTERTAINMENT("🍿", "Entretenimento"),
-    PARTY("🎉", "Festa"),
-    TRIP("✈️", "Viagem"),
-    UNKNOWN("🤔", "Desconhecido"),
-    SHOPPING("🛍️", "Compras"),
-    GAMES("🎮", "Jogos")
+enum class Tag(val emoji: String, val description: String, val color: Color) {
+
+    PETS("🐶", "Pets", MaterialColor.Yellow400),
+    WORK("💼", "Trabalho", MaterialColor.Brown700),
+    GROCERIES("🧁", "Doces", MaterialColor.Pink400),
+    HEALTH("💊", "Saúde", MaterialColor.Green400),
+    GIFTS("🎁", "Presentes", MaterialColor.Red400),
+    BILLS("🪙", "Contas", MaterialColor.Yellow500),
+    TRANSPORT("🚗", "Transporte", MaterialColor.Gray800),
+    CLOTHES("👕", "Roupas", MaterialColor.BlueGray400),
+    EDUCATION("📓", "Educação", MaterialColor.BlueA200),
+    ENTERTAINMENT("🍿", "Entretenimento", MaterialColor.RedA400),
+    PARTY("🎉", "Festa", MaterialColor.Purple400),
+    TRIP("✈️", "Viagem", MaterialColor.YellowA400),
+    UNKNOWN("🤔", "Desconhecido", MaterialColor.Gray300),
+    SHOPPING("🛍️", "Compras", MaterialColor.BlueA700),
+    GAMES("🎮", "Jogos", MaterialColor.BlueGray600)
 
 }

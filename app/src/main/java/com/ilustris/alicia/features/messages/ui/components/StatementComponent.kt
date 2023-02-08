@@ -4,9 +4,8 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,7 +21,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
-import androidx.constraintlayout.compose.Visibility
 import com.ilustris.alicia.features.finnance.data.model.Movimentation
 import com.ilustris.alicia.features.finnance.data.model.Tag
 import com.ilustris.alicia.utils.DateFormats
@@ -34,8 +32,6 @@ import java.util.*
 fun StatementComponent(
     movimentation: Movimentation,
     modifier: Modifier,
-    clipText: Boolean = true,
-    showTag: Boolean = false,
     textColor: Color = MaterialTheme.colorScheme.onSecondary
 ) {
     val visible by remember {
@@ -45,11 +41,8 @@ fun StatementComponent(
     }
     val formattedDate = Calendar.getInstance().apply {
         timeInMillis = movimentation.spendAt
-    }.time.format(DateFormats.DD_MM_YYY)
+    }.time.format(DateFormats.DD_OF_MM_FROM_YYYY)
 
-    val showTag by remember {
-        mutableStateOf(showTag)
-    }
 
     AnimatedVisibility(
         visible = visible,
@@ -58,9 +51,8 @@ fun StatementComponent(
     ) {
 
     }
-    ConstraintLayout(modifier = modifier.padding(8.dp)) {
-        val (tag, descriptionText, movimentationDetails) = createRefs()
-
+    ConstraintLayout {
+        val (tag, descriptionText, movimentationDetails, divider) = createRefs()
 
         Text(text = movimentation.tag.emoji, modifier = Modifier
             .constrainAs(tag) {
@@ -68,36 +60,47 @@ fun StatementComponent(
                 top.linkTo(parent.top)
                 bottom.linkTo(parent.bottom)
                 height = Dimension.wrapContent
-                visibility = if (showTag) Visibility.Visible else Visibility.Gone
             }
-            .padding(8.dp))
+            .padding(16.dp))
 
-        Text(
-            text = movimentation.description,
-            style = MaterialTheme.typography.labelMedium,
-            fontWeight = FontWeight.W800,
-            textAlign = TextAlign.Start,
-            color = textColor,
-            maxLines = 2,
-            modifier = Modifier
-                .constrainAs(descriptionText) {
-                    top.linkTo(parent.top)
-                    bottom.linkTo(parent.bottom)
-                    start.linkTo(tag.end)
-                    end.linkTo(movimentationDetails.start)
-                    width = Dimension.fillToConstraints
-                    height = Dimension.wrapContent
-                }
-                .padding(horizontal = 8.dp)
-        )
+        Column(modifier = Modifier
+            .constrainAs(descriptionText) {
+                top.linkTo(parent.top)
+                bottom.linkTo(parent.bottom)
+                start.linkTo(tag.end)
+                end.linkTo(movimentationDetails.start)
+                width = Dimension.fillToConstraints
+                height = Dimension.wrapContent
+            }
+            .padding(horizontal = 8.dp)) {
+
+            Text(
+                text = movimentation.description,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.W800,
+                textAlign = TextAlign.Start,
+                color = textColor,
+                maxLines = 2,
+            )
+            Text(
+                text = movimentation.tag.description,
+                style = MaterialTheme.typography.labelSmall,
+                color = textColor.copy(alpha = 0.5f),
+                fontWeight = FontWeight.W300
+            )
+        }
+
         Column(
             horizontalAlignment = Alignment.End,
-            modifier = Modifier.constrainAs(movimentationDetails) {
-                top.linkTo(descriptionText.bottom)
-                bottom.linkTo(descriptionText.bottom)
-                end.linkTo(parent.end)
-                height = Dimension.wrapContent
-            }) {
+            modifier = Modifier
+                .constrainAs(movimentationDetails) {
+                    top.linkTo(descriptionText.top)
+                    bottom.linkTo(descriptionText.bottom)
+                    end.linkTo(parent.end)
+                    height = Dimension.fillToConstraints
+                }
+                .padding(horizontal = 8.dp)
+        ) {
             Text(
                 text = movimentation.value.formatToCurrencyText(),
                 fontWeight = FontWeight.W500,
@@ -105,14 +108,17 @@ fun StatementComponent(
                 style = MaterialTheme.typography.labelMedium,
                 color = textColor
             )
-            Text(
-                text = formattedDate,
-                fontWeight = FontWeight.W300,
-                textAlign = TextAlign.End,
-                style = MaterialTheme.typography.labelSmall,
-                color = textColor.copy(alpha = 0.5f)
-            )
         }
+
+        Box(
+            modifier = Modifier
+                .constrainAs(divider) {
+                    bottom.linkTo(parent.bottom)
+                }
+                .height(1.dp)
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.onBackground.copy(alpha = 0.2f))
+        )
     }
 }
 
@@ -125,6 +131,6 @@ fun defaultPreview() {
             value = 150.00,
             tag = Tag.BILLS,
             spendAt = Calendar.getInstance().time.time
-        ), Modifier.fillMaxWidth(), showTag = false
+        ), Modifier.fillMaxWidth()
     )
 }

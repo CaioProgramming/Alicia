@@ -49,7 +49,7 @@ fun AmountComponent(amount: Double) {
 
     val colors = listOf(
         Color.Transparent,
-        MaterialTheme.colorScheme.background.copy(alpha = 0.5f),
+        MaterialTheme.colorScheme.background,
     )
 
     val fontsize =
@@ -79,7 +79,7 @@ fun AmountComponent(amount: Double) {
 
         Row(
             modifier = Modifier
-                .padding(horizontal = 16.dp, vertical = 4.dp)
+                .padding(horizontal = 16.dp, vertical = 8.dp)
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.Top

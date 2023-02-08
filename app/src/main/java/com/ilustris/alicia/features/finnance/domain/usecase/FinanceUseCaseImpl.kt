@@ -1,5 +1,7 @@
 package com.ilustris.alicia.features.finnance.domain.usecase
 
+import com.himanshoe.charty.circle.model.CircleData
+import com.himanshoe.charty.line.model.LineData
 import com.ilustris.alicia.features.finnance.data.model.Goal
 import com.ilustris.alicia.features.finnance.data.model.Movimentation
 import com.ilustris.alicia.features.finnance.data.model.Tag
@@ -12,11 +14,10 @@ import kotlinx.coroutines.flow.flow
 import java.util.*
 import javax.inject.Inject
 
-class FinnanceUseCaseImpl @Inject constructor(
+class FinanceUseCaseImpl @Inject constructor(
     private val finnanceRepository: FinnanceRepository,
     private val movimentationMapper: MovimentationMapper
-) :
-    FinnanceUseCase {
+) : FinanceUseCase {
 
     override suspend fun saveMovimentation(
         description: String,
@@ -67,6 +68,24 @@ class FinnanceUseCaseImpl @Inject constructor(
     override fun getAllMovimentations(): Flow<List<MovimentationInfo>> = flow {
         finnanceRepository.getMovimentations().collect {
             emit(movimentationMapper.mapMovimentations(it))
+        }
+    }
+
+    override fun getMovimentationsByDay(): Flow<List<MovimentationInfo>> = flow {
+        finnanceRepository.getMovimentations().collect {
+            emit(movimentationMapper.mapMovimentationsByDay(it))
+        }
+    }
+
+    override fun getMovimentationsChart(): Flow<List<LineData>> = flow {
+        finnanceRepository.getMovimentations().collect {
+            emit(movimentationMapper.mapMovimentationsToLineData(it))
+        }
+    }
+
+    override fun getMovimentationsCircleChart(): Flow<List<CircleData>> = flow {
+        finnanceRepository.getMovimentations().collect {
+            emit(movimentationMapper.mapMovimentationsToCircleData(it))
         }
     }
 
