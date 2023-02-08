@@ -10,6 +10,7 @@ class GoalDaoImpl @Inject constructor(private val databaseBuilder: DatabaseBuild
 
 
     override fun saveGoal(goal: Goal): Long = database.goalDao().saveGoal(goal)
+    override fun updateGoal(goal: Goal) = database.goalDao().updateGoal(goal)
 
     override fun getGaols(): Flow<List<Goal>> = database.goalDao().getGaols()
 }

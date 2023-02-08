@@ -2,6 +2,7 @@
 
 package com.ilustris.alicia.features.home.ui
 
+import android.media.MediaPlayer
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -10,6 +11,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -23,6 +26,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
@@ -38,6 +42,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.airbnb.lottie.compose.*
 import com.ilustris.alicia.R
+import com.ilustris.alicia.features.finnance.ui.component.GoalMedal
 import com.ilustris.alicia.features.home.presentation.HomeAction
 import com.ilustris.alicia.features.home.presentation.HomeViewModel
 import com.ilustris.alicia.features.home.ui.components.SheetInput
@@ -60,9 +65,7 @@ fun ChatScreen(title: String, navController: NavHostController) {
     val lossList = viewModel.loss.collectAsState(initial = emptyList())
     val goals = viewModel.goals.collectAsState(initial = emptyList())
     val amount = viewModel.amount.collectAsState(initial = 0.00)
-    val bannerVisible = remember {
-        mutableStateOf(false)
-    }
+
     var sheetPlaceHolder by remember {
         mutableStateOf("O que você comprou?")
     }
@@ -89,6 +92,7 @@ fun ChatScreen(title: String, navController: NavHostController) {
             focusRequester.requestFocus()
         }
     }
+    val mediaPlayer = MediaPlayer.create(LocalContext.current, R.raw.bell)
 
     ModalBottomSheetLayout(
         sheetState = bottomSheetState,
@@ -104,6 +108,9 @@ fun ChatScreen(title: String, navController: NavHostController) {
                     scope.launch {
                         bottomSheetState.hide()
                         focusRequester.freeFocus()
+                    }
+                    if (!mediaPlayer.isPlaying) {
+                        mediaPlayer.start()
                     }
                     when (action) {
                         Action.NAME -> viewModel.launchAction(HomeAction.SaveUser(value))
@@ -141,7 +148,7 @@ fun ChatScreen(title: String, navController: NavHostController) {
                 .background(color = toolbarColor(isSystemInDarkTheme()))
         ) {
 
-            val (toolbar, messageList, suggestions, banner, animation) = createRefs()
+            val (toolbar, messageList, suggestions, goalsTab, animation) = createRefs()
 
             val composition by rememberLottieComposition(
                 LottieCompositionSpec.RawRes(R.raw.cute_cat)
@@ -152,12 +159,23 @@ fun ChatScreen(title: String, navController: NavHostController) {
                 iterations = LottieConstants.IterateForever
             )
 
+            val celebrateComposition by rememberLottieComposition(
+                LottieCompositionSpec.RawRes(R.raw.celebrate)
+            )
+            var isCelebrationPlaying by remember {
+                mutableStateOf(false)
+            }
+
+            val celebrateProgress by animateLottieCompositionAsState(
+                composition,
+                isPlaying = isCelebrationPlaying,
+            )
+
             TopBar(title = title, icon = R.drawable.pretty_girl, onClickNavigation = {},
                 modifier = Modifier
                     .fillMaxWidth()
                     .constrainAs(toolbar) { top.linkTo(parent.top) }
             )
-
 
 
             if (messages.value.isEmpty()) {
@@ -174,8 +192,6 @@ fun ChatScreen(title: String, navController: NavHostController) {
 
                     })
             }
-
-
 
             MessagesList(
                 modifier = Modifier
@@ -218,6 +234,36 @@ fun ChatScreen(title: String, navController: NavHostController) {
                 }
             )
 
+            if (goals.value.isNotEmpty()) {
+                LazyRow(modifier = Modifier
+                    .constrainAs(goalsTab) {
+                        top.linkTo(toolbar.bottom)
+                    }
+                    .fillMaxWidth()
+                    .background(toolbarColor(isSystemInDarkTheme()))) {
+                    items(goals.value) {
+                        GoalMedal(goal = it)
+                    }
+                }
+                val mediaPlayer = MediaPlayer.create(LocalContext.current, R.raw.celebrate_audio)
+
+                LaunchedEffect(Unit) {
+                    val completedGoals =
+                        goals.value.filter { it.value <= amount.value && !it.isComplete }
+                    if (completedGoals.isNotEmpty()) {
+                        isCelebrationPlaying = true
+                        if (!mediaPlayer.isPlaying) {
+                            mediaPlayer.start()
+                        }
+                        if (isCelebrationPlaying && progress == 1f) {
+                            isCelebrationPlaying = false
+                        }
+                        completedGoals.forEach {
+                            viewModel.launchAction(HomeAction.CompleteGoal(it))
+                        }
+                    }
+                }
+            }
 
             ChatInput(modifier = Modifier
                 .constrainAs(suggestions) {
@@ -230,6 +276,12 @@ fun ChatScreen(title: String, navController: NavHostController) {
                 keyboardController?.hide()
                 viewModel.launchAction(HomeAction.SaveUser(it))
             })
+
+            LottieAnimation(
+                celebrateComposition,
+                celebrateProgress,
+                modifier = Modifier.fillMaxSize()
+            )
         }
     }
 

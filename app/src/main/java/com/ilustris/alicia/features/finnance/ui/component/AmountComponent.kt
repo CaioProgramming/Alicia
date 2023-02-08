@@ -17,7 +17,7 @@ import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
@@ -48,19 +48,21 @@ fun AmountComponent(amount: Double) {
     val infiniteTransition = rememberInfiniteTransition()
 
     val colors = listOf(
-        Color.Transparent,
-        MaterialTheme.colorScheme.background,
+        MaterialTheme.colorScheme.primary,
+        MaterialTheme.colorScheme.secondary,
+        MaterialTheme.colorScheme.background.copy(alpha = 0.5f),
+        MaterialTheme.colorScheme.tertiary,
     )
 
     val fontsize =
         with(LocalDensity.current) { MaterialTheme.typography.headlineLarge.fontSize.toPx() }
-    val fontsizeDouble = fontsize * 3
+    val fontsizeDouble = fontsize * 10
 
     val offsetAnimation = infiniteTransition.animateFloat(
-        initialValue = 0.5f,
+        initialValue = 0f,
         targetValue = fontsizeDouble,
         animationSpec = infiniteRepeatable(
-            tween(1000, easing = LinearEasing),
+            tween(1500, easing = LinearEasing),
             repeatMode = RepeatMode.Reverse,
         )
     )
@@ -68,7 +70,8 @@ fun AmountComponent(amount: Double) {
     val brush = Brush.linearGradient(
         colors,
         start = Offset(offsetAnimation.value, offsetAnimation.value),
-        end = Offset(x = offsetAnimation.value + fontsize, y = offsetAnimation.value),
+        end = Offset(x = offsetAnimation.value + fontsizeDouble, y = offsetAnimation.value),
+        tileMode = TileMode.Repeated
     )
 
     AnimatedVisibility(
@@ -91,7 +94,7 @@ fun AmountComponent(amount: Double) {
             )
             Text(
                 modifier = Modifier
-                    .graphicsLayer(alpha = 0.90f)
+                    .graphicsLayer(alpha = 0.99f)
                     .drawWithCache {
                         onDrawWithContent {
                             drawContent()

@@ -28,7 +28,7 @@ class MovimentationMapper {
             val calendar = Calendar.getInstance().apply {
                 timeInMillis = it.spendAt
             }
-            calendar.time
+            calendar[Calendar.DAY_OF_YEAR]
         }
 
         movimentationGroups.forEach { day, movimentation ->

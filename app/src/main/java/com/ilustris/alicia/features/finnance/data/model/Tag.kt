@@ -5,7 +5,7 @@ import androidx.compose.ui.graphics.Color
 
 enum class Tag(val emoji: String, val description: String, val color: Color) {
 
-    PETS("🐶", "Pets", MaterialColor.Yellow400),
+    PETS("🐶", "Pets", MaterialColor.Brown200),
     WORK("💼", "Trabalho", MaterialColor.Brown700),
     GROCERIES("🧁", "Doces", MaterialColor.Pink400),
     HEALTH("💊", "Saúde", MaterialColor.Green400),

@@ -44,7 +44,11 @@ class FinanceUseCaseImpl @Inject constructor(
             tag = tag,
             createdAt = Calendar.getInstance().timeInMillis
         )
-        return finnanceRepository.saveGoals(goal)
+        return finnanceRepository.saveGoal(goal)
+    }
+
+    override suspend fun updateGoal(goal: Goal) {
+        return finnanceRepository.updateGoal(goal)
     }
 
     override fun getProfit(): Flow<List<MovimentationInfo>> = flow {

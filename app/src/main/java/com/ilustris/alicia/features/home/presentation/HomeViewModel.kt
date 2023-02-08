@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ilustris.alicia.features.finnance.data.model.Goal
 import com.ilustris.alicia.features.finnance.data.model.Tag
 import com.ilustris.alicia.features.finnance.domain.usecase.FinanceUseCase
 import com.ilustris.alicia.features.messages.data.datasource.MessagePresets
@@ -37,11 +38,9 @@ class HomeViewModel @Inject constructor(
     val goals = financeUseCase.getGoals()
     val showInput: MutableLiveData<Boolean> = MutableLiveData()
 
-
     init {
         getUser()
     }
-
 
     private fun saveUser(name: String) {
         viewModelScope.launch {
@@ -51,7 +50,6 @@ class HomeViewModel @Inject constructor(
             updateMessages(MessagePresets.introductionMessages)
         }
     }
-
 
     fun launchAction(homeAction: HomeAction) {
         hideActions()
@@ -76,6 +74,18 @@ class HomeViewModel @Inject constructor(
                 Type.PROFIT
             )
             HomeAction.GetHistory -> getHistory()
+            is HomeAction.CompleteGoal -> completeGoal(homeAction.goal)
+        }
+    }
+
+    private fun completeGoal(goal: Goal) {
+        viewModelScope.launch(Dispatchers.IO) {
+            financeUseCase.updateGoal(
+                goal.copy(
+                    isComplete = true,
+                    completedAt = Calendar.getInstance().timeInMillis
+                )
+            )
         }
     }
 

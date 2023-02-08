@@ -1,5 +1,6 @@
 package com.ilustris.alicia.features.home.presentation
 
+import com.ilustris.alicia.features.finnance.data.model.Goal
 import com.ilustris.alicia.features.finnance.data.model.Tag
 
 sealed class HomeAction {
@@ -9,6 +10,7 @@ sealed class HomeAction {
     data class SaveLoss(val description: String, val value: String, val tag: Tag) : HomeAction()
     data class SaveProfit(val description: String, val value: String, val tag: Tag) : HomeAction()
     data class SaveGoal(val description: String, val value: String, val tag: Tag) : HomeAction()
+    data class CompleteGoal(val goal: Goal) : HomeAction()
     object GetHistory : HomeAction()
 
 
