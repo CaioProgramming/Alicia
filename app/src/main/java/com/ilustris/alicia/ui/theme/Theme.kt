@@ -7,28 +7,34 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.ViewCompat
 
 private val DarkColorScheme = darkColorScheme(
-    primary = MaterialColor.Blue800,
+    primary = MaterialColor.Blue500,
     secondary = MaterialColor.Blue800,
-    tertiary = MaterialColor.BlueA100,
+    tertiary = MaterialColor.BlueA200,
     background = MaterialColor.Black,
     surface = MaterialColor.Gray900,
     secondaryContainer = MaterialColor.Blue800.copy(alpha = 0.2f),
     onPrimary = MaterialColor.White,
+    onSurface = MaterialColor.Gray100,
+    onBackground = MaterialColor.White
 )
 
 private val LightColorScheme = lightColorScheme(
     primary = MaterialColor.Blue500,
     secondary = MaterialColor.Blue800,
-    tertiary = MaterialColor.BlueA100,
+    tertiary = MaterialColor.BlueA400,
     background = MaterialColor.White,
-    surface = MaterialColor.Gray500,
+    surface = MaterialColor.Gray300,
     secondaryContainer = MaterialColor.Blue500.copy(alpha = 0.2f),
+    onSurface = MaterialColor.Gray900,
+    onBackground = MaterialColor.Black
 
 
     /* Other default colors to override
@@ -40,6 +46,15 @@ private val LightColorScheme = lightColorScheme(
     onBackground = Color(0xFF1C1B1F),
     onSurface = Color(0xFF1C1B1F),
     */
+)
+
+@Composable
+fun aliciaBrush() = Brush.linearGradient(
+    listOf(
+        MaterialTheme.colorScheme.primary,
+        MaterialTheme.colorScheme.secondary,
+        MaterialTheme.colorScheme.tertiary
+    ), tileMode = TileMode.Mirror
 )
 
 @Composable

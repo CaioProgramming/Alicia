@@ -6,7 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ilustris.alicia.features.finnance.data.model.Tag
-import com.ilustris.alicia.features.finnance.domain.usecase.FinnanceUseCase
+import com.ilustris.alicia.features.finnance.domain.usecase.FinanceUseCase
 import com.ilustris.alicia.features.messages.data.datasource.MessagePresets
 import com.ilustris.alicia.features.messages.data.model.Message
 import com.ilustris.alicia.features.messages.data.model.Type
@@ -26,15 +26,15 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val userUseCase: UserUseCase,
     private val messagesUseCase: MessagesUseCase,
-    private val finnanceUseCase: FinnanceUseCase
+    private val financeUseCase: FinanceUseCase
 ) : ViewModel() {
 
 
     val messages = messagesUseCase.getMessages()
-    val profit = finnanceUseCase.getProfit()
-    val loss = finnanceUseCase.getLoss()
-    val amount = finnanceUseCase.getAmount()
-    val goals = finnanceUseCase.getGoals()
+    val profit = financeUseCase.getProfit()
+    val loss = financeUseCase.getLoss()
+    val amount = financeUseCase.getAmount()
+    val goals = financeUseCase.getGoals()
     val showInput: MutableLiveData<Boolean> = MutableLiveData()
 
 
@@ -109,7 +109,14 @@ class HomeViewModel @Inject constructor(
 
     private fun saveGoal(description: String, value: String, tag: Tag) {
         viewModelScope.launch(Dispatchers.IO) {
-            finnanceUseCase.saveGoal(description, value, tag)
+            financeUseCase.saveGoal(description, value, tag)
+            updateMessages(
+                Message(
+                    "Meu próximo objetivo é juntar ${
+                        value.toDouble().formatToCurrencyText()
+                    } para conseguir $description :D"
+                )
+            )
             updateMessages(MessagePresets.getGoalMessage(tag, description))
         }
     }
@@ -117,7 +124,7 @@ class HomeViewModel @Inject constructor(
     private fun saveLoss(description: String, value: String, tag: Tag, type: Type) {
         viewModelScope.launch(Dispatchers.IO) {
             val savedValue = (value.toDouble() / 100).formatToCurrencyText()
-            finnanceUseCase.saveMovimentation(description, value, tag, type)
+            financeUseCase.saveMovimentation(description, value, tag, type)
             updateMessages(
                 Message(
                     "Tive que gastar $savedValue com $description...",
@@ -131,7 +138,7 @@ class HomeViewModel @Inject constructor(
     private fun saveProfit(description: String, value: String, tag: Tag, type: Type) {
         viewModelScope.launch(Dispatchers.IO) {
             val savedValue = (value.toDouble() / 100).formatToCurrencyText()
-            finnanceUseCase.saveMovimentation(description, value, tag, type)
+            financeUseCase.saveMovimentation(description, value, tag, type)
             updateMessages(Message("Consegui $savedValue com $description!", Type.USER))
             updateMessages(MessagePresets.getProfitMessage(savedValue, tag))
         }

@@ -25,14 +25,15 @@ fun EmojiSheet(onSelectTag: (Tag) -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .padding(vertical = 8.dp)
+            .padding(16.dp)
     ) {
         Text(
-            text = "Categoria", style = MaterialTheme.typography.bodyLarge,
+            text = "Categoria",
+            style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onBackground),
             fontWeight = FontWeight.W500,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(vertical = 4.dp)
         )
         LazyRow(
             horizontalArrangement = Arrangement.Center
@@ -41,27 +42,27 @@ fun EmojiSheet(onSelectTag: (Tag) -> Unit) {
                 Column(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.padding(4.dp)
+                    modifier = Modifier.padding(8.dp)
                 ) {
                     Text(
                         text = it.emoji,
                         modifier = Modifier
                             .wrapContentSize()
-                            .padding(16.dp)
                             .wrapContentSize()
                             .clickable {
                                 onSelectTag(it)
                             },
                         textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.headlineSmall
+                        style = MaterialTheme.typography.headlineLarge
 
                     )
 
                     Text(
                         text = it.description,
                         textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.W400
+                        style = MaterialTheme.typography.labelSmall.copy(MaterialTheme.colorScheme.onBackground),
+                        fontWeight = FontWeight.W300,
+                        modifier = Modifier.padding(vertical = 8.dp)
                     )
                 }
             }

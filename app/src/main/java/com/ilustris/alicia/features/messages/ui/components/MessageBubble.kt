@@ -16,8 +16,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ilustris.alicia.features.finnance.data.model.Goal
 import com.ilustris.alicia.features.finnance.domain.data.MovimentationInfo
-import com.ilustris.alicia.features.finnance.ui.CardGoal
-import com.ilustris.alicia.features.finnance.ui.CardStatement
+import com.ilustris.alicia.features.finnance.ui.component.CardGoal
+import com.ilustris.alicia.features.finnance.ui.component.CardStatement
 import com.ilustris.alicia.features.messages.data.model.Message
 import com.ilustris.alicia.features.messages.data.model.Type
 import com.ilustris.alicia.features.messages.domain.model.MessageInfo
@@ -36,7 +36,8 @@ fun MessageBubble(
     goals: List<Goal> = emptyList(),
     modifier: Modifier,
     amount: Double = 0.0,
-    onSelectSuggestion: (Suggestion, String?) -> Unit
+    onSelectSuggestion: (Suggestion, String?) -> Unit,
+    openStatement: (Int) -> Unit
 ) {
 
     val date = Calendar.getInstance()
@@ -59,6 +60,7 @@ fun MessageBubble(
                 .fillMaxWidth()
                 .padding(8.dp),
             textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.onBackground,
             style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.W300),
         )
     } else {
@@ -117,7 +119,8 @@ fun MessageBubble(
                         items(movimentations) {
                             CardStatement(
                                 tag = it.tag,
-                                movimentations = it.movimentations
+                                movimentations = it.movimentations,
+                                openStatement
                             )
                         }
                     }
@@ -141,7 +144,6 @@ fun DefaultPreview() {
     AliciaTheme {
         Column(modifier = Modifier.fillMaxWidth()) {
             MessageBubble(
-                modifier = Modifier.wrapContentSize(),
                 messageData = MessageInfo(
                     Message(
                         "25 de Janeiro",
@@ -149,11 +151,12 @@ fun DefaultPreview() {
                         sentTime = 1674477903527
                     )
                 ),
-                onSelectSuggestion = { suggestion, s -> }
+                modifier = Modifier.wrapContentSize(),
+                onSelectSuggestion = { suggestion, s -> },
+                openStatement = { }
             )
 
             MessageBubble(
-                modifier = Modifier.wrapContentSize(),
                 messageData = MessageInfo(
                     Message(
                         "Oi Alicia, tudo bem? Estou buscando amizades novas, por favor fale comigo, eu preciso saber se alguma coisa sente algo por mim qualquer coisa q seja",
@@ -161,10 +164,11 @@ fun DefaultPreview() {
                         sentTime = 1674477903527
                     )
                 ),
-                onSelectSuggestion = { suggestion, s -> }
+                modifier = Modifier.wrapContentSize(),
+                onSelectSuggestion = { suggestion, s -> },
+                openStatement = { }
             )
             MessageBubble(
-                modifier = Modifier.wrapContentSize(),
                 messageData = MessageInfo(
                     Message(
                         "Oi eu sou a Alicia",
@@ -172,11 +176,12 @@ fun DefaultPreview() {
                         sentTime = 1674477903527
                     )
                 ),
-                onSelectSuggestion = { suggestion, s -> }
+                modifier = Modifier.wrapContentSize(),
+                onSelectSuggestion = { suggestion, s -> },
+                openStatement = { }
             )
 
             MessageBubble(
-                modifier = Modifier.wrapContentSize(),
                 messageData = MessageInfo(
                     Message(
                         "Como posso chamar você?",
@@ -184,10 +189,11 @@ fun DefaultPreview() {
                         sentTime = 1674477903527
                     )
                 ),
-                onSelectSuggestion = { suggestion, s -> }
+                modifier = Modifier.wrapContentSize(),
+                onSelectSuggestion = { suggestion, s -> },
+                openStatement = { }
             )
             MessageBubble(
-                modifier = Modifier.wrapContentSize(),
                 messageData = MessageInfo(
                     Message(
                         "Fala ai, quanto vc ganhou hoje?",
@@ -195,7 +201,9 @@ fun DefaultPreview() {
                         sentTime = 1674477903527
                     )
                 ),
-                onSelectSuggestion = { suggestion, s -> }
+                modifier = Modifier.wrapContentSize(),
+                onSelectSuggestion = { suggestion, s -> },
+                openStatement = { }
             )
             MessageBubble(
                 messageData = MessageInfo(
@@ -203,15 +211,17 @@ fun DefaultPreview() {
                     observeMovimentations = true
                 ),
                 modifier = Modifier.wrapContentSize(),
-                onSelectSuggestion = { suggestion, s -> }
+                onSelectSuggestion = { suggestion, s -> },
+                openStatement = { }
             )
             MessageBubble(
-                amount = 400.0,
-                modifier = Modifier.wrapContentSize(),
                 messageData = MessageInfo(
                     Message("Aqui estão seus gastos!", type = Type.PROFIT_HISTORY),
                 ),
-                onSelectSuggestion = { suggestion, s -> }
+                modifier = Modifier.wrapContentSize(),
+                amount = 400.0,
+                onSelectSuggestion = { suggestion, s -> },
+                openStatement = { }
             )
         }
     }

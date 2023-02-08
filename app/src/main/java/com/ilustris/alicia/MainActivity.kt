@@ -4,10 +4,12 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Surface
 import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.Modifier
-import com.ilustris.alicia.features.home.ui.HomeUI
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.ilustris.alicia.features.finnance.ui.StatementScreen
+import com.ilustris.alicia.features.home.ui.ChatScreen
 import com.ilustris.alicia.ui.theme.AliciaTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -19,9 +21,17 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             AliciaTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(modifier = Modifier.fillMaxSize()) {
-                    HomeUI(title = "Alicia")
+                val navController = rememberNavController()
+                NavHost(navController = navController, startDestination = "chat") {
+                    composable("chat") {
+                        ChatScreen(
+                            title = getString(R.string.app_name),
+                            navController
+                        )
+                    }
+                    composable("statement") {
+                        StatementScreen(navController = navController)
+                    }
                 }
             }
         }

@@ -6,8 +6,8 @@ import com.ilustris.alicia.features.finnance.data.datasource.MovimentationDao
 import com.ilustris.alicia.features.finnance.data.datasource.MovimentationDaoImpl
 import com.ilustris.alicia.features.finnance.data.repository.FinnanceRepositoryImpl
 import com.ilustris.alicia.features.finnance.domain.repository.FinnanceRepository
-import com.ilustris.alicia.features.finnance.domain.usecase.FinnanceUseCase
-import com.ilustris.alicia.features.finnance.domain.usecase.FinnanceUseCaseImpl
+import com.ilustris.alicia.features.finnance.domain.usecase.FinanceUseCase
+import com.ilustris.alicia.features.finnance.domain.usecase.FinanceUseCaseImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -30,7 +30,7 @@ abstract class FinnanceModule {
 
 
     @Binds
-    abstract fun bindsFinnanceUseCase(finnanceUseCaseImpl: FinnanceUseCaseImpl): FinnanceUseCase
+    abstract fun bindsFinnanceUseCase(finnanceUseCaseImpl: FinanceUseCaseImpl): FinanceUseCase
 
 
 }

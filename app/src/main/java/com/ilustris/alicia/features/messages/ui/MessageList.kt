@@ -26,7 +26,8 @@ fun MessagesList(
     losses: List<MovimentationInfo>,
     goals: List<Goal>,
     amount: Double,
-    onSelectSuggestion: (Suggestion, String?) -> Unit
+    onSelectSuggestion: (Suggestion, String?) -> Unit,
+    openStatement: (Int) -> Unit
 
 ) {
     val messages = remember { appMessages }
@@ -46,7 +47,8 @@ fun MessagesList(
                 goals,
                 modifier = Modifier.animateItemPlacement(),
                 amount,
-                onSelectSuggestion
+                onSelectSuggestion,
+                openStatement
             )
         }
     }

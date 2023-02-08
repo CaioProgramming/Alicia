@@ -34,6 +34,8 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.airbnb.lottie.compose.*
 import com.ilustris.alicia.R
 import com.ilustris.alicia.features.home.presentation.HomeAction
@@ -48,7 +50,7 @@ import kotlinx.coroutines.launch
 
 @ExperimentalComposeUiApi
 @Composable
-fun HomeUI(title: String) {
+fun ChatScreen(title: String, navController: NavHostController) {
 
 
     val viewModel: HomeViewModel = hiltViewModel()
@@ -58,6 +60,9 @@ fun HomeUI(title: String) {
     val lossList = viewModel.loss.collectAsState(initial = emptyList())
     val goals = viewModel.goals.collectAsState(initial = emptyList())
     val amount = viewModel.amount.collectAsState(initial = 0.00)
+    val bannerVisible = remember {
+        mutableStateOf(false)
+    }
     var sheetPlaceHolder by remember {
         mutableStateOf("O que você comprou?")
     }
@@ -136,7 +141,7 @@ fun HomeUI(title: String) {
                 .background(color = toolbarColor(isSystemInDarkTheme()))
         ) {
 
-            val (toolbar, messageList, suggestions, divider, animation) = createRefs()
+            val (toolbar, messageList, suggestions, banner, animation) = createRefs()
 
             val composition by rememberLottieComposition(
                 LottieCompositionSpec.RawRes(R.raw.cute_cat)
@@ -186,31 +191,35 @@ fun HomeUI(title: String) {
                 profitList.value,
                 lossList.value,
                 goals.value,
-                amount.value
-            ) { suggestion, value ->
-                scope.launch {
-                    when (suggestion.action) {
-                        Action.NAME -> {
-                            value?.let {
-                                viewModel.launchAction(HomeAction.SaveUser(value))
+                amount.value,
+                onSelectSuggestion = { suggestion, value ->
+                    scope.launch {
+                        when (suggestion.action) {
+                            Action.NAME -> {
+                                value?.let {
+                                    viewModel.launchAction(HomeAction.SaveUser(value))
+                                }
+                            }
+                            Action.BALANCE, Action.HISTORY, Action.PROFIT_HISTORY, Action.LOSS_HISTORY -> viewModel.launchAction(
+                                HomeAction.GetHistory
+                            )
+                            else -> {
+                                sheetTitle = suggestion.action.description
+                                sheetAction = suggestion.action
+                                sheetPlaceHolder = getPlaceHolderMessage(suggestion.action)
+                                bottomSheetState.show()
                             }
                         }
-                        Action.BALANCE, Action.HISTORY, Action.PROFIT_HISTORY, Action.LOSS_HISTORY -> viewModel.launchAction(
-                            HomeAction.GetHistory
-                        )
-                        else -> {
-                            sheetTitle = suggestion.action.description
-                            sheetAction = suggestion.action
-                            sheetPlaceHolder = getPlaceHolderMessage(suggestion.action)
-                            bottomSheetState.show()
-                        }
+
                     }
-
+                },
+                openStatement = {
+                    navController.navigate("statement")
                 }
-            }
+            )
 
 
-            chatInput(modifier = Modifier
+            ChatInput(modifier = Modifier
                 .constrainAs(suggestions) {
                     bottom.linkTo(parent.bottom)
                     start.linkTo(parent.start)
@@ -228,14 +237,18 @@ fun HomeUI(title: String) {
 }
 
 @Composable
-fun chatInput(modifier: Modifier, onDone: (String) -> Unit) {
+fun ChatInput(modifier: Modifier, onDone: (String) -> Unit) {
     var message by remember {
         mutableStateOf("")
     }
 
     TextField(
         value = message,
-        onValueChange = { message = it },
+        onValueChange = {
+            if (it.length <= 45) {
+                message = it
+            }
+        },
         textStyle = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.W400),
         placeholder = {
             androidx.compose.material3.Text(
@@ -307,6 +320,8 @@ fun getPlaceHolderMessage(action: Action): String {
 @Composable
 fun DefaultPreview() {
     AliciaTheme {
-        HomeUI(title = "Alicia app")
+        val navController = rememberNavController()
+
+        ChatScreen(title = "Alicia app", navController = navController)
     }
 }
