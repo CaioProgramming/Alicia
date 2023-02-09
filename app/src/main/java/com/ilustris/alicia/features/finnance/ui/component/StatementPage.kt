@@ -67,7 +67,6 @@ fun StatementPage(movimentationInfo: MovimentationInfo) {
                 items(movimentationInfo.movimentations) {
                     StatementComponent(
                         movimentation = it,
-                        modifier = Modifier.fillMaxWidth(),
                         textColor = MaterialTheme.colorScheme.onBackground
                     )
                 }

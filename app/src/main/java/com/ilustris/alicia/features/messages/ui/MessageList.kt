@@ -27,9 +27,10 @@ fun MessagesList(
     goals: List<Goal>,
     amount: Double,
     onSelectSuggestion: (Suggestion, String?) -> Unit,
-    openStatement: (Int) -> Unit
+    openStatement: (Int) -> Unit,
+    openGoal: () -> Unit,
 
-) {
+    ) {
     val messages = remember { appMessages }
     val scrollState = rememberLazyListState()
 
@@ -48,7 +49,8 @@ fun MessagesList(
                 modifier = Modifier.animateItemPlacement(),
                 amount,
                 onSelectSuggestion,
-                openStatement
+                openStatement,
+                openGoal
             )
         }
     }

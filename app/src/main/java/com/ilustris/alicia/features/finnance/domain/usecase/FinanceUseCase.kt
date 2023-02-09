@@ -4,6 +4,7 @@ import com.himanshoe.charty.circle.model.CircleData
 import com.himanshoe.charty.line.model.LineData
 import com.ilustris.alicia.features.finnance.data.model.Goal
 import com.ilustris.alicia.features.finnance.data.model.Tag
+import com.ilustris.alicia.features.finnance.domain.data.GoalInfo
 import com.ilustris.alicia.features.finnance.domain.data.MovimentationInfo
 import com.ilustris.alicia.features.messages.data.model.Type
 import kotlinx.coroutines.flow.Flow
@@ -12,9 +13,6 @@ interface FinanceUseCase {
 
     suspend fun saveMovimentation(description: String, value: String, tag: Tag, type: Type): Long
 
-    suspend fun saveGoal(description: String, value: String, tag: Tag): Long
-
-    suspend fun updateGoal(goal: Goal)
     fun getProfit(): Flow<List<MovimentationInfo>>
     fun getLoss(): Flow<List<MovimentationInfo>>
     fun getAmount(): Flow<Double>
@@ -25,6 +23,9 @@ interface FinanceUseCase {
     fun getMovimentationsChart(): Flow<List<LineData>>
     fun getMovimentationsCircleChart(): Flow<List<CircleData>>
 
+    suspend fun saveGoal(description: String, value: String, tag: Tag): Long
+    suspend fun updateGoal(goal: Goal)
     fun getGoals(): Flow<List<Goal>>
+    fun getGoalsInfo(): Flow<List<GoalInfo>>
 
 }

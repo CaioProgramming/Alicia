@@ -8,6 +8,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.ilustris.alicia.features.finnance.ui.GoalScreen
 import com.ilustris.alicia.features.finnance.ui.StatementScreen
 import com.ilustris.alicia.features.home.ui.ChatScreen
 import com.ilustris.alicia.ui.theme.AliciaTheme
@@ -31,6 +32,9 @@ class MainActivity : ComponentActivity() {
                     }
                     composable("statement") {
                         StatementScreen(navController = navController)
+                    }
+                    composable("goals") {
+                        GoalScreen()
                     }
                 }
             }

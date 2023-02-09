@@ -2,8 +2,10 @@ package com.ilustris.alicia.features.finnance.domain.mapper
 
 import com.himanshoe.charty.circle.model.CircleData
 import com.himanshoe.charty.line.model.LineData
+import com.ilustris.alicia.features.finnance.data.model.Goal
 import com.ilustris.alicia.features.finnance.data.model.Movimentation
 import com.ilustris.alicia.features.finnance.data.model.Tag
+import com.ilustris.alicia.features.finnance.domain.data.GoalInfo
 import com.ilustris.alicia.features.finnance.domain.data.MovimentationInfo
 import com.ilustris.alicia.utils.DateFormats
 import com.ilustris.alicia.utils.format
@@ -62,11 +64,21 @@ class MovimentationMapper {
 
     fun mapMovimentationsToCircleData(movimentations: List<Movimentation>) =
         mapMovimentations(movimentations).map { info ->
+            val groupSum = info.movimentations.sumOf { it.value }
+            val yValue = if (groupSum < 0) groupSum * -1 else groupSum
             CircleData(
                 color = info.tag.color,
                 xValue = info.tag.description,
-                yValue = info.movimentations.sumOf { it.value }.unaryPlus().toFloat()
+                yValue = yValue.toFloat()
             )
-        }
+        }.sortedBy { it.yValue }
+
+    fun mapGoalsToInfo(goals: List<Goal>) = goals.groupBy { it.tag }.map {
+        GoalInfo(
+            "${it.key.emoji} ${it.key.description}",
+            "Concluiu ${it.value.filter { it.isComplete }.size} de ${it.value.size}",
+            it.value.sortedByDescending { it.isComplete })
+    }
+
 
 }

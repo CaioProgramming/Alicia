@@ -11,6 +11,7 @@ import com.ilustris.alicia.features.finnance.domain.usecase.FinanceUseCase
 import com.ilustris.alicia.features.messages.data.datasource.MessagePresets
 import com.ilustris.alicia.features.messages.data.model.Message
 import com.ilustris.alicia.features.messages.data.model.Type
+import com.ilustris.alicia.features.messages.domain.model.Action
 import com.ilustris.alicia.features.messages.domain.model.MessageInfo
 import com.ilustris.alicia.features.messages.domain.usecase.MessagesUseCase
 import com.ilustris.alicia.features.user.domain.usecase.UserUseCase
@@ -74,9 +75,11 @@ class HomeViewModel @Inject constructor(
                 Type.PROFIT
             )
             HomeAction.GetHistory -> getHistory()
+            HomeAction.GetGoals -> getGoals()
             is HomeAction.CompleteGoal -> completeGoal(homeAction.goal)
         }
     }
+
 
     private fun completeGoal(goal: Goal) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -86,6 +89,41 @@ class HomeViewModel @Inject constructor(
                     completedAt = Calendar.getInstance().timeInMillis
                 )
             )
+        }
+    }
+
+    private fun getGoals() {
+        updateMessages(Message("Quero ver minhas metas", Type.USER))
+        viewModelScope.launch(Dispatchers.IO) {
+            goals.collect {
+                if (it.isEmpty()) {
+                    updateMessages(
+                        Message(
+                            "Parece que você não criou nenhuma meta ainda. Cria uma agora para começarmos a acompanhar :D",
+                            type = Type.GOAL,
+                            extraActions = listOf(Action.GOAL.name).toString()
+                        )
+                    )
+                } else {
+                    updateMessages(
+                        listOf(
+                            Message("Opa é pra já :)"),
+                            Message(
+                                "Da uma olhada você já criou ${it.size} e concluiu ${it.filter { it.isComplete }.size}",
+                                type = Type.GOAL
+                            ),
+                            Message(
+                                "Continue assim, as metas nos motiva a guardar nosso dinheirinho",
+                                extraActions = listOf(
+                                    Action.PROFIT.name,
+                                    Action.LOSS.name
+                                ).toString()
+                            )
+                        )
+                    )
+                }
+                coroutineContext.job.cancel()
+            }
         }
     }
 
@@ -107,6 +145,15 @@ class HomeViewModel @Inject constructor(
                             Message(
                                 "Seus rendimentos foram bem legais, da uma olhada.",
                                 type = Type.PROFIT_HISTORY
+                            ),
+                            Message(
+                                "É isso ai vamos continuar evoluindo :)",
+                                extraActions = listOf(
+                                    Action.PROFIT.name,
+                                    Action.LOSS.name,
+                                    Action.GOAL.name,
+                                    Action.GOAL_HISTORY
+                                ).toString()
                             )
                         )
                     )
@@ -122,12 +169,27 @@ class HomeViewModel @Inject constructor(
             financeUseCase.saveGoal(description, value, tag)
             updateMessages(
                 Message(
-                    "Meu próximo objetivo é juntar ${
-                        value.toDouble().formatToCurrencyText()
-                    } para conseguir $description :D"
+                    "Meu próximo objetivo é juntar ${(value.toDouble() / 100).formatToCurrencyText()} para conseguir $description :D",
+                    type = Type.USER
                 )
             )
-            updateMessages(MessagePresets.getGoalMessage(tag, description))
+            updateMessages(
+                listOf(
+                    MessagePresets.getGoalMessage(tag, description),
+                    Message(
+                        "Cada meta é como uma medalha, você pode sempre acompanhar suas metas :P",
+                        type = Type.GOAL
+                    ),
+                    Message(
+                        "E vamos continuar registrando as entradas e saídas, vamos alcançar suas metas! :)",
+                        extraActions = listOf(
+                            Action.PROFIT.name,
+                            Action.LOSS.name,
+                            Action.HISTORY.name,
+                        ).toString()
+                    )
+                )
+            )
         }
     }
 

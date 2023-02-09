@@ -11,8 +11,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -42,9 +40,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.airbnb.lottie.compose.*
 import com.ilustris.alicia.R
-import com.ilustris.alicia.features.finnance.ui.component.GoalMedal
+import com.ilustris.alicia.features.finnance.data.model.Goal
 import com.ilustris.alicia.features.home.presentation.HomeAction
 import com.ilustris.alicia.features.home.presentation.HomeViewModel
+import com.ilustris.alicia.features.home.ui.components.Banner
 import com.ilustris.alicia.features.home.ui.components.SheetInput
 import com.ilustris.alicia.features.home.ui.components.TopBar
 import com.ilustris.alicia.features.messages.domain.model.Action
@@ -65,6 +64,11 @@ fun ChatScreen(title: String, navController: NavHostController) {
     val lossList = viewModel.loss.collectAsState(initial = emptyList())
     val goals = viewModel.goals.collectAsState(initial = emptyList())
     val amount = viewModel.amount.collectAsState(initial = 0.00)
+    var completedGoal: Goal? = null
+
+    var banenrVisible by remember {
+        mutableStateOf(false)
+    }
 
     var sheetPlaceHolder by remember {
         mutableStateOf("O que você comprou?")
@@ -86,6 +90,7 @@ fun ChatScreen(title: String, navController: NavHostController) {
     val scope = rememberCoroutineScope()
 
     val focusRequester = remember { FocusRequester() }
+
 
     if (bottomSheetState.isVisible) {
         LaunchedEffect(Unit) {
@@ -135,20 +140,30 @@ fun ChatScreen(title: String, navController: NavHostController) {
                                 tag
                             )
                         )
-                        Action.HISTORY, Action.BALANCE, Action.LOSS_HISTORY, Action.PROFIT_HISTORY, Action.GOAL_HISTORY -> viewModel.launchAction(
+                        Action.HISTORY, Action.BALANCE, Action.GOAL_HISTORY -> viewModel.launchAction(
                             HomeAction.GetHistory
                         )
                     }
                 })
         }) {
+        val celebrateComposition by rememberLottieComposition(
+            LottieCompositionSpec.RawRes(R.raw.celebrate)
+        )
+        var isCelebrationPlaying by remember {
+            mutableStateOf(false)
+        }
 
+        val celebrateProgress by animateLottieCompositionAsState(
+            celebrateComposition,
+            isPlaying = isCelebrationPlaying,
+        )
         ConstraintLayout(
             modifier = Modifier
                 .fillMaxSize()
                 .background(color = toolbarColor(isSystemInDarkTheme()))
         ) {
 
-            val (toolbar, messageList, suggestions, goalsTab, animation) = createRefs()
+            val (toolbar, messageList, suggestions, banner, animation) = createRefs()
 
             val composition by rememberLottieComposition(
                 LottieCompositionSpec.RawRes(R.raw.cute_cat)
@@ -159,23 +174,25 @@ fun ChatScreen(title: String, navController: NavHostController) {
                 iterations = LottieConstants.IterateForever
             )
 
-            val celebrateComposition by rememberLottieComposition(
-                LottieCompositionSpec.RawRes(R.raw.celebrate)
-            )
-            var isCelebrationPlaying by remember {
-                mutableStateOf(false)
-            }
 
-            val celebrateProgress by animateLottieCompositionAsState(
-                composition,
-                isPlaying = isCelebrationPlaying,
-            )
 
             TopBar(title = title, icon = R.drawable.pretty_girl, onClickNavigation = {},
                 modifier = Modifier
                     .fillMaxWidth()
                     .constrainAs(toolbar) { top.linkTo(parent.top) }
             )
+
+
+            completedGoal?.let {
+                Banner(goal = it, banenrVisible, modifier = Modifier.constrainAs(banner) {
+                    top.linkTo(toolbar.top)
+                    bottom.linkTo(messageList.top)
+                    width = Dimension.matchParent
+                    height = Dimension.fillToConstraints
+                }) {
+                    banenrVisible = false
+                }
+            }
 
 
             if (messages.value.isEmpty()) {
@@ -191,62 +208,57 @@ fun ChatScreen(title: String, navController: NavHostController) {
                         height = Dimension.value(200.dp)
 
                     })
-            }
-
-            MessagesList(
-                modifier = Modifier
-                    .constrainAs(messageList) {
-                        bottom.linkTo(suggestions.top)
-                        top.linkTo(toolbar.bottom)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                        width = Dimension.fillToConstraints
-                        height = Dimension.fillToConstraints
-                    },
-                messages,
-                profitList.value,
-                lossList.value,
-                goals.value,
-                amount.value,
-                onSelectSuggestion = { suggestion, value ->
-                    scope.launch {
-                        when (suggestion.action) {
-                            Action.NAME -> {
-                                value?.let {
-                                    viewModel.launchAction(HomeAction.SaveUser(value))
+            } else {
+                MessagesList(
+                    modifier = Modifier
+                        .constrainAs(messageList) {
+                            bottom.linkTo(suggestions.top)
+                            top.linkTo(toolbar.bottom)
+                            start.linkTo(parent.start)
+                            end.linkTo(parent.end)
+                            width = Dimension.fillToConstraints
+                            height = Dimension.fillToConstraints
+                        },
+                    messages,
+                    profitList.value,
+                    lossList.value,
+                    goals.value,
+                    amount.value,
+                    onSelectSuggestion = { suggestion, value ->
+                        scope.launch {
+                            when (suggestion.action) {
+                                Action.NAME -> {
+                                    value?.let {
+                                        viewModel.launchAction(HomeAction.SaveUser(value))
+                                    }
+                                }
+                                Action.BALANCE, Action.HISTORY -> viewModel.launchAction(
+                                    HomeAction.GetHistory
+                                )
+                                Action.GOAL_HISTORY -> viewModel.launchAction(HomeAction.GetGoals)
+                                else -> {
+                                    sheetTitle = suggestion.action.description
+                                    sheetAction = suggestion.action
+                                    sheetPlaceHolder = getPlaceHolderMessage(suggestion.action)
+                                    bottomSheetState.show()
                                 }
                             }
-                            Action.BALANCE, Action.HISTORY, Action.PROFIT_HISTORY, Action.LOSS_HISTORY -> viewModel.launchAction(
-                                HomeAction.GetHistory
-                            )
-                            else -> {
-                                sheetTitle = suggestion.action.description
-                                sheetAction = suggestion.action
-                                sheetPlaceHolder = getPlaceHolderMessage(suggestion.action)
-                                bottomSheetState.show()
-                            }
-                        }
 
+                        }
+                    },
+                    openStatement = {
+                        navController.navigate("statement")
+                    },
+                    openGoal = {
+                        navController.navigate("goals")
                     }
-                },
-                openStatement = {
-                    navController.navigate("statement")
-                }
-            )
+                )
+            }
+
+
 
             if (goals.value.isNotEmpty()) {
-                LazyRow(modifier = Modifier
-                    .constrainAs(goalsTab) {
-                        top.linkTo(toolbar.bottom)
-                    }
-                    .fillMaxWidth()
-                    .background(toolbarColor(isSystemInDarkTheme()))) {
-                    items(goals.value) {
-                        GoalMedal(goal = it)
-                    }
-                }
                 val mediaPlayer = MediaPlayer.create(LocalContext.current, R.raw.celebrate_audio)
-
                 LaunchedEffect(Unit) {
                     val completedGoals =
                         goals.value.filter { it.value <= amount.value && !it.isComplete }
@@ -261,6 +273,8 @@ fun ChatScreen(title: String, navController: NavHostController) {
                         completedGoals.forEach {
                             viewModel.launchAction(HomeAction.CompleteGoal(it))
                         }
+                        completedGoal = completedGoals.last()
+                        banenrVisible = true
                     }
                 }
             }
@@ -277,12 +291,13 @@ fun ChatScreen(title: String, navController: NavHostController) {
                 viewModel.launchAction(HomeAction.SaveUser(it))
             })
 
-            LottieAnimation(
-                celebrateComposition,
-                celebrateProgress,
-                modifier = Modifier.fillMaxSize()
-            )
+
         }
+        LottieAnimation(
+            celebrateComposition,
+            celebrateProgress,
+            modifier = Modifier.fillMaxSize()
+        )
     }
 
 

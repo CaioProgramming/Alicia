@@ -12,6 +12,6 @@ sealed class HomeAction {
     data class SaveGoal(val description: String, val value: String, val tag: Tag) : HomeAction()
     data class CompleteGoal(val goal: Goal) : HomeAction()
     object GetHistory : HomeAction()
-
+    object GetGoals : HomeAction()
 
 }

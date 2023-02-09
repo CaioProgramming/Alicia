@@ -9,8 +9,6 @@ enum class Action(val description: String) {
     LOSS("Novo gasto"),
     GOAL("Nova meta"),
     HISTORY("Ver histórico"),
-    PROFIT_HISTORY("Histórico de rendimentos"),
-    LOSS_HISTORY("Histórico de gastos"),
     GOAL_HISTORY("Histórico de metas")
 }
 

@@ -41,8 +41,9 @@ object MessagePresets {
             },
             extraActions = listOf(
                 Action.LOSS.name,
-                Action.HISTORY.name,
                 Action.GOAL.name,
+                Action.HISTORY.name,
+                Action.GOAL_HISTORY.name,
             ).toString()
         )
     }
@@ -56,18 +57,15 @@ object MessagePresets {
             },
             extraActions = listOf(
                 Action.PROFIT.name,
-                Action.HISTORY.name,
                 Action.GOAL.name,
+                Action.HISTORY.name,
+                Action.GOAL_HISTORY.name,
             ).toString()
         )
     }
 
-    fun getGoalMessage(tag: Tag, description: String) = Message(
-        DefaultPresets().getGoalMessage(description), type = Type.GOAL, extraActions = listOf(
-            Action.PROFIT.name,
-            Action.LOSS.name,
-        ).toString()
-    )
+    fun getGoalMessage(tag: Tag, description: String) =
+        Message(DefaultPresets().getGoalMessage(description))
 
     fun keepGoingMessage() = Message(
         "Me fala ai como estão as coisas?",

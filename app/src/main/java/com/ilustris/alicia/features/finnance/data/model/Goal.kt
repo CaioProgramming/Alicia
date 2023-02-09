@@ -13,4 +13,5 @@ data class Goal(
     val tag: Tag,
     val isComplete: Boolean = false,
     val completedAt: Long = 0L,
+    val badge: Int = 0,
 )

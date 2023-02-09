@@ -16,8 +16,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ilustris.alicia.features.finnance.data.model.Goal
 import com.ilustris.alicia.features.finnance.domain.data.MovimentationInfo
-import com.ilustris.alicia.features.finnance.ui.component.CardGoal
 import com.ilustris.alicia.features.finnance.ui.component.CardStatement
+import com.ilustris.alicia.features.finnance.ui.component.GoalMedal
 import com.ilustris.alicia.features.messages.data.model.Message
 import com.ilustris.alicia.features.messages.data.model.Type
 import com.ilustris.alicia.features.messages.domain.model.MessageInfo
@@ -37,7 +37,8 @@ fun MessageBubble(
     modifier: Modifier,
     amount: Double = 0.0,
     onSelectSuggestion: (Suggestion, String?) -> Unit,
-    openStatement: (Int) -> Unit
+    openStatement: (Int) -> Unit,
+    openGoal: () -> Unit
 ) {
 
     val date = Calendar.getInstance()
@@ -106,9 +107,14 @@ fun MessageBubble(
             if (messageData.observeMovimentations) {
                 when (message.type) {
                     Type.AMOUNT -> AmountComponent(amount = amount)
-                    Type.GOAL -> Column {
-                        goals.forEach {
-                            CardGoal(goal = it, amount = amount)
+                    Type.GOAL -> LazyRow(
+                        modifier = modifier,
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+
+                        items(goals) {
+                            GoalMedal(goal = it, size = 50.dp, enabled = false, openGoal)
                         }
                     }
                     Type.PROFIT_HISTORY,
@@ -153,7 +159,8 @@ fun DefaultPreview() {
                 ),
                 modifier = Modifier.wrapContentSize(),
                 onSelectSuggestion = { suggestion, s -> },
-                openStatement = { }
+                openStatement = { },
+                openGoal = { }
             )
 
             MessageBubble(
@@ -166,7 +173,8 @@ fun DefaultPreview() {
                 ),
                 modifier = Modifier.wrapContentSize(),
                 onSelectSuggestion = { suggestion, s -> },
-                openStatement = { }
+                openStatement = { },
+                openGoal = { }
             )
             MessageBubble(
                 messageData = MessageInfo(
@@ -178,7 +186,8 @@ fun DefaultPreview() {
                 ),
                 modifier = Modifier.wrapContentSize(),
                 onSelectSuggestion = { suggestion, s -> },
-                openStatement = { }
+                openStatement = { },
+                openGoal = { }
             )
 
             MessageBubble(
@@ -191,7 +200,8 @@ fun DefaultPreview() {
                 ),
                 modifier = Modifier.wrapContentSize(),
                 onSelectSuggestion = { suggestion, s -> },
-                openStatement = { }
+                openStatement = { },
+                openGoal = { }
             )
             MessageBubble(
                 messageData = MessageInfo(
@@ -203,7 +213,8 @@ fun DefaultPreview() {
                 ),
                 modifier = Modifier.wrapContentSize(),
                 onSelectSuggestion = { suggestion, s -> },
-                openStatement = { }
+                openStatement = { },
+                openGoal = { }
             )
             MessageBubble(
                 messageData = MessageInfo(
@@ -212,7 +223,8 @@ fun DefaultPreview() {
                 ),
                 modifier = Modifier.wrapContentSize(),
                 onSelectSuggestion = { suggestion, s -> },
-                openStatement = { }
+                openStatement = { },
+                openGoal = { }
             )
             MessageBubble(
                 messageData = MessageInfo(
@@ -221,7 +233,8 @@ fun DefaultPreview() {
                 modifier = Modifier.wrapContentSize(),
                 amount = 400.0,
                 onSelectSuggestion = { suggestion, s -> },
-                openStatement = { }
+                openStatement = { },
+                openGoal = { }
             )
         }
     }

@@ -2,8 +2,10 @@ package com.ilustris.alicia.features.finnance.ui.component
 
 import ai.atick.material.MaterialColor
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
@@ -13,30 +15,34 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.unit.TextUnitType
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.ilustris.alicia.features.finnance.data.model.Goal
 import com.ilustris.alicia.features.finnance.data.model.Tag
+import com.ilustris.alicia.features.finnance.data.model.TagHelper
 import com.ilustris.alicia.ui.theme.AliciaTheme
 import com.ilustris.alicia.utils.DateFormats
 import com.ilustris.alicia.utils.format
 import java.util.*
 
 @Composable
-fun GoalMedal(goal: Goal) {
+fun GoalMedal(goal: Goal, size: Dp, enabled: Boolean = true, onClick: () -> Unit) {
     var rotated by remember { mutableStateOf(false) }
 
+    var direction by remember {
+        mutableStateOf(180f)
+    }
+
     val rotation by animateFloatAsState(
-        targetValue = if (!rotated) 180f else 0f,
+        targetValue = if (!rotated) direction else 0f,
         animationSpec = tween(500)
     )
 
@@ -62,96 +68,136 @@ fun GoalMedal(goal: Goal) {
             MaterialColor.Blue900,
             MaterialColor.Blue600,
             MaterialColor.Blue300
-        )
+        ),
+        tileMode = TileMode.Mirror
     ) else Brush.linearGradient(
         colors = listOf(
+            MaterialColor.Black,
             MaterialColor.Gray900,
-            MaterialColor.Gray300,
-            MaterialColor.Gray100
-        )
+            MaterialColor.Gray800,
+            MaterialColor.Black
+        ),
+        tileMode = TileMode.Mirror
     )
+
+
+    val backBrush = if (goal.isComplete) Brush.linearGradient(
+        colors = listOf(
+            MaterialColor.White,
+            MaterialColor.Gray300,
+            MaterialColor.Gray400,
+            MaterialColor.Gray200,
+            MaterialColor.White
+        ),
+        tileMode = TileMode.Mirror
+    ) else brush
+
+    val matrix = ColorMatrix().apply {
+        setToSaturation(if (goal.isComplete) 1f else 0f)
+    }
+
+    val stroke = 15f
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .padding(8.dp)
+        modifier = Modifier.padding(8.dp)
     ) {
-        val strokeWidth = 200f
-        Column(modifier = Modifier
-            .size(70.dp)
-            .clip(CircleShape)
-            .drawBehind {
-                if (goal.isComplete) {
-                    rotate(rotationAnimation.value) {
-                        drawCircle(brush, style = Stroke(strokeWidth))
-                    }
-                } else {
-                    drawCircle(brush, style = Stroke(strokeWidth))
-                }
 
-            }
-            .clickable {
-                rotated = !rotated
-            }
-            .graphicsLayer {
-                rotationY = rotation
-                cameraDistance = 8 * density
-            },
+        Column(
+            modifier = Modifier
+                .wrapContentSize()
+                .graphicsLayer {
+                    rotationY = rotation
+                    cameraDistance = 8 * density
+                },
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Column(
-                Modifier
-                    .fillMaxSize()
-                    .padding(4.dp)
-                    .background(
-                        color = if (!rotated) Color.Transparent else MaterialTheme.colorScheme.background,
-                        shape = CircleShape
-                    )
-                    .graphicsLayer {
-                        cameraDistance = 8 * density
-                        alpha = if (rotated) animateBack else animateFront
-                    },
+            Column(modifier = Modifier
+                .padding(4.dp)
+                .size(size)
+                .pointerInput(Unit) {
+                    detectDragGestures { change, dragAmount ->
+                        change.consume()
+                        val (x, y) = dragAmount
+                        if (x > 0) {
+                            direction = 180f
+                            //rotated = !rotated
+                        } else if (x < 0) {
+                            direction = -180f
+                            //rotated = !rotated
+                        }
+
+                    }
+                }
+                .background(
+                    brush = if (!rotated) brush else backBrush,
+                    CircleShape,
+                    alpha = 0.8f
+                )
+                .drawBehind {
+                    if (goal.isComplete) {
+                        rotate(rotationAnimation.value) {
+                            drawCircle(
+                                if (!rotated) brush else backBrush,
+                                style = Stroke(stroke)
+                            )
+                        }
+                    } else {
+                        drawCircle(if (!rotated) brush else backBrush, style = Stroke(stroke))
+                    }
+
+
+                }
+                .clip(CircleShape)
+                .clickable {
+                    if (enabled) {
+                        rotated = !rotated
+                    }
+                    onClick()
+                }
+                .graphicsLayer {
+                    rotationY = rotation
+                    cameraDistance = 8 * density
+                },
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
+                if (!rotated) {
+                    Image(
+                        painterResource(id = TagHelper.findBadgeResource(0, goal.tag)),
+                        contentDescription = "",
+                        contentScale = ContentScale.Fit,
+                        colorFilter = ColorFilter.colorMatrix(matrix),
+                        modifier = Modifier
+                            .fillMaxSize(fraction = 0.9f)
+                            .clip(CircleShape)
 
-                val goalDate = Calendar.getInstance().apply {
-                    timeInMillis = if (goal.isComplete) goal.completedAt else goal.createdAt
-                }.time.format(DateFormats.DD_OF_MM)
-                val message = if (goal.isComplete) "Conquistado em" else "Criada em"
-                val text = "$message $goalDate"
-
-                val textStyle = if (!rotated) MaterialTheme.typography.bodySmall.copy(
-                    color = MaterialTheme.colorScheme.onBackground,
-                    textAlign = TextAlign.Center
-                ) else MaterialTheme.typography.labelSmall.copy(
-                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
-                    textAlign = TextAlign.Center,
-                    fontSize = TextUnit(6f, TextUnitType.Sp)
-                )
-
-                Text(
-                    text = if (!rotated) goal.tag.emoji else text,
-                    style = textStyle,
-                    modifier = Modifier
-                        .graphicsLayer {
-                            alpha = if (rotated) animateBack else animateFront
-                            rotationY = rotation
-                            cameraDistance = 8 * density
-                        }
-                        .padding(8.dp)
-                )
+                    )
+                } else {
+                    val formattedDate = Calendar.getInstance().apply {
+                        timeInMillis = if (goal.isComplete) goal.completedAt else goal.createdAt
+                    }.time.format(DateFormats.DD_OF_MM)
+                    val message =
+                        if (goal.isComplete) "Conquistado em\n$formattedDate" else "Criado em\n$formattedDate"
+                    Text(
+                        text = message.uppercase(Locale.getDefault()),
+                        modifier = Modifier
+                            .graphicsLayer {
+                                alpha = if (!rotated) animateFront else animateBack
+                            }
+                            .padding(8.dp),
+                        style = MaterialTheme.typography.labelSmall.copy(color = MaterialColor.White),
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
-
         }
-
         Text(
             text = goal.description,
-            style = MaterialTheme.typography.labelSmall.copy(
-                color = MaterialTheme.colorScheme.onSurface,
-                fontWeight = FontWeight.W500,
-                fontSize = TextUnit(10f, TextUnitType.Sp)
-            )
+            style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onBackground),
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(8.dp)
         )
     }
 
@@ -168,8 +214,9 @@ fun GoalPreview() {
                     tag = Tag.TRANSPORT,
                     value = 50000.00,
                     createdAt = Calendar.getInstance().timeInMillis
-                )
-            )
+                ),
+                size = 100.dp
+            ) {}
             GoalMedal(
                 Goal(
                     description = "Monitor",
@@ -177,8 +224,10 @@ fun GoalPreview() {
                     value = 500.00,
                     isComplete = true,
                     createdAt = Calendar.getInstance().timeInMillis
-                )
-            )
+                ),
+                size = 100.dp,
+                enabled = false
+            ) {}
         }
 
     }
