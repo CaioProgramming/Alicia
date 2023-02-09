@@ -165,7 +165,7 @@ fun GoalMedal(goal: Goal, size: Dp, enabled: Boolean = true, onClick: () -> Unit
             ) {
                 if (!rotated) {
                     Image(
-                        painterResource(id = TagHelper.findBadgeResource(0, goal.tag)),
+                        painterResource(id = TagHelper.findBadgeResource(goal.badge, goal.tag)),
                         contentDescription = "",
                         contentScale = ContentScale.Fit,
                         colorFilter = ColorFilter.colorMatrix(matrix),

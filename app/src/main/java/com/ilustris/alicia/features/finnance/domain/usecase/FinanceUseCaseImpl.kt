@@ -45,7 +45,7 @@ class FinanceUseCaseImpl @Inject constructor(
             value = doubleValue,
             tag = tag,
             createdAt = Calendar.getInstance().timeInMillis,
-            badge = TagHelper.getRandomBadge(tag)
+            badge = TagHelper.getRandomBadge()
         )
         return finnanceRepository.saveGoal(goal)
     }

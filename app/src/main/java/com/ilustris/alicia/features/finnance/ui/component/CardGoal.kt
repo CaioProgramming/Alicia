@@ -134,7 +134,7 @@ fun goalPreview() {
         goal = Goal(
             value = 500.00,
             description = "Casa",
-            tag = Tag.GIFTS,
+            tag = Tag.SHOPPING,
             createdAt = Random.nextLong()
         )
     ) {

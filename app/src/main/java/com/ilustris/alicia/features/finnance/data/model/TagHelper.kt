@@ -12,23 +12,49 @@ object TagHelper {
                 Tag.TRANSPORT -> transportBadges[index]
                 Tag.SHOPPING -> shoppingBadges[index]
                 Tag.GAMES -> gameBadges[index]
-                Tag.GIFTS -> giftBadges[index]
+                Tag.TRAVEL -> travelBadges[index]
+                Tag.EDUCATION -> educationBadges[index]
+                Tag.WORK -> workBadges[index]
+                Tag.ENTERTAINMENT -> partyBadges[index]
+                Tag.GROCERIES -> groeceryBadges[index]
+                Tag.HEALTH -> healthBadges[index]
                 else -> commonBadges[index]
             }
         } catch (e: Exception) {
+            e.printStackTrace()
             commonBadges.first()
         }
     }
 
-    fun getRandomBadge(tag: Tag) = Random.nextInt(commonBadges.size)
+    fun getRandomBadge() = Random.nextInt(0, commonBadges.size)
 
-
-    val transportBadges = listOf(R.drawable.car_badge_1)
-    val gameBadges = listOf(R.drawable.game_badge_1)
-    val petBadges = listOf(R.drawable.pet_badge_1)
-    val shoppingBadges = listOf(R.drawable.shopping_badge_1)
-    val commonBadges = listOf(R.drawable.common_badge_1)
-    val giftBadges = listOf(R.drawable.gift_badge_1)
-
+    private val commonBadges =
+        listOf(R.drawable.common_badge_1, R.drawable.common_badge_2, R.drawable.common_badge_3)
+    private val transportBadges =
+        listOf(R.drawable.car_badge_1, R.drawable.car_badge_2, R.drawable.car_badge_3)
+    private val gameBadges =
+        listOf(R.drawable.game_badge_1, R.drawable.game_badge_2, R.drawable.game_badge_3)
+    private val petBadges =
+        listOf(R.drawable.pet_badge_1, R.drawable.pet_badge_2, R.drawable.pet_badge_3)
+    private val shoppingBadges = listOf(
+        R.drawable.shopping_badge_1,
+        R.drawable.shopping_badge_2,
+        R.drawable.shopping_badge_3
+    )
+    private val partyBadges =
+        listOf(R.drawable.party_badge_1, R.drawable.party_badge_2, R.drawable.party_badge_3)
+    private val travelBadges =
+        listOf(R.drawable.travel_badge_1, R.drawable.travel_badge_2, R.drawable.travel_badge_3)
+    private val educationBadges = listOf(
+        R.drawable.education_badge_1,
+        R.drawable.education_badge_2,
+        R.drawable.education_badge_3
+    )
+    private val workBadges =
+        listOf(R.drawable.work_badge_1, R.drawable.work_badge_2, R.drawable.work_badge_3)
+    private val healthBadges =
+        listOf(R.drawable.healt_badge_1, R.drawable.healt_badge_2, R.drawable.health_badge_3)
+    private val groeceryBadges =
+        listOf(R.drawable.grocerie_badge_1, R.drawable.grocerie_badge_2, R.drawable.grocery_badge_3)
 
 }

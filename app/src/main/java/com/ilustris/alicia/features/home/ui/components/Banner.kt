@@ -68,7 +68,7 @@ fun BannerPreview() {
                 description = "Nike air",
                 value = 500.00,
                 createdAt = Calendar.getInstance().timeInMillis,
-                tag = Tag.CLOTHES
+                tag = Tag.SHOPPING
             )
         ) {
 
