@@ -1,5 +1,6 @@
 package com.ilustris.alicia.features.messages.data.datasource
 
+import android.icu.util.Calendar
 import com.ilustris.alicia.features.finnance.data.model.Tag
 import com.ilustris.alicia.features.messages.data.datasource.presets.BillsPresets
 import com.ilustris.alicia.features.messages.data.datasource.presets.DefaultPresets
@@ -75,5 +76,18 @@ object MessagePresets {
             Action.GOAL.name,
         ).toString()
     )
+
+    fun dayIntroduction(userName: String): String {
+        val dayHour = Calendar.getInstance()[Calendar.HOUR_OF_DAY]
+        if (dayHour in 6..12) {
+            return "Bom dia $userName\n"
+        } else if (dayHour in 13..18) {
+            return "Boa tarde $userName"
+        } else {
+            return "Boa noite $userName"
+        }
+    }
+
+
 }
 

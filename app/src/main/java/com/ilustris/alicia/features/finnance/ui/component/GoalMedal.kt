@@ -43,17 +43,17 @@ fun GoalMedal(goal: Goal, size: Dp, enabled: Boolean = true, onClick: () -> Unit
 
     val rotation by animateFloatAsState(
         targetValue = if (!rotated) direction else 0f,
-        animationSpec = tween(500)
+        animationSpec = tween(1500)
     )
 
     val animateFront by animateFloatAsState(
         targetValue = if (!rotated) 1f else 0f,
-        animationSpec = tween(500)
+        animationSpec = tween(1500)
     )
 
     val animateBack by animateFloatAsState(
         targetValue = if (rotated) 1f else 0f,
-        animationSpec = tween(500)
+        animationSpec = tween(1500)
     )
 
     val infiniteTransition = rememberInfiniteTransition()

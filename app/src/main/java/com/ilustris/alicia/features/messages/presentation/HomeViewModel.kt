@@ -1,4 +1,4 @@
-package com.ilustris.alicia.features.home.presentation
+package com.ilustris.alicia.features.messages.presentation
 
 
 import android.util.Log
@@ -250,17 +250,19 @@ class HomeViewModel @Inject constructor(
 
     private fun getUser() {
         viewModelScope.launch(Dispatchers.IO) {
-            val user = userUseCase.getUserById()
-            val lastMessage = messagesUseCase.getLastMessage()
-            if (user == null) {
-                if (shouldSendNewMessage(lastMessage)) updateMessages(MessagePresets.newUserMessages)
-                updateSuggestionsForNewUser()
-            } else {
-                if (shouldSendNewMessage(lastMessage)) {
-                    updateMessages(MessagePresets.getGreeting(user.name))
-                    updateMessages(MessagePresets.keepGoingMessage())
+            userUseCase.getUserById().collect {
+                val lastMessage = messagesUseCase.getLastMessage()
+                if (it == null) {
+                    if (shouldSendNewMessage(lastMessage)) updateMessages(MessagePresets.newUserMessages)
+                    updateSuggestionsForNewUser()
+                } else {
+                    if (shouldSendNewMessage(lastMessage)) {
+                        updateMessages(MessagePresets.getGreeting(it.name))
+                        updateMessages(MessagePresets.keepGoingMessage())
+                    }
                 }
             }
+
         }
     }
 

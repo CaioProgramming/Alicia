@@ -29,9 +29,7 @@ import kotlin.random.Random
 fun CardGoal(goal: Goal, amount: Double, openGoal: () -> Unit) {
     val progression = ((amount / goal.value)).toFloat()
 
-    var showedSnack by remember {
-        mutableStateOf(false)
-    }
+
     var progress by remember { mutableStateOf(0f) }
     val progressAnimDuration = 1500
     val progressAnimation by animateFloatAsState(
@@ -47,8 +45,6 @@ fun CardGoal(goal: Goal, amount: Double, openGoal: () -> Unit) {
     )
     val textColor =
         if (progression > 1f) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onBackground
-    val snackState = remember { SnackbarHostState() }
-    val snackScope = rememberCoroutineScope()
 
 
 

@@ -9,6 +9,6 @@ interface UserUseCase {
 
     suspend fun saveUser(username: String, avatar: Int = 0) : Long
 
-    suspend fun getUserById() : User?
+    fun getUserById(): Flow<User?>
 
 }

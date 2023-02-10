@@ -30,7 +30,7 @@ fun Banner(goal: Goal, visible: Boolean = false, modifier: Modifier, closeBanner
     AnimatedVisibility(
         visible = visible,
         enter = slideInVertically(animationSpec = tween(1000)),
-        exit = slideOutVertically(animationSpec = tween(1500))
+        exit = slideOutVertically(animationSpec = tween(1000))
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
