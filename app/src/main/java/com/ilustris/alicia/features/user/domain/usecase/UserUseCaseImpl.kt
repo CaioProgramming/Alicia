@@ -4,9 +4,6 @@ import com.ilustris.alicia.features.user.data.model.User
 import com.ilustris.alicia.features.user.domain.repository.UserRepository
 import com.ilustris.alicia.utils.PreferencesService
 import com.ilustris.alicia.utils.USER_KEY
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
 class UserUseCaseImpl @Inject constructor(
@@ -24,7 +21,8 @@ class UserUseCaseImpl @Inject constructor(
         return newUser
     }
 
-    override suspend fun getUserById(): User? = userRepository.getUserByUid(preferencesService.getLongKey(USER_KEY)).firstOrNull()
+    override fun getUserById() =
+        userRepository.getUserByUid(preferencesService.getLongKey(USER_KEY))
 
 
 }

@@ -49,7 +49,7 @@ private val LightColorScheme = lightColorScheme(
 )
 
 @Composable
-fun aliciaBrush() = Brush.linearGradient(
+fun aliciaBrush() = Brush.verticalGradient(
     listOf(
         MaterialTheme.colorScheme.primary,
         MaterialTheme.colorScheme.secondary,

@@ -9,7 +9,7 @@ interface UserRepository {
 
     suspend fun saveUser(userName: String, avatar: Int): Long
 
-    suspend fun getUserByUid(uid: Long) : Flow<User?>
+     fun getUserByUid(uid: Long): Flow<User?>
 
 
 }

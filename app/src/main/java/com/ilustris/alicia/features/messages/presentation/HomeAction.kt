@@ -1,4 +1,4 @@
-package com.ilustris.alicia.features.home.presentation
+package com.ilustris.alicia.features.messages.presentation
 
 import com.ilustris.alicia.features.finnance.data.model.Goal
 import com.ilustris.alicia.features.finnance.data.model.Tag

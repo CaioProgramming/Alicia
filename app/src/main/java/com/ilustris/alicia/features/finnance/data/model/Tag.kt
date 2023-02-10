@@ -7,7 +7,7 @@ enum class Tag(val emoji: String, val description: String, val color: Color) {
 
     PETS("🐶", "Pets", MaterialColor.Brown200),
     WORK("💼", "Trabalho", MaterialColor.Brown700),
-    GROCERIES("🧁", "Doces", MaterialColor.Pink400),
+    GROCERIES("🍕", "Alimentação", MaterialColor.Pink400),
     HEALTH("💊", "Saúde", MaterialColor.Green400),
     BILLS("🪙", "Contas", MaterialColor.Yellow500),
     TRANSPORT("🚗", "Transporte", MaterialColor.Gray800),

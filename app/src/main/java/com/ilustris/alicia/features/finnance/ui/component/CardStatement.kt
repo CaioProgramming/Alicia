@@ -2,12 +2,11 @@ package com.ilustris.alicia.features.finnance.ui.component
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -19,7 +18,7 @@ import com.ilustris.alicia.ui.theme.toolbarColor
 import com.ilustris.alicia.utils.formatToCurrencyText
 import kotlin.random.Random
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun CardStatement(tag: Tag, movimentations: List<Movimentation>, openStatement: (Int) -> Unit) {
 
@@ -29,8 +28,12 @@ fun CardStatement(tag: Tag, movimentations: List<Movimentation>, openStatement: 
     val cardDescription =
         if (movimentations.none { it.value < 0 }) "de rendimento na categoria." else "de gastos na categoria."
 
-    Card(shape = RoundedCornerShape(25.dp),
+    Card(
+        shape = RoundedCornerShape(25.dp),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground.copy(alpha = 0.2f)),
+        onClick = {
+            openStatement(tag.ordinal)
+        },
         colors = CardDefaults.cardColors(
             containerColor = toolbarColor(
                 isSystemInDarkTheme()
@@ -40,17 +43,7 @@ fun CardStatement(tag: Tag, movimentations: List<Movimentation>, openStatement: 
             .padding(8.dp)
             .width(200.dp)
             .height(200.dp)
-            .combinedClickable(
-                onClick = {
-                    openStatement(tag.ordinal)
-                },
-                onDoubleClick = {
-                    openStatement(tag.ordinal)
-                },
-                onLongClick = {
-                    openStatement(tag.ordinal)
-                }
-            )) {
+    ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,

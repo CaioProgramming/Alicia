@@ -53,7 +53,7 @@ class MovimentationMapper {
             val lastAmmount =
                 movimentations.filter { it.spendAt <= calendar.timeInMillis }.sumOf { it.value }
             LineData(
-                xValue = calendar.time.format(DateFormats.DD_OF_MM),
+                xValue = calendar.time.format(DateFormats.DD_MM),
                 yValue = lastAmmount.toFloat()
             )
         }
