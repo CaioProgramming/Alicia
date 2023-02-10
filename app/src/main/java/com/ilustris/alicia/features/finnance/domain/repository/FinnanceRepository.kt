@@ -6,14 +6,14 @@ import kotlinx.coroutines.flow.Flow
 
 interface FinnanceRepository {
 
+    suspend fun saveMovimentation(movimentation: Movimentation): Long
 
-   suspend fun saveMovimentation(movimentation: Movimentation): Long
+    fun getMovimentations(): Flow<List<Movimentation>>
 
+    fun getGoals(): Flow<List<Goal>>
 
-   fun getMovimentations(): Flow<List<Movimentation>>
+    fun saveGoal(goal: Goal): Long
 
-   fun getGoals(): Flow<List<Goal>>
-
-   fun saveGoals(goal: Goal): Long
+    fun updateGoal(goal: Goal)
 
 }

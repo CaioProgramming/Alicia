@@ -67,7 +67,6 @@ fun StatementPage(movimentationInfo: MovimentationInfo) {
                 items(movimentationInfo.movimentations) {
                     StatementComponent(
                         movimentation = it,
-                        modifier = Modifier.fillMaxWidth(),
                         textColor = MaterialTheme.colorScheme.onBackground
                     )
                 }
@@ -82,7 +81,7 @@ fun StatementPagePreview() {
     AliciaTheme {
         StatementPage(
             movimentationInfo = MovimentationInfo(
-                Tag.GIFTS,
+                Tag.SHOPPING,
                 listOf(
                     Movimentation(
                         value = 500.0,

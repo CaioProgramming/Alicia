@@ -1,6 +1,5 @@
 package com.ilustris.alicia.features.messages.ui.components
 
-import ai.atick.material.MaterialColor
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,7 +16,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ilustris.alicia.R
 import com.ilustris.alicia.features.messages.data.datasource.SuggestionsPresets
 import com.ilustris.alicia.features.messages.domain.model.Action
 import com.ilustris.alicia.features.messages.domain.model.Suggestion
@@ -52,26 +50,6 @@ fun MessageSuggestion(
                 )
             }
         }
-    }
-}
-
-fun getSuggestionIcon(action: Action): Int {
-    return when (action) {
-        Action.PROFIT -> R.drawable.iconmonstr_coin_8
-        Action.LOSS -> R.drawable.iconmonstr_download_10
-        Action.GOAL -> R.drawable.iconmonstr_target_4
-        Action.HISTORY -> R.drawable.iconmonstr_time_4
-        else -> R.drawable.girl_face
-    }
-}
-
-fun getSuggestionButtonColor(action: Action): Color {
-    return when (action) {
-        Action.PROFIT -> MaterialColor.GreenA100
-        Action.LOSS -> MaterialColor.RedA100
-        Action.GOAL -> MaterialColor.OrangeA100
-        Action.HISTORY -> MaterialColor.BlueGray200
-        else -> MaterialColor.Purple300
     }
 }
 

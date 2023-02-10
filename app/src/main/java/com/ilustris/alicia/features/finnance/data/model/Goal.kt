@@ -10,5 +10,8 @@ data class Goal(
     val value: Double,
     val description: String,
     val createdAt: Long,
-    val tag: Tag
+    val tag: Tag,
+    val isComplete: Boolean = false,
+    val completedAt: Long = 0L,
+    val badge: Int = 0,
 )

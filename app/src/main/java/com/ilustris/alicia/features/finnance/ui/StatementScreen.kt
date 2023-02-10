@@ -128,7 +128,6 @@ fun StatementScreen(navController: NavController) {
                     items(it.movimentations.size) { index ->
                         StatementComponent(
                             movimentation = it.movimentations[index],
-                            modifier = Modifier.fillMaxWidth(),
                             textColor = MaterialTheme.colorScheme.onBackground,
                         )
                     }

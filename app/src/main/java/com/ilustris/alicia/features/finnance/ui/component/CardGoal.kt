@@ -4,6 +4,7 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -25,7 +26,7 @@ import com.ilustris.alicia.utils.formatToCurrencyText
 import kotlin.random.Random
 
 @Composable
-fun CardGoal(goal: Goal, amount: Double) {
+fun CardGoal(goal: Goal, amount: Double, openGoal: () -> Unit) {
     val progression = ((amount / goal.value)).toFloat()
 
     var showedSnack by remember {
@@ -55,7 +56,11 @@ fun CardGoal(goal: Goal, amount: Double) {
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground.copy(alpha = 0.1f)),
         shape = RoundedCornerShape(15.dp),
         colors = CardDefaults.cardColors(containerColor = cardColor),
-        modifier = Modifier.padding(4.dp)
+        modifier = Modifier
+            .padding(4.dp)
+            .clickable {
+                openGoal.invoke()
+            }
     ) {
 
         ConstraintLayout(
@@ -129,8 +134,10 @@ fun goalPreview() {
         goal = Goal(
             value = 500.00,
             description = "Casa",
-            tag = Tag.GIFTS,
+            tag = Tag.SHOPPING,
             createdAt = Random.nextLong()
         )
-    )
+    ) {
+
+    }
 }

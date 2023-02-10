@@ -2,6 +2,7 @@
 
 package com.ilustris.alicia.features.home.ui
 
+import android.media.MediaPlayer
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -23,6 +24,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
@@ -38,14 +40,17 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.airbnb.lottie.compose.*
 import com.ilustris.alicia.R
+import com.ilustris.alicia.features.finnance.data.model.Goal
 import com.ilustris.alicia.features.home.presentation.HomeAction
 import com.ilustris.alicia.features.home.presentation.HomeViewModel
+import com.ilustris.alicia.features.home.ui.components.Banner
 import com.ilustris.alicia.features.home.ui.components.SheetInput
 import com.ilustris.alicia.features.home.ui.components.TopBar
 import com.ilustris.alicia.features.messages.domain.model.Action
 import com.ilustris.alicia.features.messages.ui.MessagesList
 import com.ilustris.alicia.ui.theme.AliciaTheme
 import com.ilustris.alicia.ui.theme.toolbarColor
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @ExperimentalComposeUiApi
@@ -60,9 +65,12 @@ fun ChatScreen(title: String, navController: NavHostController) {
     val lossList = viewModel.loss.collectAsState(initial = emptyList())
     val goals = viewModel.goals.collectAsState(initial = emptyList())
     val amount = viewModel.amount.collectAsState(initial = 0.00)
-    val bannerVisible = remember {
+    var completedGoal: Goal? = null
+
+    var banenrVisible by remember {
         mutableStateOf(false)
     }
+
     var sheetPlaceHolder by remember {
         mutableStateOf("O que você comprou?")
     }
@@ -84,11 +92,13 @@ fun ChatScreen(title: String, navController: NavHostController) {
 
     val focusRequester = remember { FocusRequester() }
 
+
     if (bottomSheetState.isVisible) {
         LaunchedEffect(Unit) {
             focusRequester.requestFocus()
         }
     }
+    val mediaPlayer = MediaPlayer.create(LocalContext.current, R.raw.bell)
 
     ModalBottomSheetLayout(
         sheetState = bottomSheetState,
@@ -104,6 +114,9 @@ fun ChatScreen(title: String, navController: NavHostController) {
                     scope.launch {
                         bottomSheetState.hide()
                         focusRequester.freeFocus()
+                    }
+                    if (!mediaPlayer.isPlaying) {
+                        mediaPlayer.start()
                     }
                     when (action) {
                         Action.NAME -> viewModel.launchAction(HomeAction.SaveUser(value))
@@ -128,13 +141,23 @@ fun ChatScreen(title: String, navController: NavHostController) {
                                 tag
                             )
                         )
-                        Action.HISTORY, Action.BALANCE, Action.LOSS_HISTORY, Action.PROFIT_HISTORY, Action.GOAL_HISTORY -> viewModel.launchAction(
+                        Action.HISTORY, Action.BALANCE, Action.GOAL_HISTORY -> viewModel.launchAction(
                             HomeAction.GetHistory
                         )
                     }
                 })
         }) {
+        val celebrateComposition by rememberLottieComposition(
+            LottieCompositionSpec.RawRes(R.raw.celebrate)
+        )
+        var isCelebrationPlaying by remember {
+            mutableStateOf(false)
+        }
 
+        val celebrateProgress by animateLottieCompositionAsState(
+            celebrateComposition,
+            isPlaying = isCelebrationPlaying,
+        )
         ConstraintLayout(
             modifier = Modifier
                 .fillMaxSize()
@@ -152,12 +175,25 @@ fun ChatScreen(title: String, navController: NavHostController) {
                 iterations = LottieConstants.IterateForever
             )
 
+
+
             TopBar(title = title, icon = R.drawable.pretty_girl, onClickNavigation = {},
                 modifier = Modifier
                     .fillMaxWidth()
                     .constrainAs(toolbar) { top.linkTo(parent.top) }
             )
 
+
+            completedGoal?.let {
+                Banner(goal = it, banenrVisible, modifier = Modifier.constrainAs(banner) {
+                    top.linkTo(toolbar.top)
+                    bottom.linkTo(toolbar.bottom)
+                    width = Dimension.matchParent
+                    height = Dimension.matchParent
+                }) {
+                    banenrVisible = false
+                }
+            }
 
 
             if (messages.value.isEmpty()) {
@@ -173,51 +209,79 @@ fun ChatScreen(title: String, navController: NavHostController) {
                         height = Dimension.value(200.dp)
 
                     })
+            } else {
+                MessagesList(
+                    modifier = Modifier
+                        .constrainAs(messageList) {
+                            bottom.linkTo(suggestions.top)
+                            top.linkTo(toolbar.bottom)
+                            start.linkTo(parent.start)
+                            end.linkTo(parent.end)
+                            width = Dimension.fillToConstraints
+                            height = Dimension.fillToConstraints
+                        },
+                    messages,
+                    profitList.value,
+                    lossList.value,
+                    goals.value,
+                    amount.value,
+                    onSelectSuggestion = { suggestion, value ->
+                        scope.launch {
+                            when (suggestion.action) {
+                                Action.NAME -> {
+                                    value?.let {
+                                        viewModel.launchAction(HomeAction.SaveUser(value))
+                                    }
+                                }
+                                Action.BALANCE, Action.HISTORY -> viewModel.launchAction(
+                                    HomeAction.GetHistory
+                                )
+                                Action.GOAL_HISTORY -> viewModel.launchAction(HomeAction.GetGoals)
+                                else -> {
+                                    sheetTitle = suggestion.action.description
+                                    sheetAction = suggestion.action
+                                    sheetPlaceHolder = getPlaceHolderMessage(suggestion.action)
+                                    bottomSheetState.show()
+                                }
+                            }
+
+                        }
+                    },
+                    openStatement = {
+                        navController.navigate("statement")
+                    },
+                    openGoal = {
+                        navController.navigate("goals")
+                    }
+                )
             }
 
 
 
-            MessagesList(
-                modifier = Modifier
-                    .constrainAs(messageList) {
-                        bottom.linkTo(suggestions.top)
-                        top.linkTo(toolbar.bottom)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                        width = Dimension.fillToConstraints
-                        height = Dimension.fillToConstraints
-                    },
-                messages,
-                profitList.value,
-                lossList.value,
-                goals.value,
-                amount.value,
-                onSelectSuggestion = { suggestion, value ->
-                    scope.launch {
-                        when (suggestion.action) {
-                            Action.NAME -> {
-                                value?.let {
-                                    viewModel.launchAction(HomeAction.SaveUser(value))
-                                }
-                            }
-                            Action.BALANCE, Action.HISTORY, Action.PROFIT_HISTORY, Action.LOSS_HISTORY -> viewModel.launchAction(
-                                HomeAction.GetHistory
-                            )
-                            else -> {
-                                sheetTitle = suggestion.action.description
-                                sheetAction = suggestion.action
-                                sheetPlaceHolder = getPlaceHolderMessage(suggestion.action)
-                                bottomSheetState.show()
-                            }
+            if (goals.value.isNotEmpty()) {
+                val mediaPlayer = MediaPlayer.create(LocalContext.current, R.raw.celebrate_audio)
+                LaunchedEffect(goals) {
+                    val completedGoals =
+                        goals.value.filter { it.value <= amount.value && !it.isComplete }
+                    if (completedGoals.isNotEmpty()) {
+                        isCelebrationPlaying = true
+                        if (!mediaPlayer.isPlaying) {
+                            mediaPlayer.start()
                         }
+                        if (isCelebrationPlaying && progress == 1f) {
+                            isCelebrationPlaying = false
+                        }
+                        completedGoals.forEach {
+                            viewModel.launchAction(HomeAction.CompleteGoal(it))
+                        }
+                        completedGoal = completedGoals.last()
+                        banenrVisible = true
+                        delay(3000L)
+                        banenrVisible = false
 
                     }
-                },
-                openStatement = {
-                    navController.navigate("statement")
                 }
-            )
-
+            }
 
             ChatInput(modifier = Modifier
                 .constrainAs(suggestions) {
@@ -230,7 +294,14 @@ fun ChatScreen(title: String, navController: NavHostController) {
                 keyboardController?.hide()
                 viewModel.launchAction(HomeAction.SaveUser(it))
             })
+
+
         }
+        LottieAnimation(
+            celebrateComposition,
+            celebrateProgress,
+            modifier = Modifier.fillMaxSize()
+        )
     }
 
 

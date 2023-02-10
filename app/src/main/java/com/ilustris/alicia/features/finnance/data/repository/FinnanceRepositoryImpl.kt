@@ -21,6 +21,7 @@ class FinnanceRepositoryImpl @Inject constructor(
 
     override fun getGoals(): Flow<List<Goal>> = goalDao.getGaols()
 
-    override fun saveGoals(goal: Goal): Long = goalDao.saveGoal(goal)
+    override fun saveGoal(goal: Goal): Long = goalDao.saveGoal(goal)
+    override fun updateGoal(goal: Goal) = goalDao.updateGoal(goal)
 
 }

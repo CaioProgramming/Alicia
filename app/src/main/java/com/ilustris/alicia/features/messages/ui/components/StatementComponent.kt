@@ -23,15 +23,12 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.ilustris.alicia.features.finnance.data.model.Movimentation
 import com.ilustris.alicia.features.finnance.data.model.Tag
-import com.ilustris.alicia.utils.DateFormats
-import com.ilustris.alicia.utils.format
 import com.ilustris.alicia.utils.formatToCurrencyText
 import java.util.*
 
 @Composable
 fun StatementComponent(
     movimentation: Movimentation,
-    modifier: Modifier,
     textColor: Color = MaterialTheme.colorScheme.onSecondary
 ) {
     val visible by remember {
@@ -39,10 +36,6 @@ fun StatementComponent(
             this.value = true
         }
     }
-    val formattedDate = Calendar.getInstance().apply {
-        timeInMillis = movimentation.spendAt
-    }.time.format(DateFormats.DD_OF_MM_FROM_YYYY)
-
 
     AnimatedVisibility(
         visible = visible,
@@ -131,6 +124,6 @@ fun defaultPreview() {
             value = 150.00,
             tag = Tag.BILLS,
             spendAt = Calendar.getInstance().time.time
-        ), Modifier.fillMaxWidth()
+        ),
     )
 }

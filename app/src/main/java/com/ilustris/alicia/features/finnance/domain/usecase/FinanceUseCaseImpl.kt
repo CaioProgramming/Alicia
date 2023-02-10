@@ -5,6 +5,8 @@ import com.himanshoe.charty.line.model.LineData
 import com.ilustris.alicia.features.finnance.data.model.Goal
 import com.ilustris.alicia.features.finnance.data.model.Movimentation
 import com.ilustris.alicia.features.finnance.data.model.Tag
+import com.ilustris.alicia.features.finnance.data.model.TagHelper
+import com.ilustris.alicia.features.finnance.domain.data.GoalInfo
 import com.ilustris.alicia.features.finnance.domain.data.MovimentationInfo
 import com.ilustris.alicia.features.finnance.domain.mapper.MovimentationMapper
 import com.ilustris.alicia.features.finnance.domain.repository.FinnanceRepository
@@ -42,9 +44,14 @@ class FinanceUseCaseImpl @Inject constructor(
             description = description,
             value = doubleValue,
             tag = tag,
-            createdAt = Calendar.getInstance().timeInMillis
+            createdAt = Calendar.getInstance().timeInMillis,
+            badge = TagHelper.getRandomBadge()
         )
-        return finnanceRepository.saveGoals(goal)
+        return finnanceRepository.saveGoal(goal)
+    }
+
+    override suspend fun updateGoal(goal: Goal) {
+        return finnanceRepository.updateGoal(goal)
     }
 
     override fun getProfit(): Flow<List<MovimentationInfo>> = flow {
@@ -90,5 +97,11 @@ class FinanceUseCaseImpl @Inject constructor(
     }
 
     override fun getGoals(): Flow<List<Goal>> = finnanceRepository.getGoals()
+    override fun getGoalsInfo(): Flow<List<GoalInfo>> = flow {
+        finnanceRepository.getGoals().collect {
+            emit(movimentationMapper.mapGoalsToInfo(it).sortedByDescending { info -> info.header })
+        }
+    }
+
 
 }
