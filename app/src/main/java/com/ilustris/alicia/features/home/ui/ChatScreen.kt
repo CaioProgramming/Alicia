@@ -50,6 +50,7 @@ import com.ilustris.alicia.features.messages.domain.model.Action
 import com.ilustris.alicia.features.messages.ui.MessagesList
 import com.ilustris.alicia.ui.theme.AliciaTheme
 import com.ilustris.alicia.ui.theme.toolbarColor
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @ExperimentalComposeUiApi
@@ -186,9 +187,9 @@ fun ChatScreen(title: String, navController: NavHostController) {
             completedGoal?.let {
                 Banner(goal = it, banenrVisible, modifier = Modifier.constrainAs(banner) {
                     top.linkTo(toolbar.top)
-                    bottom.linkTo(messageList.top)
+                    bottom.linkTo(toolbar.bottom)
                     width = Dimension.matchParent
-                    height = Dimension.fillToConstraints
+                    height = Dimension.matchParent
                 }) {
                     banenrVisible = false
                 }
@@ -259,7 +260,7 @@ fun ChatScreen(title: String, navController: NavHostController) {
 
             if (goals.value.isNotEmpty()) {
                 val mediaPlayer = MediaPlayer.create(LocalContext.current, R.raw.celebrate_audio)
-                LaunchedEffect(Unit) {
+                LaunchedEffect(goals) {
                     val completedGoals =
                         goals.value.filter { it.value <= amount.value && !it.isComplete }
                     if (completedGoals.isNotEmpty()) {
@@ -275,6 +276,9 @@ fun ChatScreen(title: String, navController: NavHostController) {
                         }
                         completedGoal = completedGoals.last()
                         banenrVisible = true
+                        delay(3000L)
+                        banenrVisible = false
+
                     }
                 }
             }

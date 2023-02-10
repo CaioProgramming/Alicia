@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -37,13 +36,8 @@ fun Banner(goal: Goal, visible: Boolean = false, modifier: Modifier, closeBanner
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
             modifier = modifier
-                .clickable {
-                    closeBanner()
-                }
-                .background(
-                    aliciaBrush(),
-                    shape = RoundedCornerShape(bottomStart = 25.dp, bottomEnd = 25.dp)
-                )
+                .clickable { closeBanner() }
+                .background(aliciaBrush())
         ) {
 
             Text(
