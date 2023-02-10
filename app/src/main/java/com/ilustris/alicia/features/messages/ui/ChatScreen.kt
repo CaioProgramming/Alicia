@@ -48,8 +48,8 @@ import com.ilustris.alicia.features.home.ui.components.Banner
 import com.ilustris.alicia.features.home.ui.components.SheetInput
 import com.ilustris.alicia.features.home.ui.components.TopBar
 import com.ilustris.alicia.features.messages.domain.model.Action
-import com.ilustris.alicia.features.messages.presentation.HomeAction
-import com.ilustris.alicia.features.messages.presentation.HomeViewModel
+import com.ilustris.alicia.features.messages.presentation.ChatAction
+import com.ilustris.alicia.features.messages.presentation.ChatViewModel
 import com.ilustris.alicia.ui.theme.AliciaTheme
 import com.ilustris.alicia.ui.theme.toolbarColor
 import kotlinx.coroutines.delay
@@ -60,9 +60,10 @@ import kotlinx.coroutines.launch
 fun ChatScreen(title: String, navController: NavHostController) {
 
 
-    val viewModel: HomeViewModel = hiltViewModel()
+    val viewModel: ChatViewModel = hiltViewModel()
     val messages = viewModel.messages.collectAsState(initial = emptyList())
-    val showInput = viewModel.showInput.observeAsState(initial = false)
+    val showInput = viewModel.showInput.collectAsState(initial = null)
+    val playNewMessage = viewModel.playNewMessage.observeAsState(initial = false)
     val profitList = viewModel.profit.collectAsState(initial = emptyList())
     val lossList = viewModel.loss.collectAsState(initial = emptyList())
     val goals = viewModel.goals.collectAsState(initial = emptyList())
@@ -101,6 +102,9 @@ fun ChatScreen(title: String, navController: NavHostController) {
         }
     }
     val mediaPlayer = MediaPlayer.create(LocalContext.current, R.raw.bell)
+    val aliciaPlayer = MediaPlayer.create(LocalContext.current, R.raw.pop)
+
+    if (playNewMessage.value == true) aliciaPlayer.start()
 
     ModalBottomSheetLayout(
         sheetState = bottomSheetState,
@@ -121,30 +125,30 @@ fun ChatScreen(title: String, navController: NavHostController) {
                         mediaPlayer.start()
                     }
                     when (action) {
-                        Action.NAME -> viewModel.launchAction(HomeAction.SaveUser(value))
+                        Action.NAME -> viewModel.launchAction(ChatAction.SaveUser(value))
                         Action.PROFIT -> viewModel.launchAction(
-                            HomeAction.SaveProfit(
+                            ChatAction.SaveProfit(
                                 description,
                                 value,
                                 tag
                             )
                         )
                         Action.LOSS -> viewModel.launchAction(
-                            HomeAction.SaveLoss(
+                            ChatAction.SaveLoss(
                                 description,
                                 value,
                                 tag
                             )
                         )
                         Action.GOAL -> viewModel.launchAction(
-                            HomeAction.SaveGoal(
+                            ChatAction.SaveGoal(
                                 description,
                                 value,
                                 tag
                             )
                         )
                         Action.HISTORY, Action.BALANCE, Action.GOAL_HISTORY -> viewModel.launchAction(
-                            HomeAction.GetHistory
+                            ChatAction.GetHistory
                         )
                     }
                 })
@@ -219,7 +223,7 @@ fun ChatScreen(title: String, navController: NavHostController) {
                 MessagesList(
                     modifier = Modifier
                         .constrainAs(messageList) {
-                            if (viewModel.showInput.value == true) bottom.linkTo(suggestions.top) else bottom.linkTo(
+                            if (showInput.value == null) bottom.linkTo(suggestions.top) else bottom.linkTo(
                                 parent.bottom
                             )
                             top.linkTo(toolbar.bottom)
@@ -238,13 +242,13 @@ fun ChatScreen(title: String, navController: NavHostController) {
                             when (suggestion.action) {
                                 Action.NAME -> {
                                     value?.let {
-                                        viewModel.launchAction(HomeAction.SaveUser(value))
+                                        viewModel.launchAction(ChatAction.SaveUser(value))
                                     }
                                 }
                                 Action.BALANCE, Action.HISTORY -> viewModel.launchAction(
-                                    HomeAction.GetHistory
+                                    ChatAction.GetHistory
                                 )
-                                Action.GOAL_HISTORY -> viewModel.launchAction(HomeAction.GetGoals)
+                                Action.GOAL_HISTORY -> viewModel.launchAction(ChatAction.GetGoals)
                                 else -> {
                                     sheetTitle = suggestion.action.description
                                     sheetAction = suggestion.action
@@ -267,20 +271,20 @@ fun ChatScreen(title: String, navController: NavHostController) {
 
 
             if (goals.value.isNotEmpty()) {
-                val mediaPlayer = MediaPlayer.create(LocalContext.current, R.raw.celebrate_audio)
+                val goalPlayer = MediaPlayer.create(LocalContext.current, R.raw.celebrate_audio)
                 LaunchedEffect(goals) {
                     val completedGoals =
                         goals.value.filter { it.value <= amount.value && !it.isComplete }
                     if (completedGoals.isNotEmpty()) {
                         isCelebrationPlaying = true
-                        if (!mediaPlayer.isPlaying) {
-                            mediaPlayer.start()
+                        if (!goalPlayer.isPlaying) {
+                            goalPlayer.start()
                         }
                         if (isCelebrationPlaying && progress == 1f) {
                             isCelebrationPlaying = false
                         }
                         completedGoals.forEach {
-                            viewModel.launchAction(HomeAction.CompleteGoal(it))
+                            viewModel.launchAction(ChatAction.CompleteGoal(it))
                         }
                         completedGoal = completedGoals.last()
                         bannerVisible = true
@@ -291,7 +295,7 @@ fun ChatScreen(title: String, navController: NavHostController) {
                 }
             }
 
-            AnimatedVisibility(visible = showInput.value,
+            AnimatedVisibility(visible = showInput.value == null,
                 enter = slideInVertically(),
                 exit = fadeOut(),
                 modifier = Modifier
@@ -306,7 +310,7 @@ fun ChatScreen(title: String, navController: NavHostController) {
                     .fillMaxWidth()
                     .wrapContentHeight(), onDone = {
                     keyboardController?.hide()
-                    viewModel.launchAction(HomeAction.SaveUser(it))
+                    viewModel.launchAction(ChatAction.SaveUser(it))
                 })
             }
 

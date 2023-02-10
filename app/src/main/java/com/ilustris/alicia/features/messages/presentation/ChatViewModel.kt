@@ -25,7 +25,7 @@ import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
-class HomeViewModel @Inject constructor(
+class ChatViewModel @Inject constructor(
     private val userUseCase: UserUseCase,
     private val messagesUseCase: MessagesUseCase,
     private val financeUseCase: FinanceUseCase
@@ -37,7 +37,8 @@ class HomeViewModel @Inject constructor(
     val loss = financeUseCase.getLoss()
     val amount = financeUseCase.getAmount()
     val goals = financeUseCase.getGoals()
-    val showInput: MutableLiveData<Boolean> = MutableLiveData()
+    val showInput = userUseCase.getUserById()
+    val playNewMessage: MutableLiveData<Boolean> = MutableLiveData()
 
     init {
         getUser()
@@ -52,31 +53,31 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun launchAction(homeAction: HomeAction) {
-        hideActions()
+    fun launchAction(homeAction: ChatAction) {
         when (homeAction) {
-            HomeAction.FetchUser -> getUser()
-            is HomeAction.SaveUser -> saveUser(homeAction.name)
-            is HomeAction.SaveGoal -> saveGoal(
+            ChatAction.FetchUser -> getUser()
+            is ChatAction.SaveUser -> saveUser(homeAction.name)
+            is ChatAction.SaveGoal -> saveGoal(
                 homeAction.description,
                 homeAction.value,
                 homeAction.tag
             )
-            is HomeAction.SaveLoss -> saveLoss(
+            is ChatAction.SaveLoss -> saveLoss(
                 homeAction.description,
                 homeAction.value,
                 homeAction.tag,
                 Type.LOSS
             )
-            is HomeAction.SaveProfit -> saveProfit(
+            is ChatAction.SaveProfit -> saveProfit(
                 homeAction.description,
                 homeAction.value,
                 homeAction.tag,
                 Type.PROFIT
             )
-            HomeAction.GetHistory -> getHistory()
-            HomeAction.GetGoals -> getGoals()
-            is HomeAction.CompleteGoal -> completeGoal(homeAction.goal)
+            ChatAction.GetHistory -> getHistory()
+            ChatAction.GetGoals -> getGoals()
+            is ChatAction.CompleteGoal -> completeGoal(homeAction.goal)
+            ChatAction.StopNewMessageAudio -> playNewMessage.postValue(false)
         }
     }
 
@@ -93,13 +94,13 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun getGoals() {
-        updateMessages(Message("Quero ver minhas metas", Type.USER))
+        updateMessages(Message("Quero ver minhas metas.", Type.USER))
         viewModelScope.launch(Dispatchers.IO) {
             goals.collect {
                 if (it.isEmpty()) {
                     updateMessages(
                         Message(
-                            "Parece que você não criou nenhuma meta ainda. Cria uma agora para começarmos a acompanhar :D",
+                            "Parece que você não criou nenhuma meta ainda. Cria uma agora para começarmos a acompanhar 😗",
                             type = Type.GOAL,
                             extraActions = listOf(Action.GOAL.name).toString()
                         )
@@ -128,11 +129,16 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun getHistory() {
-        updateMessages(Message("Quero ver meu histórico de transações", Type.USER))
+        updateMessages(Message("Quero ver meu histórico de transações.", Type.USER))
         viewModelScope.launch(Dispatchers.IO) {
             amount.collect { currentAmount ->
                 if (currentAmount == 0.0) {
-                    updateMessages(Message("Bom você ainda não salvou nenhuma movimentação, não posso te ajudar nessa."))
+                    updateMessages(
+                        Message(
+                            "Você ainda não salvou nenhuma movimentação, comece a salvar alguns rendimentos ou gastos para conseguirmos ver aqui 😃.",
+                            extraActions = listOf(Action.PROFIT, Action.LOSS).toString()
+                        )
+                    )
                 } else {
                     updateMessages(
                         listOf(
@@ -223,17 +229,24 @@ class HomeViewModel @Inject constructor(
             val delayTime = if (message.type == Type.USER) 200L else 1500L
             delay(delayTime)
             messagesUseCase.saveMessage(message)
+            playNewMessage.postValue(true)
+            delay(1000)
+            playNewMessage.postValue(false)
         }
     }
 
     private fun updateMessages(message: List<Message>, onSendMessages: (() -> Unit)? = null) {
         Log.i(javaClass.simpleName, "updateMessages: Updating messages adding -> $message")
+        playNewMessage.postValue(true)
+
         viewModelScope.launch(Dispatchers.IO) {
             message.forEachIndexed { index, m ->
-                delay(2000)
+                playNewMessage.postValue(true)
+                delay(1500)
                 messagesUseCase.saveMessage(m)
                 if (index == message.size - 1) {
                     onSendMessages?.invoke()
+                    playNewMessage.postValue(false)
                 }
             }
         }
@@ -254,7 +267,6 @@ class HomeViewModel @Inject constructor(
                 val lastMessage = messagesUseCase.getLastMessage()
                 if (it == null) {
                     if (shouldSendNewMessage(lastMessage)) updateMessages(MessagePresets.newUserMessages)
-                    updateSuggestionsForNewUser()
                 } else {
                     if (shouldSendNewMessage(lastMessage)) {
                         updateMessages(MessagePresets.getGreeting(it.name))
@@ -264,14 +276,6 @@ class HomeViewModel @Inject constructor(
             }
 
         }
-    }
-
-    private fun updateSuggestionsForNewUser() {
-        showInput.postValue(true)
-    }
-
-    private fun hideActions() {
-        showInput.postValue(false)
     }
 
 }
