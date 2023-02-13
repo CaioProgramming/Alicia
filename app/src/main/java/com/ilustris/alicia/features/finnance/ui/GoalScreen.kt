@@ -63,12 +63,12 @@ fun GoalScreen(navController: NavController) {
                 )
             )
             LazyVerticalGrid(
-                columns = GridCells.Fixed(3),
+                columns = GridCells.Fixed(2),
                 horizontalArrangement = Arrangement.Center,
                 verticalArrangement = Arrangement.Center
             ) {
                 goals.value.forEach {
-                    item(span = { GridItemSpan(3) }) {
+                    item(span = { GridItemSpan(2) }) {
                         Column {
                             Box(
                                 modifier = Modifier
@@ -96,7 +96,7 @@ fun GoalScreen(navController: NavController) {
 
                     }
                     items(it.goals.size) { index ->
-                        GoalMedal(goal = it.goals[index], 100.dp, true) {}
+                        GoalMedal(goal = it.goals[index], 150.dp, true) {}
                     }
                 }
             }

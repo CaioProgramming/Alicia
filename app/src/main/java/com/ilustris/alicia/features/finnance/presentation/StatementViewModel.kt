@@ -10,6 +10,7 @@ class StatementViewModel @Inject constructor(financeUseCase: FinanceUseCase) :
     ViewModel() {
 
     val movimentations = financeUseCase.getMovimentationsByDay()
+    val movimentationsByTag = financeUseCase.getAllMovimentations()
     val movimentationLineChart = financeUseCase.getMovimentationsChart()
     val movimentationCircleChart = financeUseCase.getMovimentationsCircleChart()
     val amount = financeUseCase.getAmount()

@@ -7,6 +7,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.Text
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -34,15 +35,17 @@ import com.ilustris.alicia.features.messages.ui.components.AmountComponent
 import com.ilustris.alicia.features.messages.ui.components.StatementComponent
 import com.ilustris.alicia.ui.theme.AliciaTheme
 import com.ilustris.alicia.ui.theme.toolbarColor
-import com.ilustris.alicia.utils.DateFormats
-import com.ilustris.alicia.utils.format
 import java.util.*
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun StatementScreen(navController: NavController) {
     val viewModel: StatementViewModel = hiltViewModel()
-    val movimentations = viewModel.movimentations.collectAsState(initial = emptyList())
+    val pagerState = rememberPagerState(initialPage = 0)
+    val movimentationsByDate = viewModel.movimentations.collectAsState(initial = emptyList())
+    val movimentationsByTag = viewModel.movimentationsByTag.collectAsState(initial = emptyList())
+    val movimentationList =
+        if (pagerState.currentPage == 0) movimentationsByDate.value else movimentationsByTag.value
     val movimentationsChart = viewModel.movimentationLineChart.collectAsState(initial = emptyList())
     val movimentationsCircleChart =
         viewModel.movimentationCircleChart.collectAsState(initial = emptyList())
@@ -88,6 +91,7 @@ fun StatementScreen(navController: NavController) {
 
                 HorizontalPager(
                     pageCount = 2,
+                    state = pagerState,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(275.dp)
@@ -121,8 +125,8 @@ fun StatementScreen(navController: NavController) {
                 }
 
             }
-            if (movimentations.value.isNotEmpty()) {
-                StatementList(movimentations = movimentations.value)
+            if (movimentationList.isNotEmpty()) {
+                StatementList(movimentations = movimentationList)
             } else {
                 Text(
                     text = "Você não possui movimentações.",
@@ -140,12 +144,8 @@ fun StatementList(movimentations: List<MovimentationInfo>) {
     LazyColumn(modifier = Modifier.background(toolbarColor(isSystemInDarkTheme()))) {
         movimentations.forEach {
             stickyHeader {
-                val firstItem = it.movimentations.first()
-                val date = Calendar.getInstance().apply {
-                    timeInMillis = firstItem.spendAt
-                }
                 Text(
-                    text = date.time.format(DateFormats.DD_OF_MM),
+                    text = it.header,
                     style = MaterialTheme.typography.labelSmall.copy(
                         color = MaterialTheme.colorScheme.onSurface.copy(
                             alpha = 0.5f

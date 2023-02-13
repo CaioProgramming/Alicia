@@ -55,6 +55,7 @@ import com.ilustris.alicia.ui.theme.toolbarColor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterialApi::class)
 @ExperimentalComposeUiApi
 @Composable
 fun ChatScreen(title: String, navController: NavHostController) {
@@ -62,7 +63,7 @@ fun ChatScreen(title: String, navController: NavHostController) {
 
     val viewModel: ChatViewModel = hiltViewModel()
     val messages = viewModel.messages.collectAsState(initial = emptyList())
-    val showInput = viewModel.showInput.collectAsState(initial = null)
+    val showInput = viewModel.showInput.observeAsState()
     val playNewMessage = viewModel.playNewMessage.observeAsState(initial = false)
     val profitList = viewModel.profit.collectAsState(initial = emptyList())
     val lossList = viewModel.loss.collectAsState(initial = emptyList())
@@ -109,7 +110,6 @@ fun ChatScreen(title: String, navController: NavHostController) {
     ModalBottomSheetLayout(
         sheetState = bottomSheetState,
         sheetShape = RoundedCornerShape(15.dp),
-
         sheetContent = {
             SheetInput(
                 title = sheetTitle,
@@ -168,6 +168,8 @@ fun ChatScreen(title: String, navController: NavHostController) {
             modifier = Modifier
                 .fillMaxSize()
                 .background(color = toolbarColor(isSystemInDarkTheme()))
+                .padding(vertical = 4.dp)
+
         ) {
 
             val (toolbar, messageList, suggestions, banner, animation) = createRefs()
@@ -223,7 +225,7 @@ fun ChatScreen(title: String, navController: NavHostController) {
                 MessagesList(
                     modifier = Modifier
                         .constrainAs(messageList) {
-                            if (showInput.value == null) bottom.linkTo(suggestions.top) else bottom.linkTo(
+                            if (showInput.value == true) bottom.linkTo(suggestions.top) else bottom.linkTo(
                                 parent.bottom
                             )
                             top.linkTo(toolbar.bottom)
@@ -295,7 +297,8 @@ fun ChatScreen(title: String, navController: NavHostController) {
                 }
             }
 
-            AnimatedVisibility(visible = showInput.value == null,
+            AnimatedVisibility(
+                visible = showInput.value == true,
                 enter = slideInVertically(),
                 exit = fadeOut(),
                 modifier = Modifier

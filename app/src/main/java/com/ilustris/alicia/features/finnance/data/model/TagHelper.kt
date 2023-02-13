@@ -18,6 +18,7 @@ object TagHelper {
                 Tag.ENTERTAINMENT -> partyBadges[index]
                 Tag.GROCERIES -> groeceryBadges[index]
                 Tag.HEALTH -> healthBadges[index]
+                Tag.BILLS -> billsBadges[index]
                 else -> commonBadges[index]
             }
         } catch (e: Exception) {
@@ -53,8 +54,11 @@ object TagHelper {
     private val workBadges =
         listOf(R.drawable.work_badge_1, R.drawable.work_badge_2, R.drawable.work_badge_3)
     private val healthBadges =
-        listOf(R.drawable.healt_badge_1, R.drawable.healt_badge_2, R.drawable.health_badge_3)
+        listOf(R.drawable.health_badge_1, R.drawable.health_badge_2, R.drawable.health_badge_3)
     private val groeceryBadges =
-        listOf(R.drawable.grocerie_badge_1, R.drawable.grocerie_badge_2, R.drawable.grocery_badge_3)
+        listOf(R.drawable.food_badge_1, R.drawable.food_badge_2, R.drawable.food_badge_3)
+
+    private val billsBadges =
+        listOf(R.drawable.bill_badge_1, R.drawable.bill_badge_2, R.drawable.bill_badge_3)
 
 }

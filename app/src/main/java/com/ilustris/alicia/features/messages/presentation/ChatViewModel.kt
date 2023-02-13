@@ -37,7 +37,7 @@ class ChatViewModel @Inject constructor(
     val loss = financeUseCase.getLoss()
     val amount = financeUseCase.getAmount()
     val goals = financeUseCase.getGoals()
-    val showInput = userUseCase.getUserById()
+    val showInput: MutableLiveData<Boolean> = MutableLiveData()
     val playNewMessage: MutableLiveData<Boolean> = MutableLiveData()
 
     init {
@@ -45,6 +45,7 @@ class ChatViewModel @Inject constructor(
     }
 
     private fun saveUser(name: String) {
+        showInput.postValue(false)
         viewModelScope.launch {
             userUseCase.saveUser(name)
             updateMessages(Message("Oi Alicia pode me chamar de $name :)", Type.USER))
@@ -80,7 +81,6 @@ class ChatViewModel @Inject constructor(
             ChatAction.StopNewMessageAudio -> playNewMessage.postValue(false)
         }
     }
-
 
     private fun completeGoal(goal: Goal) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -265,6 +265,7 @@ class ChatViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             userUseCase.getUserById().collect {
                 val lastMessage = messagesUseCase.getLastMessage()
+                showInput.postValue(it == null)
                 if (it == null) {
                     if (shouldSendNewMessage(lastMessage)) updateMessages(MessagePresets.newUserMessages)
                 } else {
@@ -273,8 +274,8 @@ class ChatViewModel @Inject constructor(
                         updateMessages(MessagePresets.keepGoingMessage())
                     }
                 }
+                coroutineContext.job.cancel()
             }
-
         }
     }
 
