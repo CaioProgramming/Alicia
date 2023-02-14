@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import com.google.accompanist.navigation.animation.AnimatedNavHost
@@ -52,7 +53,10 @@ class MainActivity : ComponentActivity() {
                         MainScreen(navController)
                     }
                 }
-                navController.navigate(CHAT_SCREEN)
+
+                LaunchedEffect(Unit) {
+                    navController.navigate(CHAT_SCREEN)
+                }
             }
         }
     }

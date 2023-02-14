@@ -4,8 +4,8 @@ package com.ilustris.alicia.features.messages.ui
 
 import android.media.MediaPlayer
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -300,7 +300,7 @@ fun ChatScreen(title: String, navController: NavHostController) {
 
             AnimatedVisibility(
                 visible = showInput.value == true,
-                enter = slideInVertically(),
+                enter = fadeIn(),
                 exit = fadeOut(),
                 modifier = Modifier
                     .constrainAs(suggestions) {

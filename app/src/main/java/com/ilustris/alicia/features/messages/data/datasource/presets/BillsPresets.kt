@@ -12,7 +12,7 @@ class BillsPresets : PresetBase() {
     )
 
     override val profitMessages = listOf(
-        "Ora ora hein eu nunca imaginei que seriamos quem entrega os boleto e não quem paga, mas o importante é que ganhamos $VALUE_PLACEHOLDER.",
+        "Ora ora hein eu nunca imaginei que seriamos quem entrega os boletos e não quem paga, o que importa é o din din que ganhamos $VALUE_PLACEHOLDER.",
         "Olha se vc está trabalhando em um banco me fala logo ta? Mais $VALUE_PLACEHOLDER pra conta.",
         "Vida de patrão essa ai né faturou $VALUE_PLACEHOLDER.",
         "Chamaaa fi! Arrasta pra cima que tem mais $VALUE_PLACEHOLDER na conta 🤑.",
