@@ -15,11 +15,18 @@ object MessagePresets {
     fun getGreeting(name: String) = Message(UserPresets.getGreetingMessage(name))
 
     val introductionMessages = listOf(
-        Message("Você pode me ver como quiser, amiga, conhecida, sua ex... Mas meu objetivo aqui é te ajudar com sua vida financeira, podemos dizer que um diário de finanças né."),
+        Message("Deixa eu me apresentar... Eu sou a Alicia, sua assistente financeira 😁!"),
+        Message("Vou ate ajudar o máximo que puder por aqui, você só precisa me informar regularmente e logo vamos ter dados mais completos."),
+        Message("Não se preocupe, tudo que me mandar, fica entre nós. Você só fala o que quiser e quando quiser, sem pressão..."),
+        Message("Ah é você também não precisa se preocupar com a internet para salvar seus rendimentos e gastos, a mãe ta on e off sempre hahaa 🤪."),
         Message(
-            "Nessa conversa você pode me falar de tudo, seus rendimentos, gastos e até metas desde comprar um pastel na feira até comprar um apartamento, vou te ajudar a acompanhar tudo da melhor forma possível.",
+            "Você só precisa clicar em uma das ações abaixo pra começar seja rendimento ou gasto. Sem julgamento nem nada do tipo sinta-se a vontade.",
             type = Type.NONE,
-            extraActions = listOf(Action.PROFIT.name, Action.LOSS.name, Action.GOAL.name).toString()
+            extraActions = listOf(Action.PROFIT.name, Action.LOSS.name).toString()
+        ),
+        Message(
+            "Você também pode criar metas como comprar um pastel na feira ou um apartamento, vou te ajudar a acompanhar tudo da melhor forma possível",
+            extraActions = listOf(Action.GOAL.name).toString()
         ),
         Message(
             "Ah é claro, você pode sempre me pedir seu histórico do app e ver como está sua jornada financeira.",

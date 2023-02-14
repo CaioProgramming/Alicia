@@ -5,12 +5,13 @@
 
     <foreground>
         <aapt:attr name="android:drawable">
-            <vector xmlns:android="http://schemas.android.com/apk/res/android"
+            <vector
                 android:width="48dp"
                 android:height="48dp"
                 android:viewportWidth="58.89"
                 android:viewportHeight="58.89">
-                <group android:scaleX="0.35869566"
+                <group
+                    android:scaleX="0.35869566"
                     android:scaleY="0.35869566"
                     android:translateX="18.883207"
                     android:translateY="18.883207">
@@ -27,12 +28,13 @@
 
     <monochrome>
         <aapt:attr name="android:drawable">
-            <vector xmlns:android="http://schemas.android.com/apk/res/android"
+            <vector
                 android:width="108dp"
                 android:height="108dp"
                 android:viewportWidth="72"
                 android:viewportHeight="72">
-                <group android:scaleX="0.5"
+                <group
+                    android:scaleX="0.5"
                     android:scaleY="0.5"
                     android:translateX="0"
                     android:translateY="0">

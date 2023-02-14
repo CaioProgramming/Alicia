@@ -18,7 +18,13 @@ class MovimentationMapper {
         val movimentationGroups = movimentations.groupBy { it.tag }
 
         movimentationGroups.forEach { tag, movimentations ->
-            movimentationInfos.add(MovimentationInfo(tag, movimentations = movimentations))
+            movimentationInfos.add(
+                MovimentationInfo(
+                    tag,
+                    "${tag.emoji} ${tag.description}",
+                    movimentations = movimentations
+                )
+            )
         }
 
         return movimentationInfos
@@ -33,10 +39,17 @@ class MovimentationMapper {
             calendar[Calendar.DAY_OF_YEAR]
         }
 
+
         movimentationGroups.forEach { day, movimentation ->
+            val firstItem = movimentation.first()
+            val date = Calendar.getInstance().apply {
+                timeInMillis = firstItem.spendAt
+            }
+
             movimentationInfos.add(
                 MovimentationInfo(
                     tag = Tag.UNKNOWN,
+                    header = date.time.format(DateFormats.DD_OF_MM),
                     movimentations = movimentation
                 )
             )
