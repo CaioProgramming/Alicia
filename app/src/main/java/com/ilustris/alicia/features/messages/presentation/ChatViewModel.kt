@@ -31,6 +31,9 @@ class ChatViewModel @Inject constructor(
     private val financeUseCase: FinanceUseCase
 ) : ViewModel() {
 
+    init {
+        getUser()
+    }
 
     val messages = messagesUseCase.getMessages()
     val profit = financeUseCase.getProfit()
@@ -40,23 +43,24 @@ class ChatViewModel @Inject constructor(
     val showInput: MutableLiveData<Boolean> = MutableLiveData()
     val playNewMessage: MutableLiveData<Boolean> = MutableLiveData()
 
-    init {
-        getUser()
-    }
-
     private fun saveUser(name: String) {
-        showInput.postValue(false)
+        showInput.value = false
         viewModelScope.launch {
             userUseCase.saveUser(name)
-            updateMessages(Message("Oi Alicia pode me chamar de $name :)", Type.USER))
-            updateMessages(MessagePresets.getGreeting(name))
+            updateMessages(
+                listOf(
+                    Message("Oi Alicia pode me chamar de $name :)", Type.USER),
+                    MessagePresets.getGreeting(name),
+                )
+            )
+            delay(1000)
             updateMessages(MessagePresets.introductionMessages)
         }
     }
 
     fun launchAction(homeAction: ChatAction) {
         when (homeAction) {
-            ChatAction.FetchUser -> getUser()
+
             is ChatAction.SaveUser -> saveUser(homeAction.name)
             is ChatAction.SaveGoal -> saveGoal(
                 homeAction.description,
@@ -79,6 +83,7 @@ class ChatViewModel @Inject constructor(
             ChatAction.GetGoals -> getGoals()
             is ChatAction.CompleteGoal -> completeGoal(homeAction.goal)
             ChatAction.StopNewMessageAudio -> playNewMessage.postValue(false)
+            ChatAction.FetchUser -> getUser()
         }
     }
 
@@ -226,9 +231,15 @@ class ChatViewModel @Inject constructor(
     private fun updateMessages(message: Message) {
         Log.i(javaClass.simpleName, "updateMessages: Updating messages adding -> $message")
         viewModelScope.launch(Dispatchers.IO) {
-            val delayTime = if (message.type == Type.USER) 200L else 1500L
+            val delayTime = if (message.type == Type.USER) 200L else 1000L
             delay(delayTime)
             messagesUseCase.saveMessage(message)
+            playMessage()
+        }
+    }
+
+    private fun playMessage() {
+        viewModelScope.launch(Dispatchers.IO) {
             playNewMessage.postValue(true)
             delay(1000)
             playNewMessage.postValue(false)
@@ -236,17 +247,13 @@ class ChatViewModel @Inject constructor(
     }
 
     private fun updateMessages(message: List<Message>, onSendMessages: (() -> Unit)? = null) {
-        Log.i(javaClass.simpleName, "updateMessages: Updating messages adding -> $message")
-        playNewMessage.postValue(true)
-
         viewModelScope.launch(Dispatchers.IO) {
             message.forEachIndexed { index, m ->
-                playNewMessage.postValue(true)
-                delay(1500)
+                delay((100 * message.size).toLong())
                 messagesUseCase.saveMessage(m)
                 if (index == message.size - 1) {
+                    playMessage()
                     onSendMessages?.invoke()
-                    playNewMessage.postValue(false)
                 }
             }
         }
@@ -263,14 +270,16 @@ class ChatViewModel @Inject constructor(
 
     private fun getUser() {
         viewModelScope.launch(Dispatchers.IO) {
-            userUseCase.getUserById().collect {
+            userUseCase.getUserById().collect { user ->
+                showInput.postValue(user == null)
                 val lastMessage = messagesUseCase.getLastMessage()
-                showInput.postValue(it == null)
-                if (it == null) {
-                    if (shouldSendNewMessage(lastMessage)) updateMessages(MessagePresets.newUserMessages)
+                if (user == null) {
+                    if (shouldSendNewMessage(lastMessage)) {
+                        updateMessages(MessagePresets.newUserMessages)
+                    }
                 } else {
                     if (shouldSendNewMessage(lastMessage)) {
-                        updateMessages(MessagePresets.getGreeting(it.name))
+                        updateMessages(MessagePresets.getGreeting(user.name))
                         updateMessages(MessagePresets.keepGoingMessage())
                     }
                 }

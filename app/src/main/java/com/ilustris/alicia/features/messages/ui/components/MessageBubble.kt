@@ -16,6 +16,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ilustris.alicia.features.finnance.data.model.Goal
 import com.ilustris.alicia.features.finnance.domain.data.MovimentationInfo
+import com.ilustris.alicia.features.finnance.ui.component.AmountComponent
 import com.ilustris.alicia.features.finnance.ui.component.CardStatement
 import com.ilustris.alicia.features.finnance.ui.component.GoalMedal
 import com.ilustris.alicia.features.messages.data.model.Message

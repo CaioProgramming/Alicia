@@ -1,4 +1,4 @@
-package com.ilustris.alicia.features.messages.ui.components
+package com.ilustris.alicia.features.finnance.ui.component
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.*

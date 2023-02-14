@@ -107,6 +107,7 @@ fun ChatScreen(title: String, navController: NavHostController) {
 
     if (playNewMessage.value == true) aliciaPlayer.start()
 
+
     ModalBottomSheetLayout(
         sheetState = bottomSheetState,
         sheetShape = RoundedCornerShape(15.dp),
@@ -325,8 +326,6 @@ fun ChatScreen(title: String, navController: NavHostController) {
             modifier = Modifier.fillMaxSize()
         )
     }
-
-
 }
 
 @Composable

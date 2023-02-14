@@ -133,7 +133,7 @@ fun GoalMedal(goal: Goal, size: Dp, enabled: Boolean = true, onClick: () -> Unit
                         color = toolbarColor(isSystemInDarkTheme()),
                         CircleShape,
                     )
-                    .border(5.dp, brush, CircleShape)
+                    .border(size / 10, brush, CircleShape)
                     .clip(CircleShape)
                     .clickable {
                         if (enabled) {

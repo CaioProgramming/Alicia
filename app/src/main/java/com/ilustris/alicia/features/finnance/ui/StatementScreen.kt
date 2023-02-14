@@ -8,12 +8,15 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material.Text
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.*
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -31,13 +34,16 @@ import com.himanshoe.charty.line.config.LineConfig
 import com.ilustris.alicia.R
 import com.ilustris.alicia.features.finnance.domain.data.MovimentationInfo
 import com.ilustris.alicia.features.finnance.presentation.StatementViewModel
-import com.ilustris.alicia.features.messages.ui.components.AmountComponent
+import com.ilustris.alicia.features.finnance.ui.component.AmountComponent
+import com.ilustris.alicia.features.finnance.ui.component.SheetInfo
+import com.ilustris.alicia.features.home.ui.getAvatars
 import com.ilustris.alicia.features.messages.ui.components.StatementComponent
 import com.ilustris.alicia.ui.theme.AliciaTheme
 import com.ilustris.alicia.ui.theme.toolbarColor
+import kotlinx.coroutines.launch
 import java.util.*
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun StatementScreen(navController: NavController) {
     val viewModel: StatementViewModel = hiltViewModel()
@@ -50,9 +56,26 @@ fun StatementScreen(navController: NavController) {
     val movimentationsCircleChart =
         viewModel.movimentationCircleChart.collectAsState(initial = emptyList())
     val currentAmount = viewModel.amount.collectAsState(initial = 0.0)
+    val statementIntro = viewModel.statementIntro()
+    val avatar = getAvatars().first()
+    val bottomSheetState =
+        rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
 
+    val scope = rememberCoroutineScope()
 
-    AliciaTheme {
+    ModalBottomSheetLayout(sheetState = bottomSheetState,
+        sheetShape = RoundedCornerShape(15.dp), sheetContent = {
+            SheetInfo(
+                title = "Conheça a ${avatar.name}",
+                description = "A ${avatar.name}, vai te ajudar a acompanhar todas as suas movimentações de forma detalhada e precisa, assim fica mais fácil de saber quando gastou e quando ganhou mais dinheiro.",
+                avatar = avatar
+            ) {
+                viewModel.updateStatementKey()
+                scope.launch {
+                    bottomSheetState.hide()
+                }
+            }
+        }) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -135,6 +158,17 @@ fun StatementScreen(navController: NavController) {
             }
         }
     }
+
+    LaunchedEffect(Unit) {
+        scope.launch {
+            if (!statementIntro) {
+                bottomSheetState.show()
+            } else {
+                bottomSheetState.hide()
+            }
+        }
+    }
+
 
 }
 

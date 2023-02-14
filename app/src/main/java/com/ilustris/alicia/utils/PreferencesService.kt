@@ -13,8 +13,8 @@ class PreferencesService @Inject constructor(context: Context) {
 
     private fun getEditor() = sharedPreferences.edit()
 
-     fun updateStringKey(key: String, value: String) {
-       getEditor().putString(key, value).commit()
+    fun updateStringKey(key: String, value: String) {
+        getEditor().putString(key, value).commit()
     }
 
     fun updateLongKey(key: String, value: Long) {
@@ -22,10 +22,16 @@ class PreferencesService @Inject constructor(context: Context) {
         getEditor().putLong(key, value).commit()
     }
 
+    fun updateBooleanKey(key: String, value: Boolean) {
+        getEditor().putBoolean(key, value).commit()
+    }
 
-     fun getStringKey(key: String) = sharedPreferences.getString(key, null)
-     fun getLongKey(key: String) = sharedPreferences.getLong(key, 0)
+    fun getBooleanKey(key: String) = sharedPreferences.getBoolean(key, false)
+    fun getStringKey(key: String) = sharedPreferences.getString(key, null)
+    fun getLongKey(key: String) = sharedPreferences.getLong(key, 0)
 
 }
 
- const val USER_KEY = "user_prefs"
+const val USER_KEY = "user_prefs"
+const val GOAL_KEY = "goal_prefs"
+const val STATEMENT_KEY = "statement_prefs"

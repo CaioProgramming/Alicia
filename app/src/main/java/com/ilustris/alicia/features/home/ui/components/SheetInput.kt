@@ -5,7 +5,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -32,7 +31,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ilustris.alicia.features.finnance.data.model.Tag
 import com.ilustris.alicia.features.messages.domain.model.Action
-import com.ilustris.alicia.ui.theme.toolbarColor
 import com.ilustris.alicia.utils.CurrencyInputTransformation
 
 
@@ -68,7 +66,7 @@ fun SheetInput(
 
     Column(
         modifier = Modifier
-            .background(color = toolbarColor(isSystemInDarkTheme()))
+            .background(color = MaterialTheme.colorScheme.surface)
             .padding(16.dp)
             .fillMaxWidth()
             .wrapContentHeight()
