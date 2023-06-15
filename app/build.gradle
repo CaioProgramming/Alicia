@@ -9,13 +9,29 @@ plugins {
 android {
     namespace 'com.ilustris.alicia'
     compileSdk 33
+    def versionPropsFile = file('version.properties')
+    Properties versionProps = new Properties()
+
+    if (versionPropsFile.canRead()) {
+        versionProps.load(new FileInputStream(versionPropsFile))
+    } else {
+        throw new GradleException("Could not read version.properties!")
+    }
+
+    def versionMajor = versionProps['VERSION_MAJOR'].toInteger()
+    def versionMinor = versionProps['VERSION_MINOR'].toInteger()
+    def versionPatch = versionProps['VERSION_PATCH'].toInteger()
+    def versionBuild = versionProps['VERSION_BUILD'].toInteger()
+    def versionNumber = versionProps['VERSION_NUMBER'].toInteger()
+    def vName = "Alicia.${versionMajor}.${versionMinor}.${versionPatch}.${versionBuild}"
+
 
     defaultConfig {
         applicationId "com.ilustris.alicia"
         minSdk 26
         targetSdk 33
-        versionCode 1
-        versionName "1.0"
+        versionCode versionNumber
+        versionName vName
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -75,6 +91,56 @@ android {
 
 }
 
+task updateVersion {
+    doLast {
+        println "Updating version"
+
+        def versionPropsFile = file("version.properties")
+        Properties versionProps = new Properties()
+        if (versionPropsFile.canRead()) {
+            versionProps.load(new FileInputStream(versionPropsFile))
+        } else {
+
+            throw new GradleException("Could not read version.properties!")
+        }
+
+        def versionMajor = versionProps["VERSION_MAJOR"].toInteger()
+        def versionMinor = versionProps["VERSION_MINOR"].toInteger()
+        def versionPatch = versionProps["VERSION_PATCH"].toInteger()
+        def versionBuild = versionProps["VERSION_BUILD"].toInteger()
+        def versionNumber = versionProps["VERSION_NUMBER"].toInteger() + 1
+
+        if (versionBuild < 20) {
+            versionBuild++
+        } else {
+            versionBuild = 0
+            if (versionPatch < 10) {
+                versionPatch++
+            } else {
+                versionPatch = 0
+                if (versionMinor < 15) {
+                    versionMinor++
+                } else {
+                    versionMinor = 0
+                    versionMajor++
+                }
+            }
+        }
+
+        versionProps["VERSION_NUMBER"] = versionNumber.toString()
+        versionProps["VERSION_MAJOR"] = versionMajor.toString()
+        versionProps["VERSION_MINOR"] = versionMinor.toString()
+        versionProps["VERSION_PATCH"] = versionPatch.toString()
+        versionProps["VERSION_BUILD"] = versionBuild.toString()
+
+        versionPropsFile.withWriter { versionProps.store(it, null) }
+
+        println "New version $versionNumber -> $versionMajor.$versionMinor.$versionPatch.$versionBuild"
+    }
+
+}
+
+
 dependencies {
 
     implementation 'com.google.android.material:material:1.7.0'
@@ -111,7 +177,7 @@ dependencies {
     implementation "com.google.dagger:hilt-android:$hiltVersion"
     kapt "com.google.dagger:hilt-android-compiler:$hiltVersion"
     implementation "androidx.hilt:hilt-navigation-compose:1.1.0-alpha01"
-    implementation "androidx.navigation:navigation-compose:2.6.0-alpha04"
+    implementation "androidx.navigation:navigation-compose:2.6.0-alpha07"
     implementation "com.google.accompanist:accompanist-systemuicontroller:0.27.0"
     implementation "com.google.accompanist:accompanist-navigation-animation:0.29.1-alpha"
 
