@@ -1,6 +1,7 @@
 package com.ilustris.alicia
 
 import android.content.Context
+import com.ilustris.alicia.ai.service.AIService
 import com.ilustris.alicia.features.finnance.domain.mapper.MovimentationMapper
 import com.ilustris.alicia.features.messages.domain.mapper.MessageMapper
 import com.ilustris.alicia.utils.AliciaDatabase
@@ -34,6 +35,12 @@ object AppModule {
     @Provides
     fun providesMessageMapper(): MessageMapper {
         return MessageMapper()
+    }
+
+    @Singleton
+    @Provides
+    fun providesAIService(): AIService {
+        return AIService()
     }
 
     @Singleton

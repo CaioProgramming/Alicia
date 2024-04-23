@@ -8,7 +8,7 @@ plugins {
 
 android {
     namespace 'com.ilustris.alicia'
-    compileSdk 33
+    compileSdk 34
     def versionPropsFile = file('version.properties')
     Properties versionProps = new Properties()
 
@@ -29,7 +29,7 @@ android {
     defaultConfig {
         applicationId "com.ilustris.alicia"
         minSdk 26
-        targetSdk 33
+        targetSdk 34
         versionCode versionNumber
         versionName vName
 
@@ -48,11 +48,23 @@ android {
         kotlinCompilerExtensionVersion '1.2.0-alpha08'
     }
 
+    def apikeyPropertiesFile = rootProject.file("app/version.properties")
+    def apikeyProperties = new Properties()
+    apikeyProperties.load(new FileInputStream(apikeyPropertiesFile))
 
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            buildConfigField("String", "AIKEY", apikeyProperties['AI_KEY'])
+            buildConfigField("String", "AIMODEL", apikeyProperties['AI_MODEL'])
+
+        }
+
+        debug {
+            minifyEnabled false
+            buildConfigField("String", "AIKEY", apikeyProperties['AI_KEY'])
+            buildConfigField("String", "AIMODEL", apikeyProperties['AI_MODEL'])
         }
     }
 
@@ -66,11 +78,10 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = '1.8'
         freeCompilerArgs += [
                 '-Xjvm-default=enable'
         ]
@@ -91,7 +102,7 @@ android {
 
 }
 
-task updateVersion {
+tasks.register('updateVersion') {
     doLast {
         println "Updating version"
 
@@ -180,6 +191,8 @@ dependencies {
     implementation "androidx.navigation:navigation-compose:2.6.0-alpha07"
     implementation "com.google.accompanist:accompanist-systemuicontroller:0.27.0"
     implementation "com.google.accompanist:accompanist-navigation-animation:0.29.1-alpha"
+    implementation("com.google.ai.client.generativeai:generativeai:0.4.0")
+    implementation 'com.google.code.gson:gson:2.10.1'
 
     implementation("com.himanshoe:charty:1.0.1")
 

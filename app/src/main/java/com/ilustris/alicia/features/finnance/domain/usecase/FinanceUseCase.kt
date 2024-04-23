@@ -3,6 +3,7 @@ package com.ilustris.alicia.features.finnance.domain.usecase
 import com.himanshoe.charty.circle.model.CircleData
 import com.himanshoe.charty.line.model.LineData
 import com.ilustris.alicia.features.finnance.data.model.Goal
+import com.ilustris.alicia.features.finnance.data.model.Movimentation
 import com.ilustris.alicia.features.finnance.data.model.Tag
 import com.ilustris.alicia.features.finnance.domain.data.GoalInfo
 import com.ilustris.alicia.features.finnance.domain.data.MovimentationInfo
@@ -11,7 +12,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface FinanceUseCase {
 
-    suspend fun saveMovimentation(description: String, value: String, tag: Tag, type: Type): Long
+    suspend fun saveMovimentation(description: String, value: String, tag: Tag, type: Type): Movimentation
 
     fun getProfit(): Flow<List<MovimentationInfo>>
     fun getLoss(): Flow<List<MovimentationInfo>>

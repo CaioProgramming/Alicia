@@ -47,6 +47,7 @@ import com.ilustris.alicia.features.finnance.data.model.Goal
 import com.ilustris.alicia.features.home.ui.components.Banner
 import com.ilustris.alicia.features.home.ui.components.SheetInput
 import com.ilustris.alicia.features.home.ui.components.TopBar
+import com.ilustris.alicia.features.messages.data.model.Type
 import com.ilustris.alicia.features.messages.domain.model.Action
 import com.ilustris.alicia.features.messages.presentation.ChatAction
 import com.ilustris.alicia.features.messages.presentation.ChatViewModel
@@ -63,7 +64,7 @@ fun ChatScreen(title: String, navController: NavHostController) {
 
     val viewModel: ChatViewModel = hiltViewModel()
     val messages = viewModel.messages.collectAsState(initial = emptyList())
-    val showInput = viewModel.showInput.observeAsState()
+    val user = viewModel.user.collectAsState(initial = null)
     val playNewMessage = viewModel.playNewMessage.observeAsState(initial = false)
     val profitList = viewModel.profit.collectAsState(initial = emptyList())
     val lossList = viewModel.loss.collectAsState(initial = emptyList())
@@ -186,6 +187,7 @@ fun ChatScreen(title: String, navController: NavHostController) {
 
 
 
+
             TopBar(title = title, icon = R.drawable.pretty_girl, onClickNavigation = {
                 if (goals.value.isNotEmpty() || amount.value != 0.0) {
                     navController.popBackStack()
@@ -226,7 +228,7 @@ fun ChatScreen(title: String, navController: NavHostController) {
                 MessagesList(
                     modifier = Modifier
                         .constrainAs(messageList) {
-                            if (showInput.value == true) bottom.linkTo(suggestions.top) else bottom.linkTo(
+                            if (user.value == null) bottom.linkTo(suggestions.top) else bottom.linkTo(
                                 parent.bottom
                             )
                             top.linkTo(toolbar.bottom)
@@ -299,7 +301,7 @@ fun ChatScreen(title: String, navController: NavHostController) {
             }
 
             AnimatedVisibility(
-                visible = showInput.value == true,
+                visible = user.value == null,
                 enter = fadeIn(),
                 exit = fadeOut(),
                 modifier = Modifier

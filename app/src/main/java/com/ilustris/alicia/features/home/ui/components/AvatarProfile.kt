@@ -39,7 +39,6 @@ fun AvatarProfile(avatar: Avatar, enabled: Boolean = true, onSelectChat: (String
                 .size(75.dp)
                 .background(color = avatar.backColor, CircleShape)
                 .padding(4.dp)
-                .clip(CircleShape)
                 .clickable(enabled = enabled) {
                     onSelectChat(avatar.redirect)
                 }
