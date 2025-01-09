@@ -32,22 +32,21 @@ import com.himanshoe.charty.common.dimens.ChartDimens
 import com.himanshoe.charty.line.LineChart
 import com.himanshoe.charty.line.config.LineConfig
 import com.ilustris.alicia.R
+import com.ilustris.alicia.core.theme.AliciaTheme
+import com.ilustris.alicia.core.theme.toolbarColor
 import com.ilustris.alicia.features.finnance.domain.data.MovimentationInfo
 import com.ilustris.alicia.features.finnance.presentation.StatementViewModel
 import com.ilustris.alicia.features.finnance.ui.component.AmountComponent
 import com.ilustris.alicia.features.finnance.ui.component.SheetInfo
 import com.ilustris.alicia.features.home.ui.getAvatars
 import com.ilustris.alicia.features.messages.ui.components.StatementComponent
-import com.ilustris.alicia.ui.theme.AliciaTheme
-import com.ilustris.alicia.ui.theme.toolbarColor
 import kotlinx.coroutines.launch
-import java.util.*
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun StatementScreen(navController: NavController) {
     val viewModel: StatementViewModel = hiltViewModel()
-    val pagerState = rememberPagerState(initialPage = 0)
+    val pagerState = rememberPagerState(initialPage = 0, pageCount = { 2 })
     val movimentationsByDate = viewModel.movimentations.collectAsState(initial = emptyList())
     val movimentationsByTag = viewModel.movimentationsByTag.collectAsState(initial = emptyList())
     val movimentationList =
@@ -63,34 +62,39 @@ fun StatementScreen(navController: NavController) {
 
     val scope = rememberCoroutineScope()
 
-    ModalBottomSheetLayout(sheetState = bottomSheetState,
-        sheetShape = RoundedCornerShape(15.dp), sheetContent = {
+    ModalBottomSheetLayout(
+        sheetState = bottomSheetState,
+        sheetShape = RoundedCornerShape(15.dp),
+        sheetContent = {
             SheetInfo(
                 title = "Conheça a ${avatar.name}",
                 description = "A ${avatar.name}, vai te ajudar a acompanhar todas as suas movimentações de forma detalhada e precisa, assim fica mais fácil de saber quando gastou e quando ganhou mais dinheiro.",
-                avatar = avatar
+                avatar = avatar,
             ) {
                 viewModel.updateStatementKey()
                 scope.launch {
                     bottomSheetState.hide()
                 }
             }
-        }) {
+        },
+    ) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.surface)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surface),
         ) {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(color = toolbarColor(isSystemInDarkTheme()))
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .background(color = toolbarColor(isSystemInDarkTheme())),
             ) {
                 IconButton(
                     onClick = {
                         navController.popBackStack()
                     },
-                    colors = IconButtonDefaults.iconButtonColors(contentColor = MaterialTheme.colorScheme.onPrimary)
+                    colors = IconButtonDefaults.iconButtonColors(contentColor = MaterialTheme.colorScheme.onPrimary),
                 ) {
                     Image(
                         imageVector = ImageVector.vectorResource(id = R.drawable.round_chevron_left_24),
@@ -100,60 +104,66 @@ fun StatementScreen(navController: NavController) {
                 }
                 Text(
                     text = "Movimentações",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp, horizontal = 16.dp),
-                    style = MaterialTheme.typography.headlineSmall.copy(
-                        color = MaterialTheme.colorScheme.onBackground,
-                        fontWeight = FontWeight.W900
-                    ),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp, horizontal = 16.dp),
+                    style =
+                        MaterialTheme.typography.headlineSmall.copy(
+                            color = MaterialTheme.colorScheme.onBackground,
+                            fontWeight = FontWeight.W900,
+                        ),
                 )
                 if (currentAmount.value > 0) {
                     AmountComponent(amount = currentAmount.value)
                 }
 
                 HorizontalPager(
-                    pageCount = 2,
                     state = pagerState,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(275.dp)
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(275.dp),
                 ) {
                     when (it) {
-                        0 -> if (movimentationsChart.value.isNotEmpty()) {
-                            LineChart(
-                                lineData = movimentationsChart.value,
-                                lineConfig = LineConfig(hasSmoothCurve = true, hasDotMarker = true),
-                                chartDimens = ChartDimens(8.dp),
-                                modifier = Modifier
-                                    .fillMaxSize(0.9f)
-                                    .padding(8.dp),
-                                colors = listOf(
-                                    MaterialTheme.colorScheme.primary,
-                                    MaterialTheme.colorScheme.secondary,
-                                    MaterialTheme.colorScheme.tertiary
-                                ),
-                            )
-                        }
-                        1 -> if (movimentationsCircleChart.value.isNotEmpty()) {
-                            CircleChart(
-                                circleData = movimentationsCircleChart.value,
-                                isAnimated = true,
-                                modifier = Modifier
-                                    .fillMaxSize(0.9f)
-                                    .padding(8.dp)
-                            )
-                        }
+                        0 ->
+                            if (movimentationsChart.value.isNotEmpty()) {
+                                LineChart(
+                                    lineData = movimentationsChart.value,
+                                    lineConfig = LineConfig(hasSmoothCurve = true, hasDotMarker = true),
+                                    chartDimens = ChartDimens(8.dp),
+                                    modifier =
+                                        Modifier
+                                            .fillMaxSize(0.9f)
+                                            .padding(8.dp),
+                                    colors =
+                                        listOf(
+                                            MaterialTheme.colorScheme.primary,
+                                            MaterialTheme.colorScheme.secondary,
+                                            MaterialTheme.colorScheme.tertiary,
+                                        ),
+                                )
+                            }
+                        1 ->
+                            if (movimentationsCircleChart.value.isNotEmpty()) {
+                                CircleChart(
+                                    circleData = movimentationsCircleChart.value,
+                                    isAnimated = true,
+                                    modifier =
+                                        Modifier
+                                            .fillMaxSize(0.9f)
+                                            .padding(8.dp),
+                                )
+                            }
                     }
                 }
-
             }
             if (movimentationList.isNotEmpty()) {
                 StatementList(movimentations = movimentationList)
             } else {
                 Text(
                     text = "Você não possui movimentações.",
-                    style = MaterialTheme.typography.displayMedium.copy(color = MaterialTheme.colorScheme.onBackground)
+                    style = MaterialTheme.typography.displayMedium.copy(color = MaterialTheme.colorScheme.onBackground),
                 )
             }
         }
@@ -168,8 +178,6 @@ fun StatementScreen(navController: NavController) {
             }
         }
     }
-
-
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -180,15 +188,19 @@ fun StatementList(movimentations: List<MovimentationInfo>) {
             stickyHeader {
                 Text(
                     text = it.header,
-                    style = MaterialTheme.typography.labelSmall.copy(
-                        color = MaterialTheme.colorScheme.onSurface.copy(
-                            alpha = 0.5f
-                        ), fontWeight = FontWeight.W600
-                    ),
-                    modifier = Modifier
-                        .background(MaterialTheme.colorScheme.surface)
-                        .fillMaxWidth()
-                        .padding(16.dp)
+                    style =
+                        MaterialTheme.typography.labelSmall.copy(
+                            color =
+                                MaterialTheme.colorScheme.onSurface.copy(
+                                    alpha = 0.5f,
+                                ),
+                            fontWeight = FontWeight.W600,
+                        ),
+                    modifier =
+                        Modifier
+                            .background(MaterialTheme.colorScheme.surface)
+                            .fillMaxWidth()
+                            .padding(16.dp),
                 )
             }
             items(it.movimentations.size) { index ->
@@ -199,7 +211,6 @@ fun StatementList(movimentations: List<MovimentationInfo>) {
             }
         }
     }
-
 }
 
 @Preview
@@ -209,5 +220,4 @@ fun StatementPreview() {
         val navController = rememberNavController()
         StatementScreen(navController)
     }
-
 }

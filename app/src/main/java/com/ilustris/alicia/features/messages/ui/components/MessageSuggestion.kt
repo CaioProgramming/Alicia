@@ -16,37 +16,38 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.ilustris.alicia.core.theme.AliciaTheme
 import com.ilustris.alicia.features.messages.data.datasource.SuggestionsPresets
 import com.ilustris.alicia.features.messages.domain.model.Action
 import com.ilustris.alicia.features.messages.domain.model.Suggestion
-import com.ilustris.alicia.ui.theme.AliciaTheme
 
 @Composable
 fun MessageSuggestion(
     suggestion: Suggestion,
-    onSelectSuggestion: (Suggestion, String?) -> Unit
+    onSelectSuggestion: (Suggestion, String?) -> Unit,
 ) {
-
-
     when (suggestion.action) {
         Action.NAME -> Box(modifier = Modifier.wrapContentSize())
         else -> {
             Button(
-                modifier = Modifier
-                    .padding(8.dp)
-                    .border(
-                        1.dp,
-                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
-                        shape = RoundedCornerShape(25.dp)
+                modifier =
+                    Modifier
+                        .padding(8.dp)
+                        .border(
+                            1.dp,
+                            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
+                            shape = RoundedCornerShape(25.dp),
+                        ),
+                colors =
+                    ButtonDefaults.buttonColors(
+                        containerColor = Color.Transparent,
                     ),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Transparent
-                ),
-                onClick = { onSelectSuggestion(suggestion, null) }) {
+                onClick = { onSelectSuggestion(suggestion, null) },
+            ) {
                 Text(
-                    text = suggestion.action.description,
+                    text = suggestion.action.name,
                     style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onBackground),
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
                 )
             }
         }
@@ -55,18 +56,18 @@ fun MessageSuggestion(
 
 @Preview(showBackground = true)
 @Composable
-fun suggestionPreview() {
-    return AliciaTheme {
+fun suggestionPreview() =
+    AliciaTheme {
         Column(modifier = Modifier.padding(16.dp)) {
-            MessageSuggestion(
-                SuggestionsPresets.commonSuggestions.first(),
-                onSelectSuggestion = { suggestion, value ->
-                })
             MessageSuggestion(
                 SuggestionsPresets.newUserSuggestions.first(),
                 onSelectSuggestion = { suggestion, value ->
-                })
+                },
+            )
+            MessageSuggestion(
+                SuggestionsPresets.newUserSuggestions.first(),
+                onSelectSuggestion = { suggestion, value ->
+                },
+            )
         }
-
     }
-}

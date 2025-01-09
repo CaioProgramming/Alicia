@@ -2,417 +2,417 @@
 
 package com.ilustris.alicia.features.messages.ui
 
-import android.media.MediaPlayer
+import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.EaseIn
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.*
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Icon
+import androidx.compose.material.SnackbarHost
+import androidx.compose.material.SnackbarHostState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.rememberScaffoldState
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.airbnb.lottie.compose.*
 import com.ilustris.alicia.R
-import com.ilustris.alicia.features.finnance.data.model.Goal
-import com.ilustris.alicia.features.home.ui.components.Banner
-import com.ilustris.alicia.features.home.ui.components.SheetInput
-import com.ilustris.alicia.features.home.ui.components.TopBar
-import com.ilustris.alicia.features.messages.data.model.Type
+import com.ilustris.alicia.core.theme.AliciaTheme
+import com.ilustris.alicia.core.theme.aliciaBrush
+import com.ilustris.alicia.core.theme.aliciaColors
+import com.ilustris.alicia.features.messages.data.model.Message
+import com.ilustris.alicia.features.messages.data.model.Sender
 import com.ilustris.alicia.features.messages.domain.model.Action
+import com.ilustris.alicia.features.messages.domain.model.MessageGroup
 import com.ilustris.alicia.features.messages.presentation.ChatAction
+import com.ilustris.alicia.features.messages.presentation.ChatState
 import com.ilustris.alicia.features.messages.presentation.ChatViewModel
-import com.ilustris.alicia.ui.theme.AliciaTheme
-import com.ilustris.alicia.ui.theme.toolbarColor
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import com.ilustris.alicia.utils.gradientAnimation
+import kotlin.random.Random
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.DurationUnit
 
-@OptIn(ExperimentalMaterialApi::class)
 @ExperimentalComposeUiApi
 @Composable
-fun ChatScreen(title: String, navController: NavHostController) {
-
-
-    val viewModel: ChatViewModel = hiltViewModel()
-    val messages = viewModel.messages.collectAsState(initial = emptyList())
-    val user = viewModel.user.collectAsState(initial = null)
-    val playNewMessage = viewModel.playNewMessage.observeAsState(initial = false)
-    val profitList = viewModel.profit.collectAsState(initial = emptyList())
-    val lossList = viewModel.loss.collectAsState(initial = emptyList())
-    val goals = viewModel.goals.collectAsState(initial = emptyList())
-    val amount = viewModel.amount.collectAsState(initial = 0.00)
-    var completedGoal: Goal? = null
-
-    var bannerVisible by remember {
-        mutableStateOf(false)
-    }
-
-    var sheetPlaceHolder by remember {
-        mutableStateOf("O que você comprou?")
-    }
-
-    var sheetTitle by remember {
-        mutableStateOf("Comprinha do mês")
-    }
-
-    var sheetAction by remember {
-        mutableStateOf(Action.NAME)
-    }
-
-    val keyboardController = LocalSoftwareKeyboardController.current
-
-    val bottomSheetState =
-        rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
-
-    val scope = rememberCoroutineScope()
-
-    val focusRequester = remember { FocusRequester() }
-
-
-    if (bottomSheetState.isVisible) {
-        LaunchedEffect(Unit) {
-            focusRequester.requestFocus()
-        }
-    }
-    val mediaPlayer = MediaPlayer.create(LocalContext.current, R.raw.bell)
-    val aliciaPlayer = MediaPlayer.create(LocalContext.current, R.raw.pop)
-
-    if (playNewMessage.value == true) aliciaPlayer.start()
-
-
-    ModalBottomSheetLayout(
-        sheetState = bottomSheetState,
-        sheetShape = RoundedCornerShape(15.dp),
-        sheetContent = {
-            SheetInput(
-                title = sheetTitle,
-                action = sheetAction,
-                placeHolder = sheetPlaceHolder,
-                focusRequester = focusRequester,
-                onConfirmClick = { description, value, tag, action ->
-                    scope.launch {
-                        bottomSheetState.hide()
-                        focusRequester.freeFocus()
-                    }
-                    if (!mediaPlayer.isPlaying) {
-                        mediaPlayer.start()
-                    }
-                    when (action) {
-                        Action.NAME -> viewModel.launchAction(ChatAction.SaveUser(value))
-                        Action.PROFIT -> viewModel.launchAction(
-                            ChatAction.SaveProfit(
-                                description,
-                                value,
-                                tag
-                            )
-                        )
-                        Action.LOSS -> viewModel.launchAction(
-                            ChatAction.SaveLoss(
-                                description,
-                                value,
-                                tag
-                            )
-                        )
-                        Action.GOAL -> viewModel.launchAction(
-                            ChatAction.SaveGoal(
-                                description,
-                                value,
-                                tag
-                            )
-                        )
-                        Action.HISTORY, Action.BALANCE, Action.GOAL_HISTORY -> viewModel.launchAction(
-                            ChatAction.GetHistory
-                        )
-                    }
-                })
-        }) {
-        val celebrateComposition by rememberLottieComposition(
-            LottieCompositionSpec.RawRes(R.raw.celebrate)
-        )
-        var isCelebrationPlaying by remember {
-            mutableStateOf(false)
+fun ChatScreen(
+    viewModel: ChatViewModel = hiltViewModel(),
+    navController: NavHostController,
+) {
+    val messages = viewModel.messages.collectAsStateWithLifecycle().value
+    val suggestions = viewModel.suggestions.collectAsStateWithLifecycle().value
+    val state = viewModel.state.collectAsStateWithLifecycle().value
+    val generalBrush =
+        if (state is ChatState.Loading) {
+            gradientAnimation(aliciaColors(), duration = 5.seconds)
+        } else {
+            aliciaBrush()
         }
 
-        val celebrateProgress by animateLottieCompositionAsState(
-            celebrateComposition,
-            isPlaying = isCelebrationPlaying,
-        )
-        ConstraintLayout(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(color = toolbarColor(isSystemInDarkTheme()))
-                .padding(vertical = 4.dp)
+    ChatView(
+        appMessages = messages,
+        suggestions = suggestions,
+        navController = navController,
+        state = state,
+        loadingBrush = generalBrush,
+    ) {
+        viewModel.launchAction(ChatAction.SendMessage(it))
+    }
+}
 
-        ) {
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ChatView(
+    appMessages: List<MessageGroup> = emptyList(),
+    suggestions: List<String> = emptyList(),
+    navController: NavHostController = rememberNavController(),
+    modifier: Modifier = Modifier,
+    state: ChatState?,
+    loadingBrush: Brush,
+    onSendMessage: (String) -> Unit,
+) {
+    val listState = rememberLazyListState()
 
-            val (toolbar, messageList, suggestions, banner, animation) = createRefs()
-
-            val composition by rememberLottieComposition(
-                LottieCompositionSpec.RawRes(R.raw.cute_cat)
-            )
-            val progress by animateLottieCompositionAsState(
-                composition,
-                isPlaying = true,
-                iterations = LottieConstants.IterateForever
-            )
-
-
-
-
-            TopBar(title = title, icon = R.drawable.pretty_girl, onClickNavigation = {
-                if (goals.value.isNotEmpty() || amount.value != 0.0) {
-                    navController.popBackStack()
-                }
-            },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .constrainAs(toolbar) { top.linkTo(parent.top) }
-            )
-
-
-            completedGoal?.let {
-                Banner(goal = it, bannerVisible, modifier = Modifier.constrainAs(banner) {
-                    top.linkTo(toolbar.top)
-                    bottom.linkTo(toolbar.bottom)
-                    width = Dimension.matchParent
-                    height = Dimension.matchParent
-                }) {
-                    bannerVisible = false
-                }
-            }
-
-
-            if (messages.value.isEmpty()) {
-                LottieAnimation(
-                    composition = composition,
-                    progress,
-                    Modifier.constrainAs(animation) {
-
-                        top.linkTo(toolbar.bottom)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                        width = Dimension.value(200.dp)
-                        height = Dimension.value(200.dp)
-
-                    })
+    val isExpanded by remember {
+        derivedStateOf {
+            if (appMessages.isEmpty()) {
+                true
             } else {
-                MessagesList(
-                    modifier = Modifier
-                        .constrainAs(messageList) {
-                            if (user.value == null) bottom.linkTo(suggestions.top) else bottom.linkTo(
-                                parent.bottom
-                            )
-                            top.linkTo(toolbar.bottom)
-                            start.linkTo(parent.start)
-                            end.linkTo(parent.end)
-                            width = Dimension.fillToConstraints
-                            height = Dimension.fillToConstraints
-                        },
-                    messages,
-                    profitList.value,
-                    lossList.value,
-                    goals.value,
-                    amount.value,
-                    onSelectSuggestion = { suggestion, value ->
-                        scope.launch {
-                            when (suggestion.action) {
-                                Action.NAME -> {
-                                    value?.let {
-                                        viewModel.launchAction(ChatAction.SaveUser(value))
-                                    }
-                                }
-                                Action.BALANCE, Action.HISTORY -> viewModel.launchAction(
-                                    ChatAction.GetHistory
-                                )
-                                Action.GOAL_HISTORY -> viewModel.launchAction(ChatAction.GetGoals)
-                                else -> {
-                                    sheetTitle = suggestion.action.description
-                                    sheetAction = suggestion.action
-                                    sheetPlaceHolder = getPlaceHolderMessage(suggestion.action)
-                                    bottomSheetState.show()
-                                }
-                            }
-
-                        }
-                    },
-                    openStatement = {
-                        navController.navigate("statement")
-                    },
-                    openGoal = {
-                        navController.navigate("goals")
-                    }
-                )
+                listState.layoutInfo
+                    .visibleItemsInfo
+                    .any { it.key == "collapse_toolbar" }
             }
-
-
-
-            if (goals.value.isNotEmpty()) {
-                val goalPlayer = MediaPlayer.create(LocalContext.current, R.raw.celebrate_audio)
-                LaunchedEffect(goals) {
-                    val completedGoals =
-                        goals.value.filter { it.value <= amount.value && !it.isComplete }
-                    if (completedGoals.isNotEmpty()) {
-                        isCelebrationPlaying = true
-                        if (!goalPlayer.isPlaying) {
-                            goalPlayer.start()
-                        }
-                        if (isCelebrationPlaying && progress == 1f) {
-                            isCelebrationPlaying = false
-                        }
-                        completedGoals.forEach {
-                            viewModel.launchAction(ChatAction.CompleteGoal(it))
-                        }
-                        completedGoal = completedGoals.last()
-                        bannerVisible = true
-                        delay(3000L)
-                        bannerVisible = false
-
-                    }
-                }
-            }
-
-            AnimatedVisibility(
-                visible = user.value == null,
-                enter = fadeIn(),
-                exit = fadeOut(),
-                modifier = Modifier
-                    .constrainAs(suggestions) {
-                        bottom.linkTo(parent.bottom)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                        width = Dimension.matchParent
-                    }
-                    .padding(horizontal = 16.dp, vertical = 4.dp)) {
-                ChatInput(modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight(), onDone = {
-                    keyboardController?.hide()
-                    viewModel.launchAction(ChatAction.SaveUser(it))
-                })
-            }
-
-
         }
-        LottieAnimation(
-            celebrateComposition,
-            celebrateProgress,
-            modifier = Modifier.fillMaxSize()
+    }
+
+    val topBarAlpha =
+        animateFloatAsState(
+            if (isExpanded) 0f else 1f,
+            tween(2.seconds.toInt(DurationUnit.MILLISECONDS), easing = EaseIn),
         )
+
+    val scaffoldState = rememberScaffoldState()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(appMessages) {
+        if (appMessages.isNotEmpty()) {
+            listState.scrollToItem(appMessages.size - 1)
+        }
+    }
+
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        topBar = {
+            TopAppBar(
+                colors =
+                    TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.background.copy(topBarAlpha.value),
+                    ),
+                navigationIcon = {
+                    IconButton(
+                        {
+                            navController.popBackStack()
+                        },
+                        colors =
+                            IconButtonDefaults.filledIconButtonColors(
+                                contentColor = MaterialTheme.colorScheme.onBackground,
+                                containerColor = Color.Transparent,
+                            ),
+                    ) {
+                        Icon(
+                            Icons.AutoMirrored.Rounded.KeyboardArrowLeft,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onBackground,
+                        )
+                    }
+                },
+                title = {
+                    AnimatedVisibility(
+                        !isExpanded,
+                        enter = slideInVertically(),
+                        exit = fadeOut(),
+                        modifier = Modifier.fillMaxSize(),
+                    ) {
+                        Column(verticalArrangement = Arrangement.Top, modifier = Modifier.fillMaxSize()) {
+                            Text(
+                                stringResource(R.string.app_name),
+                                modifier = Modifier.padding(12.dp).fillMaxWidth().wrapContentHeight(),
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onBackground,
+                            )
+                        }
+                    }
+                },
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(COLLAPSED_TOP_BAR_HEIGHT),
+            )
+        },
+        bottomBar = {
+            ChatInput(
+                suggestions,
+                onDone = onSendMessage,
+                state = state,
+                brush = loadingBrush,
+                modifier = Modifier.padding(16.dp).wrapContentHeight(),
+            )
+        },
+        modifier = modifier.fillMaxSize(),
+    ) {
+        MessagesList(
+            messages = appMessages,
+            listState = listState,
+            modifier = Modifier.padding(it).fillMaxSize(),
+            brush = loadingBrush,
+        ) { }
     }
 }
 
 @Composable
-fun ChatInput(modifier: Modifier, onDone: (String) -> Unit) {
+fun ChatInput(
+    suggestions: List<String> = emptyList(),
+    state: ChatState?,
+    modifier: Modifier,
+    brush: Brush,
+    onDone: (String) -> Unit,
+) {
     var message by remember {
         mutableStateOf("")
     }
 
-    TextField(
-        value = message,
-        onValueChange = {
-            if (it.length <= 45) {
-                message = it
+    val isLoading = state == ChatState.Loading
+
+    val backgroundColor =
+        animateColorAsState(
+            if (state is ChatState.Error) {
+                Color.Red.copy(alpha = .60f)
+            } else {
+                MaterialTheme.colorScheme.primaryContainer.copy(alpha = .20f)
+            },
+            tween(1500, easing = EaseIn),
+        )
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier =
+            modifier
+                .wrapContentSize()
+                .background(backgroundColor.value, RoundedCornerShape(25.dp))
+                .clip(RoundedCornerShape(25.dp))
+                .animateContentSize(),
+    ) {
+        AnimatedVisibility(suggestions.isNotEmpty() && state is ChatState.Idle, modifier = Modifier.wrapContentSize()) {
+            LazyRow(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                        .clip(RoundedCornerShape(25.dp)),
+            ) {
+                items(suggestions.size) { index ->
+                    val suggestion = suggestions[index]
+                    Box(
+                        modifier =
+                            Modifier
+                                .padding(8.dp)
+                                .clip(RoundedCornerShape(25.dp))
+                                .background(MaterialTheme.colorScheme.primary)
+                                .clickable {
+                                    message = suggestion
+                                },
+                    ) {
+                        Text(
+                            text = suggestion,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier.padding(8.dp),
+                        )
+                    }
+                }
             }
-        },
-        textStyle = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.W500),
-        placeholder = {
-            Text(
-                style = MaterialTheme.typography.bodySmall,
-                text = Action.NAME.description,
-                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
-                modifier = Modifier.fillMaxWidth()
-            )
-        },
-        singleLine = true,
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Text,
-            imeAction = ImeAction.Done,
-            capitalization = KeyboardCapitalization.Words,
-            autoCorrect = false,
-        ),
-        keyboardActions = KeyboardActions(onDone = {
-            if (message.isNotEmpty()) {
-                onDone(message)
-                message = ""
-            }
-        }),
-        trailingIcon = {
-            IconButton(
-                onClick = {
-                    if (message.isNotEmpty()) {
-                        onDone(message)
-                        message = ""
+        }
+
+        AnimatedVisibility(state is ChatState.Idle, modifier = Modifier.wrapContentSize()) {
+            TextField(
+                value = message,
+                modifier = Modifier.fillMaxWidth(),
+                colors =
+                    TextFieldDefaults.colors(
+                        cursorColor = MaterialTheme.colorScheme.primary,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.Transparent,
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent,
+                        disabledContainerColor = Color.Transparent,
+                    ),
+                onValueChange = {
+                    if (it.length <= 300) {
+                        message = it
                     }
                 },
-                modifier = Modifier
-                    .size(32.dp)
-                    .background(MaterialTheme.colorScheme.secondary, shape = CircleShape)
-                    .padding(4.dp)
-            ) {
-                Image(
-                    modifier = Modifier.fillMaxSize(0.5f),
-                    imageVector = ImageVector.vectorResource(id = R.drawable.ic_round_send_24),
-                    colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onSecondary),
-                    contentDescription = "enviar",
-                    contentScale = ContentScale.Inside,
-                    alignment = Alignment.Center
-                )
-            }
+                textStyle = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.W500),
+                placeholder = {
+                    Text(
+                        style = MaterialTheme.typography.bodySmall,
+                        text = "Envie uma mensagem para começar",
+                        color = MaterialTheme.colorScheme.onBackground,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                },
+                singleLine = true,
+                keyboardOptions =
+                    KeyboardOptions(
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Done,
+                        capitalization = KeyboardCapitalization.Sentences,
+                        autoCorrect = true,
+                    ),
+                keyboardActions =
+                    KeyboardActions(onDone = {
+                        if (message.isNotEmpty()) {
+                            onDone(message)
+                            message = ""
+                        }
+                    }),
+                trailingIcon = {
+                    IconButton(
+                        enabled = message.isNotEmpty(),
+                        colors =
+                            IconButtonDefaults.iconButtonColors(
+                                contentColor = MaterialTheme.colorScheme.primary,
+                            ),
+                        onClick = {
+                            if (message.isNotEmpty()) {
+                                onDone(message)
+                                message = ""
+                            }
+                        },
+                        modifier =
+                            Modifier
+                                .size(48.dp),
+                    ) {
+                        AnimatedVisibility(
+                            visible = message.isNotEmpty(),
+                            enter = scaleIn(),
+                            exit = scaleOut(),
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Send,
+                                contentDescription = "enviar",
+                                tint = MaterialTheme.colorScheme.primary,
+                            )
+                        }
+                    }
+                },
+            )
+        }
 
-        },
-        colors = TextFieldDefaults.textFieldColors(
-            textColor = MaterialTheme.colorScheme.onBackground,
-            cursorColor = MaterialTheme.colorScheme.tertiary,
-            unfocusedIndicatorColor = Color.Transparent,
-            focusedIndicatorColor = Color.Transparent,
-            backgroundColor = Color.Transparent,
-            disabledTextColor = Color.Transparent,
-            focusedLabelColor = MaterialTheme.colorScheme.onBackground
-        ),
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(8.dp)
-            .wrapContentHeight()
-            .border(
-                1.dp,
-                MaterialTheme.colorScheme.onBackground.copy(0.5f),
-                shape = RoundedCornerShape(25.dp)
+        AnimatedVisibility(isLoading, modifier = Modifier.padding(8.dp)) {
+            // create a infinite rotation animation
+            val infiniteTransition = rememberInfiniteTransition()
+            val rotation by infiniteTransition.animateFloat(
+                initialValue = 0f,
+                targetValue = 360f,
+                animationSpec =
+                    infiniteRepeatable(
+                        animation = tween(durationMillis = 5000, easing = EaseIn),
+                        repeatMode = RepeatMode.Reverse,
+                    ),
+                label = "loadingRotation",
             )
 
-    )
+            Box(
+                Modifier
+                    .size(32.dp)
+                    .clip(CircleShape)
+                    .rotate(rotation)
+                    .background(brush, CircleShape),
+            ) { }
+        }
+
+        AnimatedVisibility(state is ChatState.Error, modifier = Modifier.wrapContentSize().padding(16.dp)) {
+            Text(
+                (state as? ChatState.Error)?.message ?: stringResource(R.string.default_error),
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.White,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center
+            )
+        }
+    }
 }
 
-fun getPlaceHolderMessage(action: Action): String {
-    return when (action) {
+fun getPlaceHolderMessage(action: Action): String =
+    when (action) {
         Action.PROFIT -> "Com o que você ganhou?"
         Action.LOSS -> "Com o que você gastou?"
         Action.GOAL -> "Qual o seu objetivo"
@@ -420,15 +420,70 @@ fun getPlaceHolderMessage(action: Action): String {
         else -> ""
     }
 
+@Suppress("ktlint:standard:function-naming")
+@Composable
+fun CollapseToolbar(modifier: Modifier) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Image(
+            painterResource(id = R.drawable.pretty_girl),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier =
+                Modifier
+                    .size(100.dp)
+                    .clip(CircleShape),
+        )
+
+        Text(
+            stringResource(R.string.app_name),
+            modifier = Modifier.fillMaxWidth(),
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.titleMedium,
+        )
+    }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
-@Preview(showBackground = true)
+@Preview(
+    showBackground = true,
+    device = "spec:width=1080px,height=2424px,cutout=punch_hole",
+    uiMode = Configuration.UI_MODE_TYPE_NORMAL,
+    backgroundColor = 0xFF000000,
+)
+
+@Suppress("ktlint:standard:function-naming")
 @Composable
 fun DefaultPreview() {
     AliciaTheme {
-        val navController = rememberNavController()
-
-        ChatScreen(title = "Alicia app", navController = navController)
+        ChatView(
+            state = ChatState.Error(null),
+            loadingBrush = gradientAnimation(aliciaColors(), duration = 5.seconds),
+            suggestions =
+                Action
+                    .values()
+                    .map { getPlaceHolderMessage(it) }
+                    .filter { it.isNotEmpty() },
+            appMessages =
+                List(3) {
+                    MessageGroup(
+                        "Messasges $it",
+                        messages =
+                            List(5) {
+                                Message(
+                                    id = Random.nextInt(),
+                                    message = "Hello $it",
+                                    type = null,
+                                    sender = if (it % 2 == 0) Sender.USER else Sender.BOT,
+                                )
+                            },
+                    )
+                },
+        ) {}
     }
 }
+
+val COLLAPSED_TOP_BAR_HEIGHT = 70.dp
+val EXPANDED_TOP_BAR_HEIGHT = 170.dp

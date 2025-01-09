@@ -1,65 +1,68 @@
 package com.ilustris.alicia.features.messages.ui
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.State
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import com.ilustris.alicia.features.finnance.data.model.Goal
-import com.ilustris.alicia.features.finnance.domain.data.MovimentationInfo
-
-import com.ilustris.alicia.features.messages.data.model.Type
-import com.ilustris.alicia.features.messages.domain.model.MessageInfo
-import com.ilustris.alicia.features.messages.domain.model.Suggestion
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import com.ilustris.alicia.core.theme.themeBrush
+import com.ilustris.alicia.features.messages.data.model.Message
+import com.ilustris.alicia.features.messages.domain.model.MessageGroup
 import com.ilustris.alicia.features.messages.ui.components.MessageBubble
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MessagesList(
+    messages: List<MessageGroup>,
     modifier: Modifier,
-    appMessages: State<List<MessageInfo>>,
-    profits: List<MovimentationInfo>,
-    losses: List<MovimentationInfo>,
-    goals: List<Goal>,
-    amount: Double,
-    onSelectSuggestion: (Suggestion, String?) -> Unit,
-    openStatement: (Int) -> Unit,
-    openGoal: () -> Unit,
-
-    ) {
-    val messages = remember { appMessages }
-    val scrollState = rememberLazyListState()
-
+    listState: LazyListState,
+    brush: Brush = themeBrush(),
+    onOpenMessage: (Message) -> Unit,
+) {
     LazyColumn(
         reverseLayout = true,
         modifier = modifier,
-        state = scrollState
+        state = listState,
     ) {
-        itemsIndexed(messages.value, key = { index, item -> item.message.id }) { index, message ->
-            val movementList =
-                if (message.message.type == Type.PROFIT_HISTORY) profits else if (message.message.type == Type.LOSS_HISTORY) losses else emptyList()
-            MessageBubble(
-                message,
-                movementList,
-                goals,
-                modifier = Modifier.animateItemPlacement(),
-                amount,
-                onSelectSuggestion,
-                openStatement,
-                openGoal
-            )
+        messages.forEach {
+            items(it.messages, key = { m -> m.id }) {
+                MessageBubble(
+                    it,
+                    brushBackground = brush,
+                    modifier = Modifier.animateItemPlacement(),
+                    openMessage = onOpenMessage,
+                )
+            }
+
+            item {
+                Text(
+                    text = it.title,
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.overline,
+                    modifier = Modifier.fillMaxWidth().padding(8.dp),
+                )
+            }
+        }
+
+        item(key = "collapse_toolbar") {
+            CollapseToolbar(Modifier.padding(8.dp).fillMaxWidth().wrapContentHeight())
         }
     }
 
-    LaunchedEffect(messages.value.size) {
-        if (messages.value.isNotEmpty()) {
-            scrollState.animateScrollToItem(0)
+    LaunchedEffect(messages.size) {
+        if (messages.isNotEmpty()) {
+            listState.animateScrollToItem(messages.lastIndex)
         }
     }
-
 }
-

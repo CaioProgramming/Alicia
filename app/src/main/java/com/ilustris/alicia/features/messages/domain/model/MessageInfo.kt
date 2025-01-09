@@ -5,6 +5,10 @@ import com.ilustris.alicia.features.messages.data.model.Type
 
 data class MessageInfo(
     val message: Message,
-    val observeMovimentations: Boolean = (message.type == Type.PROFIT_HISTORY || message.type == Type.LOSS_HISTORY || message.type == Type.AMOUNT || message.type == Type.GOAL),
-    val attachedSuggestions: List<Suggestion> = emptyList()
+    val attachedSuggestions: List<Suggestion> = emptyList(),
+)
+
+data class MessageGroup(
+    val title: String,
+    val messages: List<Message>,
 )

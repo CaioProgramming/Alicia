@@ -1,22 +1,43 @@
 package com.ilustris.alicia.ai.usecase
 
-import com.ilustris.alicia.ai.model.PromptConfig
-import com.ilustris.alicia.features.messages.data.model.Message
-import com.ilustris.alicia.features.messages.domain.model.Action
-import kotlinx.coroutines.flow.Flow
+import com.ilustris.alicia.ai.model.PromptBuilder
 
 interface AIUseCase {
+    suspend fun <T> generateResponse(
+        prompt: PromptBuilder,
+        clazz: Class<T>,
+        specificReplacement: Pair<String, String>? = null,
+        requireTranslation: Boolean = true,
+    ): RequestResult<Exception, T>
+}
 
-   var messageHistory: Flow<List<Message>>
+sealed class RequestResult<out L, out R> {
+    data class Error<out L>(
+        val value: L,
+    ) : RequestResult<L, Nothing>()
 
-   suspend fun requestMessage(message: String, config: List<PromptConfig>) : Message?
+    data class Success<out R>(
+        val value: R,
+    ) : RequestResult<Nothing, R>()
 
-   suspend fun requestNewUserMessage() : Message?
+    fun isSuccess(): Boolean = this is Success
 
-   suspend fun generateNewMessageForAction(action: Action, message: String): Message?
+    fun isFailure(): Boolean = this is Error
 
-   suspend fun requestSuggestionsMessage() : Message?
+    fun onSuccess(block: (R) -> Unit): RequestResult<L, R> {
+        if (this is Success) {
+            block(value)
+        }
+        return this
+    }
 
-   suspend fun generatePromptForInput(value: String, config: List<PromptConfig>) : Message?
+    fun onFailure(block: (L) -> Unit): RequestResult<L, R> {
+        if (this is Error) {
+            block(value)
+        }
+        return this
+    }
 
+    val success get() = this as Success
+    val error get() = this as Error
 }

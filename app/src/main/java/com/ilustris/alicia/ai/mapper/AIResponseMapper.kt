@@ -3,30 +3,44 @@ package com.ilustris.alicia.ai.mapper
 import android.util.Log
 import com.google.ai.client.generativeai.type.GenerateContentResponse
 import com.google.ai.client.generativeai.type.asTextOrNull
-import com.ilustris.alicia.features.messages.data.model.Message
 import com.google.gson.Gson
-import java.util.Calendar
+import com.ilustris.alicia.utils.removeDuplicatedQuotes
+import com.ilustris.alicia.utils.removeLineBreaks
+import com.ilustris.alicia.utils.removeSlashes
 
-
-fun GenerateContentResponse.mapToMessage() : Message? {
+fun <T> GenerateContentResponse.mapTo(clazz: Class<*>): T? {
     try {
-        this.candidates.first().content.parts.first().asTextOrNull()?.let {
-            Log.i(javaClass.simpleName, "mapToMessage: generated Response $it")
-            var mappedResponse = it
-                .substring(it.indexOf("{"), it.indexOf("}") + 1)
-            if(mappedResponse.contains("[") && mappedResponse.contains("]")) {
-                mappedResponse = removeBrackets(mappedResponse)
-            }
-            val responseData = Gson().fromJson(mappedResponse, Message::class.java)
-            return responseData.copy(sentTime = Calendar.getInstance().time.time)
-        } ?: return null
+        val content =
+            this.candidates
+                .first()
+                .content.parts
+                .first()
+                .asTextOrNull() ?: return null
+
+        Log.i(javaClass.simpleName, "mapTo: generated Response\n$content")
+        var mappedResponse =
+            content
+                .substring(content.indexOf("{"), content.lastIndexOf("}") + 1)
+                .removeSlashes()
+                .removeLineBreaks()
+                .removeDuplicatedQuotes()
+        Log.i(javaClass.simpleName, "mapTo: parsing $mappedResponse")
+        return Gson().fromJson(mappedResponse, clazz) as? T
     } catch (e: Exception) {
         e.printStackTrace()
         return null
     }
-
 }
 
-private fun removeBrackets(response: String): String {
-    return response.replace("[", "\"").replace("]", "\"")
+// help me write a function to format that string and removing unnecessary line breaks, spaces, and brackets
+fun formatResponse(response: String): String =
+    response
+        .removeLineBreaks()
+        .removeSlashes()
+
+fun removeBrackets(response: String): String {
+    if (response.contains("[") && response.contains("]")) {
+        return response.replace("[", "\"").replace("]", "\"")
+    }
+    return response
 }

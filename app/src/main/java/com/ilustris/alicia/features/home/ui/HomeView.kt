@@ -24,13 +24,11 @@ import com.ilustris.alicia.CHAT_SCREEN
 import com.ilustris.alicia.GOAL_SCREEN
 import com.ilustris.alicia.R
 import com.ilustris.alicia.STATEMENT_SCREEN
+import com.ilustris.alicia.core.theme.AliciaTheme
 import com.ilustris.alicia.features.finnance.ui.StatementList
 import com.ilustris.alicia.features.home.domain.model.Avatar
 import com.ilustris.alicia.features.home.presentation.MainViewModel
 import com.ilustris.alicia.features.home.ui.components.AvatarProfile
-import com.ilustris.alicia.features.messages.data.datasource.MessagePresets
-import com.ilustris.alicia.ui.theme.AliciaTheme
-
 
 @Composable
 fun MainScreen(navController: NavHostController) {
@@ -39,9 +37,10 @@ fun MainScreen(navController: NavHostController) {
     val movimentations = viewmodel.movimentations.collectAsState(initial = emptyList())
     val user = viewmodel.user.collectAsState(initial = null)
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
     ) {
         val avatars = ArrayList(getAvatars())
         if (goals.value.isEmpty()) {
@@ -51,16 +50,14 @@ fun MainScreen(navController: NavHostController) {
             avatars.remove(avatars.find { it.redirect == STATEMENT_SCREEN })
         }
         user.value?.let {
-
-            val message = MessagePresets.dayIntroduction(it.name)
-
             Text(
-                text = message,
-                style = MaterialTheme.typography.headlineSmall.copy(
-                    color = MaterialTheme.colorScheme.onBackground,
-                    fontWeight = FontWeight.SemiBold
-                ),
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                text = "Olá, ${it.name}",
+                style =
+                    MaterialTheme.typography.headlineSmall.copy(
+                        color = MaterialTheme.colorScheme.onBackground,
+                        fontWeight = FontWeight.SemiBold,
+                    ),
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
             )
         }
         LazyVerticalGrid(columns = GridCells.Fixed(3)) {
@@ -73,41 +70,43 @@ fun MainScreen(navController: NavHostController) {
         if (movimentations.value.isNotEmpty()) {
             Text(
                 text = "Últimas movimentações",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    color = MaterialTheme.colorScheme.onBackground,
-                    fontWeight = FontWeight.W600
-                )
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                style =
+                    MaterialTheme.typography.bodyMedium.copy(
+                        color = MaterialTheme.colorScheme.onBackground,
+                        fontWeight = FontWeight.W600,
+                    ),
             )
             StatementList(movimentations = movimentations.value)
         }
-
     }
 }
 
 @Composable
-fun getAvatars() = listOf(
-    Avatar(
-        stringResource(R.string.history_girl_name),
-        R.drawable.history_girl,
-        MaterialTheme.colorScheme.secondary,
-        STATEMENT_SCREEN
-    ),
-    Avatar(
-        stringResource(id = R.string.app_name),
-        R.drawable.pretty_girl,
-        MaterialTheme.colorScheme.primary,
-        CHAT_SCREEN
-    ),
-    Avatar(
-        stringResource(R.string.goal_girl_name),
-        R.drawable.goal_girl,
-        MaterialTheme.colorScheme.tertiary,
-        GOAL_SCREEN
+fun getAvatars() =
+    listOf(
+        Avatar(
+            stringResource(R.string.history_girl_name),
+            R.drawable.history_girl,
+            MaterialTheme.colorScheme.secondary,
+            STATEMENT_SCREEN,
+        ),
+        Avatar(
+            stringResource(id = R.string.app_name),
+            R.drawable.pretty_girl,
+            MaterialTheme.colorScheme.primary,
+            CHAT_SCREEN,
+        ),
+        Avatar(
+            stringResource(R.string.goal_girl_name),
+            R.drawable.goal_girl,
+            MaterialTheme.colorScheme.tertiary,
+            GOAL_SCREEN,
+        ),
     )
-)
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable

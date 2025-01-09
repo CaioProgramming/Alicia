@@ -6,9 +6,8 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface UserDao {
-
     @Insert
-    suspend fun saveUser(user: User) : Long
+    suspend fun saveUser(user: User): Long
 
     @Delete
     suspend fun delete(user: User)
@@ -16,10 +15,6 @@ interface UserDao {
     @Update
     suspend fun updateUser(user: User)
 
-    @Query("SELECT * FROM user WHERE uid = (:uid)")
+    @Query("SELECT * FROM users WHERE uid = (:uid)")
     fun getUserById(uid: Long): Flow<User?>
-
-
-
-
 }

@@ -8,11 +8,18 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface MovimentationDao {
-
     @Insert
-    suspend fun saveMovimentation(movimentation: Movimentation) : Long
+    suspend fun saveMovimentation(movimentation: Movimentation): Long
 
     @Query("Select * from Movimentation ORDER BY spendAt DESC")
-    fun getMovimentations() : Flow<List<Movimentation>>
+    fun getMovimentations(): Flow<List<Movimentation>>
 
+    @Query("Select * from Movimentation WHERE id = :id")
+    fun getMovimentationById(id: Long): Flow<Movimentation>
+
+    @Query("Select * from Movimentation WHERE id = :id")
+    fun getMovimentationByIdSync(id: Long): Movimentation
+
+    @Query("Select * from Movimentation ORDER BY spendAt DESC")
+    fun getMovimentationsSync(): List<Movimentation>
 }

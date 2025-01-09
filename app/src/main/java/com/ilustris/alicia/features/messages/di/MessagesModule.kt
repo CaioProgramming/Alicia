@@ -4,8 +4,8 @@ import com.ilustris.alicia.features.messages.data.datasource.MessageDao
 import com.ilustris.alicia.features.messages.data.datasource.MessageDaoImpl
 import com.ilustris.alicia.features.messages.data.repository.MessageRepositoryImpl
 import com.ilustris.alicia.features.messages.domain.repository.MessageRepository
-import com.ilustris.alicia.features.messages.domain.usecase.MessagesUseCase
-import com.ilustris.alicia.features.messages.domain.usecase.MessagesUseCaseImpl
+import com.ilustris.alicia.features.messages.domain.usecase.ChatUseCase
+import com.ilustris.alicia.features.messages.domain.usecase.ChatUseCaseImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -15,12 +15,11 @@ import dagger.hilt.android.components.ViewModelComponent
 @InstallIn(ViewModelComponent::class)
 abstract class MessagesModule {
     @Binds
-    abstract fun bindMessageDao(messageDao: MessageDaoImpl) : MessageDao
+    abstract fun bindMessageDao(messageDao: MessageDaoImpl): MessageDao
 
     @Binds
-    abstract fun bindMessageRepository(messageRepository: MessageRepositoryImpl) : MessageRepository
-
+    abstract fun bindMessageRepository(messageRepository: MessageRepositoryImpl): MessageRepository
 
     @Binds
-    abstract fun bindMessageUseCase(messagesUseCaseImpl: MessagesUseCaseImpl) : MessagesUseCase
+    abstract fun bindMessageUseCase(messagesUseCaseImpl: ChatUseCaseImpl): ChatUseCase
 }

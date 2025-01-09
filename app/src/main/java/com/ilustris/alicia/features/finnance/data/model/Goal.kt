@@ -10,8 +10,10 @@ data class Goal(
     val value: Double,
     val description: String,
     val createdAt: Long,
-    val tag: Tag,
+    val tag: String,
     val isComplete: Boolean = false,
     val completedAt: Long = 0L,
     val badge: Int = 0,
-)
+) {
+    fun promptDescription() = "goal $description with value $value at $tag"
+}

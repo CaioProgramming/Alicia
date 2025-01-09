@@ -33,10 +33,10 @@ import com.ilustris.alicia.features.finnance.data.model.Tag
 import com.ilustris.alicia.features.messages.domain.model.Action
 import com.ilustris.alicia.utils.CurrencyInputTransformation
 
-
 @OptIn(
-    ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class,
-    ExperimentalMaterialApi::class
+    ExperimentalMaterial3Api::class,
+    ExperimentalComposeUiApi::class,
+    ExperimentalMaterialApi::class,
 )
 @Composable
 fun SheetInput(
@@ -44,7 +44,7 @@ fun SheetInput(
     placeHolder: String,
     title: String,
     focusRequester: FocusRequester,
-    onConfirmClick: (String, String, Tag, Action) -> Unit
+    onConfirmClick: (String, String, Tag, Action) -> Unit,
 ) {
     var spendValue by remember {
         mutableStateOf("")
@@ -65,38 +65,40 @@ fun SheetInput(
     val scope = rememberCoroutineScope()
 
     Column(
-        modifier = Modifier
-            .background(color = MaterialTheme.colorScheme.surface)
-            .padding(16.dp)
-            .fillMaxWidth()
-            .wrapContentHeight()
+        modifier =
+            Modifier
+                .background(color = MaterialTheme.colorScheme.surface)
+                .padding(16.dp)
+                .fillMaxWidth()
+                .wrapContentHeight(),
     ) {
-
-
         val keyboardController = LocalSoftwareKeyboardController.current
         val focusManager = LocalFocusManager.current
 
         TextField(
             value = description,
             onValueChange = { description = it },
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Text,
-                imeAction = ImeAction.Next,
-                capitalization = KeyboardCapitalization.Words,
-                autoCorrect = false,
-            ),
-            keyboardActions = KeyboardActions(onNext = {
-                focusManager.moveFocus(FocusDirection.Down)
-            }),
-            textStyle = MaterialTheme.typography.headlineMedium.copy(
-                fontWeight = FontWeight.Bold,
-            ),
+            keyboardOptions =
+                KeyboardOptions(
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Next,
+                    capitalization = KeyboardCapitalization.Words,
+                    autoCorrect = false,
+                ),
+            keyboardActions =
+                KeyboardActions(onNext = {
+                    focusManager.moveFocus(FocusDirection.Down)
+                }),
+            textStyle =
+                MaterialTheme.typography.headlineMedium.copy(
+                    fontWeight = FontWeight.Bold,
+                ),
             placeholder = {
                 Text(
                     style = MaterialTheme.typography.headlineSmall,
                     text = placeHolder,
                     color = Color.Gray.copy(alpha = 0.5f),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 )
             },
             label = {
@@ -104,92 +106,82 @@ fun SheetInput(
                     style = MaterialTheme.typography.bodySmall,
                     text = title,
                     color = Color.Gray.copy(alpha = 0.5f),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 )
             },
             singleLine = true,
-            colors = TextFieldDefaults.textFieldColors(
-                textColor = MaterialTheme.colorScheme.onBackground,
-                unfocusedIndicatorColor = Color.Transparent,
-                focusedIndicatorColor = Color.Transparent,
-                disabledTextColor = Color.Transparent,
-                containerColor = Color.Transparent,
-                focusedLabelColor = MaterialTheme.colorScheme.onBackground
-            ),
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color.Transparent)
-                .focusRequester(focusRequester)
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .background(Color.Transparent)
+                    .focusRequester(focusRequester),
         )
-
 
         TextField(
             value = spendValue,
             onValueChange = {
-                spendValue = if (it.startsWith("0")) {
-                    ""
-                } else {
-                    it
-                }
+                spendValue =
+                    if (it.startsWith("0")) {
+                        ""
+                    } else {
+                        it
+                    }
             },
             visualTransformation = CurrencyInputTransformation(),
-            keyboardOptions = KeyboardOptions(
-                keyboardType = getKeyboardType(action),
-                imeAction = ImeAction.Done,
-                capitalization = KeyboardCapitalization.Words,
-                autoCorrect = false,
-            ),
-            keyboardActions = KeyboardActions(
-                onDone = {
-                    keyboardController?.hide()
-                    categoryVisible = !categoryVisible
-                }
-
-            ),
-            textStyle = MaterialTheme.typography.headlineMedium.copy(
-                fontWeight = FontWeight.W700,
-            ),
+            keyboardOptions =
+                KeyboardOptions(
+                    keyboardType = getKeyboardType(action),
+                    imeAction = ImeAction.Done,
+                    capitalization = KeyboardCapitalization.Words,
+                    autoCorrect = false,
+                ),
+            keyboardActions =
+                KeyboardActions(
+                    onDone = {
+                        keyboardController?.hide()
+                        categoryVisible = !categoryVisible
+                    },
+                ),
+            textStyle =
+                MaterialTheme.typography.headlineMedium.copy(
+                    fontWeight = FontWeight.W700,
+                ),
             placeholder = {
                 Text(
                     style = MaterialTheme.typography.headlineSmall,
                     text = placeHolder,
                     color = Color.Gray.copy(alpha = 0.5f),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 )
             },
             leadingIcon = {
                 Text(
-                    text = "R$", style = MaterialTheme.typography.bodySmall.copy(
-                        fontWeight = FontWeight.W300,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
+                    text = "R$",
+                    style =
+                        MaterialTheme.typography.bodySmall.copy(
+                            fontWeight = FontWeight.W300,
+                            color = MaterialTheme.colorScheme.onBackground,
+                        ),
                 )
             },
             singleLine = true,
-            colors = TextFieldDefaults.textFieldColors(
-                textColor = MaterialTheme.colorScheme.onBackground,
-                unfocusedIndicatorColor = Color.Transparent,
-                focusedIndicatorColor = Color.Transparent,
-                disabledTextColor = Color.Transparent,
-                containerColor = Color.Transparent,
-                focusedLabelColor = MaterialTheme.colorScheme.onBackground
-            ),
-
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color.Transparent)
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .background(Color.Transparent),
         )
 
         Button(
             modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color.Transparent,
-                contentColor = MaterialTheme.colorScheme.onBackground
-            ),
-
+            colors =
+                ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent,
+                    contentColor = MaterialTheme.colorScheme.onBackground,
+                ),
             onClick = {
                 categoryVisible = !categoryVisible
-            }) {
+            },
+        ) {
             Text(text = tag.emoji)
             Text(text = tag.description)
         }
@@ -197,14 +189,13 @@ fun SheetInput(
         AnimatedVisibility(
             visible = categoryVisible,
             enter = expandVertically(tween(500)),
-            exit = shrinkVertically(tween(500))
+            exit = shrinkVertically(tween(500)),
         ) {
             EmojiSheet(onSelectTag = {
                 tag = it
                 categoryVisible = false
             })
         }
-
 
         Button(
             modifier = Modifier.fillMaxWidth(),
@@ -222,22 +213,20 @@ fun SheetInput(
                     movimentationDescription,
                     movimentationValue,
                     movimentationTag,
-                    action
+                    action,
                 )
-            }) {
+            },
+        ) {
             Text(text = "Confirmar", modifier = Modifier.padding(8.dp))
         }
     }
-
 }
 
-fun getKeyboardType(action: Action): KeyboardType {
-    return when (action) {
+fun getKeyboardType(action: Action): KeyboardType =
+    when (action) {
         Action.NAME -> KeyboardType.Text
         else -> KeyboardType.NumberPassword
-
     }
-}
 
 @Preview(showBackground = true)
 @Composable
@@ -250,5 +239,6 @@ fun SheetPreview() {
         title = "Nome da despesa",
         focusRequester = focusRequester,
         onConfirmClick = { description, message, tag, action ->
-        })
+        },
+    )
 }

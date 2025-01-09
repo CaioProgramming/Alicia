@@ -1,78 +1,66 @@
 package com.ilustris.alicia.ai.usecase
 
 import android.util.Log
-import com.ilustris.alicia.ai.mapper.mapToMessage
+import com.ilustris.alicia.ai.mapper.mapTo
+import com.ilustris.alicia.ai.model.PromptBuilder
 import com.ilustris.alicia.ai.model.PromptConfig
-import com.ilustris.alicia.ai.model.Prompts
 import com.ilustris.alicia.ai.service.AIService
-import com.ilustris.alicia.features.messages.data.model.Message
-import com.ilustris.alicia.features.messages.data.model.Sender
-import com.ilustris.alicia.features.messages.data.model.Type
+import com.ilustris.alicia.features.finnance.data.model.Tag
 import com.ilustris.alicia.features.messages.domain.model.Action
-import com.ilustris.alicia.features.messages.domain.repository.MessageRepository
-import kotlinx.coroutines.flow.lastOrNull
+import com.ilustris.alicia.utils.toJsonSchema
 import javax.inject.Inject
 
 class AIUseCaseImpl
     @Inject
-    constructor(private val aiService: AIService, repository: MessageRepository,
+    constructor(
+        private val aiService: AIService,
     ) : AIUseCase {
-        override var messageHistory = repository.getMessages()
+        override suspend fun <T> generateResponse(
+            prompt: PromptBuilder,
+            clazz: Class<T>,
+            specificReplacement: Pair<String, String>?,
+            requireTranslation: Boolean,
+        ): RequestResult<Exception, T> {
+            try {
+                prompt.addPrompt(
+                    PromptConfig
+                        .BodyConfig(
+                            toJsonSchema(clazz, specificReplacement)
+                                .replaceClassIdentifier(
+                                    Action::class.java.simpleName,
+                                    "${Action.entries.joinToString("|") { it.name }}",
+                                ).replaceClassIdentifier(
+                                    Tag::class.java.simpleName,
+                                    "${Tag.entries.joinToString("|") { it.name }}",
+                                ),
+                        ).description,
+                )
+                prompt.addPrompt(PromptConfig.KeepStructure.description)
+                prompt.addPrompt(PromptConfig.DataConfig.description)
+                prompt.addPrompt(PromptConfig.KeepOnContext.description)
+                val aiRequest = aiService.requestCustomPrompt(prompt.build(), requireTranslation)
 
-        override suspend fun requestMessage(
-            message: String,
-            config: List<PromptConfig>,
-        ): Message? {
-            Log.i(javaClass.simpleName, "requestMessage: requesting new message")
-            val messages = messageHistory.lastOrNull()?.filter { it.type != Type.HEADER } ?: emptyList()
-            val aiRequest = aiService.requestPrompt(message, config, messages)
-            return aiRequest.mapToMessage()
+                val aiResponse = aiRequest.success.value
+                val data = aiResponse.mapTo<T>(clazz) ?: return RequestResult.Error(Exception("Error mapping response"))
+                return RequestResult.Success(data)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                return RequestResult.Error(e)
+            }
         }
-
-        override suspend fun requestNewUserMessage(): Message? {
-            val aiRequest = aiService.requestCustomPrompt(Prompts.NewUser.prompt, listOf(
-                PromptConfig.AIntroduction,
-                PromptConfig.BodyConfig(Message.getBody()),
-                PromptConfig.SenderConfig(Sender.BOT.name),
-                PromptConfig.TypeConfig(Type.NAME.name),
-                PromptConfig.NoActions
-            ))
-            return aiRequest.mapToMessage()
-        }
-
-        override suspend fun generateNewMessageForAction(
-            action: Action,
-            message: String,
-        ): Message? {
-            return aiService.requestCustomPrompt(
-                message,
-                listOf(
-                    PromptConfig.BodyConfig(Message.getBody()),
-                ),
-            ).mapToMessage()
-        }
-
-        override suspend fun requestSuggestionsMessage(): Message? {
-            return aiService.requestCustomPrompt(
-                Prompts.Suggestion.prompt,
-                listOf(
-                    PromptConfig.BodyConfig(Message.getBody()),
-                    PromptConfig.SuggestionsConfig,
-                    PromptConfig.SenderConfig(Sender.BOT.name),
-                    PromptConfig.ArrayConfig(Message.getBody()),
-                ),
-            ).mapToMessage()
-        }
-
-    override suspend fun generatePromptForInput(
-        value: String,
-        config: List<PromptConfig>
-    ): Message? {
-        return aiService.requestCustomPrompt(
-            value,
-            listOf(
-                PromptConfig.BodyConfig(Message.getBody()),
-            ),
-        ).mapToMessage()?.copy(type = Type.USER)
     }
+
+fun String.removeStable(): String {
+    return return this.replace(Regex("\"\$stable: int"), "")
+}
+
+fun String.replaceClassIdentifier(
+    clazzName: String,
+    replacement: String,
+): String {
+    Log.w(javaClass.simpleName, "replaceEnumIdentifier: Replacing $clazzName with $replacement")
+    if (!contains(clazzName)) {
+        return this
+    }
+    return this.replace(Regex(clazzName), "$replacement")
 }

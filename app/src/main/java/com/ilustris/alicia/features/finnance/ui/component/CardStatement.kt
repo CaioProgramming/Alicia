@@ -12,18 +12,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.ilustris.alicia.core.theme.toolbarColor
 import com.ilustris.alicia.features.finnance.data.model.Movimentation
 import com.ilustris.alicia.features.finnance.data.model.Tag
-import com.ilustris.alicia.ui.theme.toolbarColor
 import com.ilustris.alicia.utils.formatToCurrencyText
 import kotlin.random.Random
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun CardStatement(tag: Tag, movimentations: List<Movimentation>, openStatement: (Int) -> Unit) {
-
+fun CardStatement(
+    tag: Tag,
+    movimentations: List<Movimentation>,
+    openStatement: (Int) -> Unit,
+) {
     val spendValue = movimentations.sumOf { it.value }.formatToCurrencyText()
-
 
     val cardDescription =
         if (movimentations.none { it.value < 0 }) "de rendimento na categoria." else "de gastos na categoria."
@@ -34,46 +36,47 @@ fun CardStatement(tag: Tag, movimentations: List<Movimentation>, openStatement: 
         onClick = {
             openStatement(tag.ordinal)
         },
-        colors = CardDefaults.cardColors(
-            containerColor = toolbarColor(
-                isSystemInDarkTheme()
-            )
-        ),
-        modifier = Modifier
-            .padding(8.dp)
-            .width(200.dp)
-            .height(200.dp)
+        colors =
+            CardDefaults.cardColors(
+                containerColor =
+                    toolbarColor(
+                        isSystemInDarkTheme(),
+                    ),
+            ),
+        modifier =
+            Modifier
+                .padding(8.dp)
+                .width(200.dp)
+                .height(200.dp),
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
-            modifier = Modifier
-                .padding(horizontal = 16.dp, vertical = 40.dp)
-                .fillMaxSize()
+            modifier =
+                Modifier
+                    .padding(horizontal = 16.dp, vertical = 40.dp)
+                    .fillMaxSize(),
         ) {
             Text(text = tag.emoji, style = MaterialTheme.typography.bodyLarge)
             Text(
                 text = tag.description,
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.W500,
-                color = MaterialTheme.colorScheme.onBackground
+                color = MaterialTheme.colorScheme.onBackground,
             )
             Text(
                 text = spendValue,
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Black,
-                color = MaterialTheme.colorScheme.onBackground
-
+                color = MaterialTheme.colorScheme.onBackground,
             )
             Text(
                 text = cardDescription,
                 style = MaterialTheme.typography.labelSmall,
                 fontWeight = FontWeight.W300,
-                color = MaterialTheme.colorScheme.onBackground
-
+                color = MaterialTheme.colorScheme.onBackground,
             )
         }
-
     }
 }
 
@@ -81,42 +84,45 @@ fun CardStatement(tag: Tag, movimentations: List<Movimentation>, openStatement: 
 @Composable
 fun statementPreview() {
     CardStatement(
-        tag = Tag.BILLS, movimentations = listOf(
-            Movimentation(
-                value = 500.0,
-                description = "Nike Air",
-                spendAt = Random.nextLong()
+        tag = Tag.BILLS,
+        movimentations =
+            listOf(
+                Movimentation(
+                    value = 500.0,
+                    description = "Nike Air",
+                    spendAt = Random.nextLong(),
+                ),
+                Movimentation(
+                    value = 500.0,
+                    description = "Nike Air",
+                    spendAt = Random.nextLong(),
+                ),
+                Movimentation(
+                    value = 500.0,
+                    description = "Nike Air",
+                    spendAt = Random.nextLong(),
+                ),
+                Movimentation(
+                    value = 500.0,
+                    description = "Nike Air",
+                    spendAt = Random.nextLong(),
+                ),
+                Movimentation(
+                    value = 500.0,
+                    description = "Nike Air",
+                    spendAt = Random.nextLong(),
+                ),
+                Movimentation(
+                    value = 500.0,
+                    description = "Nike Air",
+                    spendAt = Random.nextLong(),
+                ),
+                Movimentation(
+                    value = 500.0,
+                    description = "Nike Air",
+                    spendAt = Random.nextLong(),
+                ),
             ),
-            Movimentation(
-                value = 500.0,
-                description = "Nike Air",
-                spendAt = Random.nextLong()
-            ),
-            Movimentation(
-                value = 500.0,
-                description = "Nike Air",
-                spendAt = Random.nextLong()
-            ),
-            Movimentation(
-                value = 500.0,
-                description = "Nike Air",
-                spendAt = Random.nextLong()
-            ),
-            Movimentation(
-                value = 500.0,
-                description = "Nike Air",
-                spendAt = Random.nextLong()
-            ),
-            Movimentation(
-                value = 500.0,
-                description = "Nike Air",
-                spendAt = Random.nextLong()
-            ),
-            Movimentation(
-                value = 500.0,
-                description = "Nike Air",
-                spendAt = Random.nextLong()
-            )
-        ), openStatement = { }
+        openStatement = { },
     )
 }

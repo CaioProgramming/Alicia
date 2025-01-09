@@ -1,376 +1,412 @@
 package com.ilustris.alicia.features.messages.presentation
 
 import android.util.Log
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ilustris.alicia.ai.model.PromptBuilder
 import com.ilustris.alicia.ai.model.PromptConfig
 import com.ilustris.alicia.ai.model.Prompts
+import com.ilustris.alicia.ai.model.ai.AICallBack
+import com.ilustris.alicia.ai.model.ai.AIResponse
+import com.ilustris.alicia.ai.model.ai.AISuggestions
+import com.ilustris.alicia.ai.model.buildPrompt
 import com.ilustris.alicia.ai.usecase.AIUseCase
 import com.ilustris.alicia.features.finnance.data.model.Goal
+import com.ilustris.alicia.features.finnance.data.model.Movimentation
 import com.ilustris.alicia.features.finnance.data.model.Tag
+import com.ilustris.alicia.features.finnance.data.model.TagHelper
+import com.ilustris.alicia.features.finnance.data.model.findTag
 import com.ilustris.alicia.features.finnance.domain.usecase.FinanceUseCase
 import com.ilustris.alicia.features.messages.data.model.Message
+import com.ilustris.alicia.features.messages.data.model.Sender
 import com.ilustris.alicia.features.messages.data.model.Type
 import com.ilustris.alicia.features.messages.domain.model.Action
-import com.ilustris.alicia.features.messages.domain.model.MessageInfo
-import com.ilustris.alicia.features.messages.domain.model.replacePlaceHolder
-import com.ilustris.alicia.features.messages.domain.usecase.MessagesUseCase
+import com.ilustris.alicia.features.messages.domain.model.MessageGroup
+import com.ilustris.alicia.features.messages.domain.model.NameBody
+import com.ilustris.alicia.features.messages.domain.model.bodyClass
+import com.ilustris.alicia.features.messages.domain.usecase.ChatUseCase
 import com.ilustris.alicia.features.user.domain.usecase.UserUseCase
-import com.ilustris.alicia.utils.formatToCurrencyText
+import com.ilustris.alicia.utils.containsNull
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.lastOrNull
 import kotlinx.coroutines.launch
-import java.util.*
+import java.util.Calendar
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel
 class ChatViewModel
-@Inject
-constructor(
-    private val userUseCase: UserUseCase,
-    private val messagesUseCase: MessagesUseCase,
-    private val financeUseCase: FinanceUseCase,
-    private val aiUseCase: AIUseCase,
-) : ViewModel() {
-    init {
-        getUser()
-    }
-
-    val messages = messagesUseCase.getMessages()
-    val profit = financeUseCase.getProfit()
-    val loss = financeUseCase.getLoss()
-    val amount = financeUseCase.getAmount()
-    val goals = financeUseCase.getGoals()
-    val playNewMessage: MutableLiveData<Boolean> = MutableLiveData()
-    val user = userUseCase.getUserById()
-
-    private fun sendIntroductionMessages() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val introductionMessage =
-                aiUseCase.requestMessage(
-                    Prompts.Introduction.prompt,
-                    listOf(
-                        PromptConfig.ArrayConfig(Message.getBody()),
-                    ),
-                )
-
-            updateMessages(introductionMessage) {
-                generateSuggestionMessage()
-            }
+    @Inject
+    constructor(
+        private val userUseCase: UserUseCase,
+        private val chatUseCase: ChatUseCase,
+        private val aiUseCase: AIUseCase,
+        private val financeUseCase: FinanceUseCase,
+    ) : ViewModel() {
+        init {
+            getUser()
+            observeGoals()
+            observeMessages()
         }
-    }
 
-    private suspend fun sendGreeting(userName: String) {
-        val prompt = Prompts.Greeting.prompt.replace("[username]", userName)
-        aiUseCase.requestMessage(
-            prompt,
-            listOf(
-                PromptConfig.ArrayConfig(
-                    Message.getBody(),
-                ),
-            ),
-        )?.run {
-            updateMessages(this, ::sendIntroductionMessages)
-
-        }
-    }
-
-    private fun saveUser(name: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            userUseCase.saveUser(name)
-
-            updateMessages(Message("Oi Alicia pode me chamar de $name :)", Type.USER)) {
-                sendGreeting(name)
-            }
-
-        }
-    }
-
-    fun launchAction(homeAction: ChatAction) {
-        when (homeAction) {
-            is ChatAction.SaveUser -> saveUser(homeAction.name)
-            is ChatAction.SaveGoal ->
-                saveGoal(
-                    homeAction.description,
-                    homeAction.value,
-                    homeAction.tag,
-                )
-            is ChatAction.SaveLoss ->
-                saveLoss(
-                    homeAction.description,
-                    homeAction.value,
-                    homeAction.tag,
-                    Type.LOSS,
-                )
-            is ChatAction.SaveProfit ->
-                saveProfit(
-                    homeAction.description,
-                    homeAction.value,
-                    homeAction.tag,
-                    Type.PROFIT,
-                )
-            ChatAction.GetHistory -> getHistory()
-            ChatAction.GetGoals -> getGoals()
-            is ChatAction.CompleteGoal -> completeGoal(homeAction.goal)
-            ChatAction.StopNewMessageAudio -> playNewMessage.postValue(false)
-            ChatAction.FetchUser -> getUser()
-        }
-    }
-
-    private fun completeGoal(goal: Goal) {
-        viewModelScope.launch(Dispatchers.IO) {
-            financeUseCase.updateGoal(
-                goal.copy(
-                    isComplete = true,
-                    completedAt = Calendar.getInstance().timeInMillis,
-                ),
-            )
-        }
-    }
-
-    private fun getGoals() {
-        updateMessages(Message("Quero ver minhas metas.", Type.USER))
-        viewModelScope.launch(Dispatchers.IO) {
-            goals.collect {
-                if (it.isEmpty()) {
-                    updateMessages(
-                        Message(
-                            "Parece que você não criou nenhuma meta ainda. Cria uma agora para começarmos a acompanhar 😗",
-                            type = Type.GOAL,
-                            extraActions = listOf(Action.GOAL.name).toString(),
-                        ),
-                    )
-                } else {
-                    updateMessages(
-                        listOf(
-                            Message("Opa é pra já :)"),
-                            Message(
-                                "Da uma olhada você já criou ${it.size} e concluiu ${it.filter { it.isComplete }.size}",
-                                type = Type.GOAL,
-                            ),
-                            Message(
-                                "Continue assim, as metas nos motiva a guardar nosso dinheirinho",
-                                extraActions =
-                                listOf(
-                                    Action.PROFIT.name,
-                                    Action.LOSS.name,
-                                ).toString(),
-                            ),
-                        ),
-                    )
+        private fun observeMessages() {
+            viewModelScope.launch(Dispatchers.IO) {
+                chatUseCase.getMessages().collect {
+                    Log.d(javaClass.simpleName, "current Messages: $it")
+                    this@ChatViewModel.messages.emit(it)
                 }
-                coroutineContext.job.cancel()
             }
         }
-    }
 
-    private fun getHistory() {
-        updateMessages(Message("Quero ver meu histórico de transações.", Type.USER))
-        viewModelScope.launch(Dispatchers.IO) {
-            amount.collect { currentAmount ->
-                if (currentAmount == 0.0) {
-                    updateMessages(
-                        Message(
-                            "Você ainda não salvou nenhuma movimentação, comece a salvar alguns rendimentos ou gastos para conseguirmos ver aqui 😃.",
-                            extraActions = listOf(Action.PROFIT, Action.LOSS).toString(),
-                        ),
-                    )
-                } else {
-                    updateMessages(
-                        listOf(
-                            Message("É pra já! vou pegar essas informações para você, 1 minutinho por favor."),
-                            Message("Da uma olhada no seu saldo", Type.AMOUNT),
-                            Message(
-                                "Vamos falar de gastos? Aqui estão todo seus gastos desde que começou a usar o app",
-                                type = Type.LOSS_HISTORY,
-                            ),
-                            Message(
-                                "Seus rendimentos foram bem legais, da uma olhada.",
-                                type = Type.PROFIT_HISTORY,
-                            ),
-                            Message(
-                                "É isso ai vamos continuar evoluindo :)",
-                                extraActions =
-                                listOf(
-                                    Action.PROFIT.name,
-                                    Action.LOSS.name,
-                                    Action.GOAL.name,
-                                    Action.GOAL_HISTORY,
-                                ).toString(),
-                            ),
-                        ),
-                    )
+        val humor = PromptConfig.HumorConfig()
+        val messages = MutableStateFlow<List<MessageGroup>>(emptyList())
+        val suggestions = MutableStateFlow<List<String>>(emptyList())
+        val user = userUseCase.getUserById()
+        val state = MutableStateFlow<ChatState?>(null)
+
+        fun launchAction(homeAction: ChatAction) {
+            state.value = ChatState.Loading
+
+            when (homeAction) {
+                is ChatAction.SendMessage -> processMessage(homeAction.message)
+                ChatAction.FetchUser -> getUser()
+            }
+        }
+
+        private fun setToIdle() {
+            viewModelScope.launch(Dispatchers.IO) {
+                state.emit(ChatState.Idle)
+            }
+        }
+
+        private fun observeGoals() =
+            viewModelScope.launch(Dispatchers.IO) {
+                financeUseCase.getGoals().collect { goals ->
+                    goals.forEach { goal ->
+                        val ammount = financeUseCase.getAmount().lastOrNull() ?: 0.0
+                        if (goal.isComplete.not() && ammount >= goal.value) {
+                            val today = Calendar.getInstance()
+                            val goalDate =
+                                Calendar.getInstance().apply { timeInMillis = goal.createdAt }
+                            if (today[Calendar.DAY_OF_YEAR] == goalDate[Calendar.DAY_OF_YEAR]) {
+                                completeGoal(goal)
+                            }
+                        }
+                    }
                 }
-                coroutineContext.job.cancel()
+            }
+
+        private fun sendError(text: String? = null) {
+            viewModelScope.launch(Dispatchers.IO) {
+                state.emit(ChatState.Error(text))
+
+                delay(10.seconds)
+
+                state.emit(ChatState.Idle)
             }
         }
-    }
 
-    private fun saveGoal(
-        description: String,
-        value: String,
-        tag: Tag,
-    ) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val goalDescription = "$description: $value, $tag"
-            val action = Action.GOAL
-            val message =
+        private fun saveAIMessage(
+            aiResponse: AIResponse,
+            extraKey: String? = null,
+            onComplete: ((Message) -> Unit)? = null,
+        ) {
+            viewModelScope.launch(Dispatchers.IO) {
+                chatUseCase
+                    .saveGeneratedMessage(aiResponse, extraKey)
+                    .onSuccess {
+                        onComplete?.invoke(it)
+                        setToIdle()
+                    }.onFailure {
+                        sendError("Erro ao salvar mensagem :(, vamos tentar novamente.")
+                    }
+            }
+        }
+
+        private fun generateMessage(
+            promptBuilder: PromptBuilder,
+            extraKey: String? = null,
+            useTypes: Boolean,
+            errorMessage: String? = null,
+            onComplete: ((Message) -> Unit)? = null,
+            onError: () -> Unit = {},
+        ) {
+            viewModelScope.launch(Dispatchers.IO) {
+                val typeReplacement = if (useTypes) Type.entries.joinToString(("|")) else "null"
                 aiUseCase
-                    .generateNewMessageForAction(
-                        Action.GOAL,
-                        action.replacePlaceHolder(goalDescription),
+                    .generateResponse(
+                        promptBuilder,
+                        AIResponse::class.java,
+                        specificReplacement = Pair("type", typeReplacement),
+                    ).onSuccess {
+                        saveAIMessage(it, extraKey, onComplete)
+                        setToIdle()
+                    }.onFailure {
+                        sendError(errorMessage)
+                        onError()
+                    }
+            }
+        }
+
+        private fun generateSuggestions(lastMessage: String) {
+            viewModelScope.launch(Dispatchers.IO) {
+                aiUseCase
+                    .generateResponse(
+                        buildPrompt {
+                            addPrompt(PromptConfig.SuggestionsConfig(lastMessage).description)
+                        },
+                        AISuggestions::class.java,
+                        specificReplacement = Pair("suggestions", "List<String>"),
+                    ).onSuccess {
+                        suggestions.value = it.suggestions
+                    }.onFailure {
+                        sendError("Erro ao processar sugestões :(, vamos tentar novamente.")
+                    }
+            }
+        }
+
+        private fun saveUser(userBody: NameBody) {
+            viewModelScope.launch(Dispatchers.IO) {
+                if (userBody.name.containsNull()) {
+                    sendError("Erro ao salvar usuário vamos tentar novamente :(")
+                }
+                userUseCase.saveUser(userBody.name)
+
+                handleCallBackSuccess(userBody.name, false, isUser = true, extraKey = null) {
+                    generateMessage(
+                        buildPrompt {
+                            addPrompt(PromptConfig.FeaturesExamples.description)
+                            addPrompt(humor.description)
+                        },
+                        useTypes = false,
+                        onComplete = {
+                            generateSuggestions(it.message)
+                        },
                     )
-
-            financeUseCase.saveGoal(description, value, tag)
-            updateMessages(
-                message?.copy(type = Type.USER),
-            )
-
-            val responseMessage =
-                aiUseCase.requestMessage(
-                    Prompts.Goal.prompt,
-                    listOf(
-                        PromptConfig.BodyConfig(Message.getBody()),
-                    ),
-                )?.copy(type = Type.GOAL)
-
-            updateMessages(
-                listOf(
-                    responseMessage,
-                ),
-            )
-
-            generateSuggestionMessage()
-        }
-    }
-
-    private fun generateSuggestionMessage() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val message = aiUseCase.requestSuggestionsMessage()
-            updateMessages(message)
-        }
-    }
-
-    private fun saveLoss(
-        description: String,
-        value: String,
-        tag: Tag,
-        type: Type,
-    ) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val movimentationTask = financeUseCase.saveMovimentation(description, value, tag, type)
-            val action = Action.LOSS
-            val message =
-                aiUseCase.generateNewMessageForAction(
-                    action,
-                    action.replacePlaceHolder(movimentationTask.toString()),
-                )
-            updateMessages(
-                message,
-            )
-            aiUseCase.requestMessage(Prompts.Loss.prompt, listOf())
-        }
-    }
-
-    private fun saveProfit(
-        description: String,
-        value: String,
-        tag: Tag,
-        type: Type,
-    ) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val savedValue = (value.toDouble() / 100).formatToCurrencyText()
-            financeUseCase.saveMovimentation(description, value, tag, type)
-            val action = Action.PROFIT
-            val message =
-                aiUseCase.generateNewMessageForAction(
-                    action,
-                    action.replacePlaceHolder(savedValue),
-                )
-            updateMessages(message)
-
-            val responseMessage =
-                aiUseCase.requestMessage(
-                    Prompts.Profit.prompt,
-                    listOf(
-                        PromptConfig.BodyConfig(Message.getBody()),
-                    ),
-                )
-
-            updateMessages(responseMessage)
-        }
-    }
-
-    private fun updateMessages(
-        message: Message?,
-        onSendMessages: (suspend () -> Unit)? = null,
-    ) {
-        Log.i(javaClass.simpleName, "updateMessages: Updating messages adding -> $message")
-        viewModelScope.launch(Dispatchers.IO) {
-            message?.let {
-                messagesUseCase.saveMessage(it.copy(sentTime = Calendar.getInstance().timeInMillis))
-                playMessage()
-                onSendMessages?.invoke()
+                }
             }
         }
-    }
 
-    private fun playMessage() {
-        viewModelScope.launch(Dispatchers.IO) {
-            playNewMessage.postValue(true)
-            delay(1000)
-            playNewMessage.postValue(false)
+        private fun handleCallBackSuccess(
+            value: String,
+            useTypes: Boolean,
+            isUser: Boolean = false,
+            extraKey: String?,
+            onComplete: ((Message) -> Unit)? = null,
+        ) {
+            generateMessage(
+                buildPrompt {
+                    if (!isUser) {
+                        addPrompt(PromptConfig.CallBackSuccessConfig(value).description)
+                    } else {
+                        addPrompt(Prompts.Greeting.prompt.replace("[username]", value))
+                    }
+                    addPrompt(humor.description)
+                },
+                extraKey = extraKey,
+                onComplete = onComplete,
+                useTypes = useTypes,
+                onError = {
+                    generateMessage(
+                        buildPrompt {
+                            addPrompt(
+                                PromptConfig
+                                    .ErrorExplanation(
+                                        "An error ocurred while generating a message," +
+                                            " but the data was saved successfully",
+                                    ).description,
+                            )
+                            addPrompt(humor.description)
+                        },
+                        useTypes = false,
+                    )
+                },
+            )
         }
-    }
 
-    private fun updateMessages(
-        message: List<Message?>,
-        onSendMessages: (() -> Unit)? = null,
-    ) {
-        viewModelScope.launch(Dispatchers.IO) {
-            message.filterNotNull().forEachIndexed { index, m ->
-                delay((100 * message.size).toLong())
-                messagesUseCase.saveMessage(m)
-                if (index == message.size - 1) {
-                    playMessage()
-                    onSendMessages?.invoke()
+        private fun processMessage(message: String) {
+            viewModelScope.launch(Dispatchers.IO) {
+                val userMessage =
+                    Message(
+                        message = message,
+                        sender = Sender.USER,
+                        sentTime = Calendar.getInstance().timeInMillis,
+                    )
+                chatUseCase.saveMessage(
+                    userMessage,
+                )
+                aiUseCase
+                    .generateResponse(
+                        buildPrompt {
+                            addPrompt(PromptConfig.CallBackConfig(message).description)
+                        },
+                        AICallBack::class.java,
+                        requireTranslation = false,
+                    ).onSuccess {
+                        handleCallBack(it, userMessage)
+                    }.onFailure {
+                        sendError("Erro ao processar mensagem :(, vamos tentar novamente.")
+                    }
+            }
+        }
+
+        private fun handleCallBack(
+            callBack: AICallBack,
+            supportMessage: Message? = null,
+        ) {
+            viewModelScope.launch(Dispatchers.IO) {
+                aiUseCase
+                    .generateResponse(
+                        buildPrompt {
+                            supportMessage?.let {
+                                addPrompt(PromptConfig.MessageResourceConfig(it.message).description)
+                            }
+                            addPrompt(PromptConfig.FormatResponseConfig(callBack.value).description)
+                            addPrompt(PromptConfig.ExtractValuableDataConfig.description)
+                        },
+                        callBack.action.bodyClass(),
+                        requireTranslation = false,
+                        specificReplacement = Pair("tag", Tag.entries.joinToString("|")),
+                    ).onSuccess {
+                        if (it == null) {
+                            sendError("Erro ao processar mensagem :(, vamos tentar novamente.")
+                            return@onSuccess
+                        }
+                        when (callBack.action) {
+                            Action.NAME -> {
+                                saveUser(it as NameBody)
+                            }
+
+                            Action.PROFIT, Action.LOSS ->
+                                saveMovimentation(
+                                    it as Movimentation,
+                                    callBack.action,
+                                )
+
+                            Action.GOAL -> saveGoal(it as Goal)
+                            Action.NONE -> saveAIMessage(it as AIResponse)
+                        }
+                    }.onFailure {
+                        sendError("Erro ao processar mensagem :(, vamos tentar novamente.")
+                    }
+            }
+        }
+
+        private fun completeGoal(goal: Goal) {
+            viewModelScope.launch(Dispatchers.IO) {
+                financeUseCase.updateGoal(
+                    goal.copy(
+                        isComplete = true,
+                        completedAt = Calendar.getInstance().timeInMillis,
+                    ),
+                )
+            }
+        }
+
+        private fun saveGoal(goal: Goal) {
+            viewModelScope.launch(Dispatchers.IO) {
+                try {
+                    val formattedGoal =
+                        goal.copy(
+                            id = 0,
+                            createdAt = Calendar.getInstance().timeInMillis,
+                            badge = TagHelper.getRandomBadgeForTag(goal.tag.findTag()),
+                        )
+                    val newGoal = financeUseCase.saveGoal(formattedGoal)
+
+                    handleCallBackSuccess(
+                        goal.toString(),
+                        true,
+                        extraKey = newGoal.toString(),
+                        onComplete = {
+                            generateSuggestions(it.message)
+                        },
+                    )
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    sendError("Ocorreu um erro ao salvar as informações, vamos tentar novamente.")
+                }
+            }
+        }
+
+        private fun saveMovimentation(
+            movimentation: Movimentation,
+            action: Action,
+        ) {
+            viewModelScope.launch(Dispatchers.IO) {
+                val validValue =
+                    if (action == Action.LOSS) {
+                        movimentation.value.unaryMinus()
+                    } else {
+                        movimentation.value.unaryPlus()
+                    }
+
+                val formattedMovimentation =
+                    movimentation.copy(
+                        id = 0,
+                        value = validValue,
+                        spendAt = Calendar.getInstance().timeInMillis,
+                    )
+                val newMovimentation = financeUseCase.saveMovimentation(formattedMovimentation)
+
+                handleCallBackSuccess(movimentation.promptDescription(), true, extraKey = newMovimentation.toString()) {
+                    generateSuggestions(it.message)
+                }
+            }
+        }
+
+        private fun shouldSendNewMessage(lastMessage: Message?): Boolean {
+            if (lastMessage == null) return true
+            val todayDate = Calendar.getInstance()
+            val lastMessageDate =
+                Calendar.getInstance().apply {
+                    timeInMillis = lastMessage.sentTime
+                }
+            return lastMessageDate[Calendar.DAY_OF_YEAR] < todayDate[Calendar.DAY_OF_YEAR]
+        }
+
+        private fun getUser() {
+            viewModelScope.launch(Dispatchers.IO) {
+                userUseCase.getUserById().collect { user ->
+                    val lastMessage = chatUseCase.getLastMessage()
+                    if (user == null) {
+                        if (shouldSendNewMessage(lastMessage)) {
+                            generateMessage(
+                                buildPrompt {
+                                    addPrompt(PromptConfig.AIntroduction.description)
+                                },
+                                useTypes = false,
+                                onComplete = {
+                                    generateMessage(
+                                        buildPrompt {
+                                            addPrompt(PromptConfig.NameConfig.description)
+                                        },
+                                        useTypes = false,
+                                    )
+                                },
+                            )
+                        } else {
+                            setToIdle()
+                        }
+                        state.emit(ChatState.UserRequired)
+                    } else {
+                        if (shouldSendNewMessage(lastMessage)) {
+                            val prompt = Prompts.Greeting.prompt.replace("[username]", user.name)
+                            generateMessage(
+                                buildPrompt {
+                                    addPrompt(prompt)
+                                    addPrompt(humor.description)
+                                },
+                                useTypes = false,
+                            )
+                        } else {
+                            setToIdle()
+                        }
+                    }
                 }
             }
         }
     }
-
-    private fun shouldSendNewMessage(lastMessage: MessageInfo?): Boolean {
-        if (lastMessage == null) return true
-        val todayDate = Calendar.getInstance()
-        val lastMessageDate =
-            Calendar.getInstance().apply {
-                timeInMillis = lastMessage.message.sentTime
-            }
-        return lastMessageDate[Calendar.DAY_OF_YEAR] < todayDate[Calendar.DAY_OF_YEAR]
-    }
-
-    private fun getUser() {
-        viewModelScope.launch(Dispatchers.IO) {
-            userUseCase.getUserById().collect { user ->
-                val lastMessage = messagesUseCase.getLastMessage()
-                if (user == null) {
-                    if (shouldSendNewMessage(lastMessage)) {
-                        val generatedMessage = aiUseCase.requestNewUserMessage()
-                        updateMessages(generatedMessage)
-                    }
-                } else {
-                    if (shouldSendNewMessage(lastMessage)) {
-                        val prompt = Prompts.Greeting.prompt.replace("[username]", user.name)
-                        val configs = listOf(PromptConfig.BodyConfig(Message.getBody()))
-                        val greetMessage = aiUseCase.requestMessage(prompt, configs)
-                        updateMessages(greetMessage)
-                    }
-                }
-                coroutineContext.job.cancel()
-            }
-        }
-    }
-}

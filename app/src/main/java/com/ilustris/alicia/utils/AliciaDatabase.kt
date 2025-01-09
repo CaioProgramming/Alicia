@@ -11,13 +11,13 @@ import com.ilustris.alicia.features.messages.data.model.Message
 import com.ilustris.alicia.features.user.data.datasource.UserDao
 import com.ilustris.alicia.features.user.data.model.User
 
-@Database(entities = [User::class, Goal::class, Message::class, Movimentation::class], version = 9)
-abstract class AliciaDatabase: RoomDatabase() {
-
+@Database(entities = [User::class, Goal::class, Message::class, Movimentation::class], version = 13)
+abstract class AliciaDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao
+
     abstract fun messageDao(): MessageDao
+
     abstract fun movimentationDao(): MovimentationDao
 
     abstract fun goalDao(): GoalDao
-
 }

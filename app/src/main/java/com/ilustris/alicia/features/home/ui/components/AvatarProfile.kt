@@ -10,7 +10,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -20,39 +19,45 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ilustris.alicia.CHAT_SCREEN
 import com.ilustris.alicia.R
+import com.ilustris.alicia.core.theme.AliciaTheme
 import com.ilustris.alicia.features.home.domain.model.Avatar
-import com.ilustris.alicia.ui.theme.AliciaTheme
 
 @Composable
-fun AvatarProfile(avatar: Avatar, enabled: Boolean = true, onSelectChat: (String) -> Unit) {
+fun AvatarProfile(
+    avatar: Avatar,
+    enabled: Boolean = true,
+    onSelectChat: (String) -> Unit,
+) {
     Column(
         modifier = Modifier.wrapContentSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
     ) {
         Image(
             painterResource(id = avatar.icon),
             contentDescription = "",
             contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .padding(8.dp)
-                .size(75.dp)
-                .background(color = avatar.backColor, CircleShape)
-                .padding(4.dp)
-                .clickable(enabled = enabled) {
-                    onSelectChat(avatar.redirect)
-                }
+            modifier =
+                Modifier
+                    .padding(8.dp)
+                    .size(75.dp)
+                    .background(color = avatar.backColor, CircleShape)
+                    .padding(4.dp)
+                    .clickable(enabled = enabled) {
+                        onSelectChat(avatar.redirect)
+                    },
         )
 
         Text(
             text = avatar.name,
-            style = MaterialTheme.typography.labelSmall.copy(
-                color = MaterialTheme.colorScheme.onBackground, fontWeight = FontWeight.W500
-            ),
-            textAlign = TextAlign.Center
+            style =
+                MaterialTheme.typography.labelSmall.copy(
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontWeight = FontWeight.W500,
+                ),
+            textAlign = TextAlign.Center,
         )
     }
-
 }
 
 @Preview(showSystemUi = true, showBackground = true)
@@ -65,13 +70,11 @@ fun AvatarPreview() {
                     stringResource(id = R.string.app_name),
                     R.drawable.pretty_girl,
                     MaterialTheme.colorScheme.primary,
-                    CHAT_SCREEN
+                    CHAT_SCREEN,
                 ),
-                true
+                true,
             ) {
-
             }
         }
-
     }
 }

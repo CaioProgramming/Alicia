@@ -27,12 +27,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.ilustris.alicia.R
+import com.ilustris.alicia.core.theme.AliciaTheme
+import com.ilustris.alicia.core.theme.toolbarColor
 import com.ilustris.alicia.features.finnance.presentation.GoalViewModel
 import com.ilustris.alicia.features.finnance.ui.component.GoalMedal
 import com.ilustris.alicia.features.finnance.ui.component.SheetInfo
 import com.ilustris.alicia.features.home.ui.getAvatars
-import com.ilustris.alicia.ui.theme.AliciaTheme
-import com.ilustris.alicia.ui.theme.toolbarColor
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -45,7 +45,6 @@ fun GoalScreen(navController: NavController) {
 
     val scope = rememberCoroutineScope()
 
-
     AliciaTheme {
         ModalBottomSheetLayout(
             sheetState = bottomSheetState,
@@ -55,24 +54,26 @@ fun GoalScreen(navController: NavController) {
                 SheetInfo(
                     title = "Conheça a ${avatar.name}",
                     description = "A ${avatar.name} está aqui para te ajudar a acompanhar suas metas, você pode clicar no ícone dela e ter uma visão melhor de todas as suas metas.",
-                    avatar = avatar
+                    avatar = avatar,
                 ) {
                     scope.launch {
                         goalViewModel.updateGoalKey()
                         bottomSheetState.hide()
                     }
                 }
-            }) {
+            },
+        ) {
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(toolbarColor(isSystemInDarkTheme()))
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .background(toolbarColor(isSystemInDarkTheme())),
             ) {
                 IconButton(
                     onClick = {
                         navController.popBackStack()
                     },
-                    colors = IconButtonDefaults.iconButtonColors(contentColor = MaterialTheme.colorScheme.onPrimary)
+                    colors = IconButtonDefaults.iconButtonColors(contentColor = MaterialTheme.colorScheme.onPrimary),
                 ) {
                     Image(
                         imageVector = ImageVector.vectorResource(id = R.drawable.round_chevron_left_24),
@@ -83,47 +84,50 @@ fun GoalScreen(navController: NavController) {
                 Text(
                     text = "Metas",
                     modifier = Modifier.padding(16.dp),
-                    style = MaterialTheme.typography.headlineLarge.copy(
-                        color = MaterialTheme.colorScheme.onBackground,
-                        fontWeight = FontWeight.Black
-                    )
+                    style =
+                        MaterialTheme.typography.headlineLarge.copy(
+                            color = MaterialTheme.colorScheme.onBackground,
+                            fontWeight = FontWeight.Black,
+                        ),
                 )
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(2),
                     horizontalArrangement = Arrangement.Center,
-                    verticalArrangement = Arrangement.Center
+                    verticalArrangement = Arrangement.Center,
                 ) {
                     goals.value.forEach {
                         item(span = { GridItemSpan(2) }) {
                             Column {
                                 Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(1.dp)
-                                        .background(
-                                            MaterialTheme.colorScheme.onBackground.copy(
-                                                alpha = 0.3f
-                                            )
-                                        )
+                                    modifier =
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .height(1.dp)
+                                            .background(
+                                                MaterialTheme.colorScheme.onBackground.copy(
+                                                    alpha = 0.3f,
+                                                ),
+                                            ),
                                 )
                                 Text(
                                     modifier = Modifier.padding(16.dp),
                                     text = it.header,
-                                    style = MaterialTheme.typography.headlineSmall.copy(
-                                        color = MaterialTheme.colorScheme.onBackground,
-                                        fontWeight = FontWeight.W800
-                                    )
+                                    style =
+                                        MaterialTheme.typography.headlineSmall.copy(
+                                            color = MaterialTheme.colorScheme.onBackground,
+                                            fontWeight = FontWeight.W800,
+                                        ),
                                 )
                                 Text(
                                     modifier = Modifier.padding(horizontal = 16.dp),
                                     text = it.description,
-                                    style = MaterialTheme.typography.bodySmall.copy(
-                                        color = MaterialTheme.colorScheme.onBackground,
-                                        fontWeight = FontWeight.W300
-                                    )
+                                    style =
+                                        MaterialTheme.typography.bodySmall.copy(
+                                            color = MaterialTheme.colorScheme.onBackground,
+                                            fontWeight = FontWeight.W300,
+                                        ),
                                 )
                             }
-
                         }
                         items(it.goals.size) { index ->
                             GoalMedal(goal = it.goals[index], 150.dp, true) {}
@@ -142,8 +146,6 @@ fun GoalScreen(navController: NavController) {
             }
         }
     }
-
-
 }
 
 @Preview(showBackground = true)

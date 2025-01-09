@@ -18,37 +18,41 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.ilustris.alicia.core.theme.AliciaTheme
+import com.ilustris.alicia.core.theme.aliciaBrush
 import com.ilustris.alicia.features.finnance.data.model.Goal
 import com.ilustris.alicia.features.finnance.data.model.Tag
-import com.ilustris.alicia.ui.theme.AliciaTheme
-import com.ilustris.alicia.ui.theme.aliciaBrush
 import com.ilustris.alicia.utils.formatToCurrencyText
 import java.util.*
 
 @Composable
-fun Banner(goal: Goal, visible: Boolean = false, modifier: Modifier, closeBanner: () -> Unit) {
+fun Banner(
+    goal: Goal,
+    visible: Boolean = false,
+    modifier: Modifier,
+    closeBanner: () -> Unit,
+) {
     AnimatedVisibility(
         visible = visible,
         enter = slideInVertically(animationSpec = tween(1000)),
-        exit = slideOutVertically(animationSpec = tween(1000))
+        exit = slideOutVertically(animationSpec = tween(1000)),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
-            modifier = modifier
-                .clickable { closeBanner() }
-                .background(aliciaBrush())
+            modifier =
+                modifier
+                    .clickable { closeBanner() }
+                    .background(aliciaBrush()),
         ) {
-
             Text(
                 text = "Você alcançou sua meta ${goal.description} de ${goal.value.formatToCurrencyText()} 🥳",
                 modifier = Modifier.padding(32.dp),
                 color = MaterialTheme.colors.onPrimary,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
             )
         }
     }
-
 }
 
 @Preview(showBackground = true, showSystemUi = true)
@@ -58,14 +62,14 @@ fun BannerPreview() {
         Banner(
             visible = true,
             modifier = Modifier.fillMaxSize(),
-            goal = Goal(
-                description = "Nike air",
-                value = 500.00,
-                createdAt = Calendar.getInstance().timeInMillis,
-                tag = Tag.SHOPPING
-            )
+            goal =
+                Goal(
+                    description = "Nike air",
+                    value = 500.00,
+                    createdAt = Calendar.getInstance().timeInMillis,
+                    tag = Tag.SHOPPING.name,
+                ),
         ) {
-
         }
     }
 }

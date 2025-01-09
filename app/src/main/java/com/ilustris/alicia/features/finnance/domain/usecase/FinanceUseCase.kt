@@ -11,22 +11,50 @@ import com.ilustris.alicia.features.messages.data.model.Type
 import kotlinx.coroutines.flow.Flow
 
 interface FinanceUseCase {
+    suspend fun saveMovimentation(
+        description: String,
+        value: String,
+        tag: Tag,
+        type: Type,
+    ): Movimentation
 
-    suspend fun saveMovimentation(description: String, value: String, tag: Tag, type: Type): Movimentation
+    suspend fun saveMovimentation(movimentation: Movimentation): Long
 
     fun getProfit(): Flow<List<MovimentationInfo>>
+
     fun getLoss(): Flow<List<MovimentationInfo>>
+
     fun getAmount(): Flow<Double>
 
     fun getAllMovimentations(): Flow<List<MovimentationInfo>>
+
+    fun getAllMovimentationsSync(): List<MovimentationInfo>
+
+    suspend fun getMovimentationById(id: Long): Flow<Movimentation>
+
+    suspend fun getMovimentationByIdSync(id: Long): Movimentation
+
     fun getMovimentationsByDay(): Flow<List<MovimentationInfo>>
 
     fun getMovimentationsChart(): Flow<List<LineData>>
+
     fun getMovimentationsCircleChart(): Flow<List<CircleData>>
 
-    suspend fun saveGoal(description: String, value: String, tag: Tag): Long
-    suspend fun updateGoal(goal: Goal)
-    fun getGoals(): Flow<List<Goal>>
-    fun getGoalsInfo(): Flow<List<GoalInfo>>
+    suspend fun saveGoal(
+        description: String,
+        value: String,
+        tag: Tag,
+    ): Long
 
+    suspend fun saveGoal(goal: Goal): Long
+
+    suspend fun updateGoal(goal: Goal)
+
+    fun getGoals(): Flow<List<Goal>>
+
+    fun getGoalById(id: Long): Flow<Goal>
+
+    fun getGoalByIdSync(id: Long): Goal
+
+    fun getGoalsInfo(): Flow<List<GoalInfo>>
 }

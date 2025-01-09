@@ -7,10 +7,10 @@ import androidx.room.PrimaryKey
 data class Movimentation(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
-    val value: Double,
-    val description: String,
-    val tag: Tag = Tag.UNKNOWN,
-    val spendAt: Long
-)
-
-
+    var value: Double,
+    val description: String?,
+    val tag: String? = Tag.UNKNOWN.name,
+    val spendAt: Long,
+) {
+    fun promptDescription() = "$description with value $value"
+}

@@ -1,33 +1,42 @@
 package com.ilustris.alicia.features.messages.data.model
 
 import androidx.room.Entity
+import androidx.room.Ignore
 import androidx.room.PrimaryKey
-import java.time.LocalDate
 import java.util.Calendar
-import java.util.Date
-
 
 @Entity
 data class Message(
-    val message: String,
-    val type: Type = Type.NONE,
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
+    val message: String,
+    val sender: Sender = Sender.USER,
+    val type: String? = null,
     val sentTime: Long = Calendar.getInstance().time.time,
-    val extraActions: String = "",
-    val sender: Sender = Sender.USER
+    val extraDataKey: String? = null,
+    @Ignore
+    var extraData: Any? = null,
 ) {
+    constructor(
+        id: Int,
+        message: String,
+        sender: Sender,
+        type: String?,
+        sentTime: Long,
+        extraDataKey: String?,
+    ) : this(id, message, sender, type, sentTime, extraDataKey, null)
 
-    companion object {
-        fun getBody() = "{ message: message, type: type, extraActions: string, sender: sender  } IMPORTANT: Always use that structure don't replace any field and dont include any other field. dont use brackets on extra actions the list is a string separated by commas."
-    }
-
+    fun findType() = Type.entries.find { it.name == type }
 }
 
 enum class Sender {
-    USER, BOT
-}
-enum class Type {
-    NONE, PROFIT, LOSS, GOAL, NAME, USER, HEADER, AMOUNT, PROFIT_HISTORY, LOSS_HISTORY
+    USER,
+    BOT,
 }
 
+enum class Type {
+    MOVIMENTATION,
+    GOAL,
+    AMOUNT,
+    HISTORY,
+}

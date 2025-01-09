@@ -17,11 +17,6 @@ object SuggestionsPresets {
 
     val newUserSuggestions = listOf(Suggestion(Action.NAME))
 
-    val commonSuggestions = listOf(
-        Suggestion(Action.PROFIT),
-        Suggestion(Action.LOSS),
-        Suggestion(Action.GOAL),
-        Suggestion(Action.HISTORY)
-    )
+
 
 }
