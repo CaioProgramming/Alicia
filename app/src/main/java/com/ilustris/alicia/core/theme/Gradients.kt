@@ -5,6 +5,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 
 @Composable
 fun aliciaColors() =
@@ -23,15 +24,24 @@ fun aliciaColors() =
     }
 
 @Composable
-fun backGroundBrush() =
+fun backGroundBrush(isDarkTheme : Boolean = isSystemInDarkTheme()) =
+    if (isDarkTheme)
     Brush.verticalGradient(
         listOf(
-            MaterialTheme.colorScheme.primaryContainer,
-            MaterialTheme.colorScheme.surface,
-            MaterialTheme.colorScheme.surface.copy(alpha = .50f),
-            MaterialTheme.colorScheme.background,
+            MaterialColor.Gray700,
+            MaterialColor.Gray900,
+            Color.Black,
         ),
-    )
+    ) else
+        Brush.verticalGradient(
+            listOf(
+                MaterialColor.Gray100,
+                MaterialColor.Gray300,
+                MaterialColor.Gray50,
+            )
+        )
+
+
 
 @Composable
 fun themeBrush() =

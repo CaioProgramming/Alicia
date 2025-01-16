@@ -1,0 +1,1003 @@
+package com.ilustris.alicia.features.finnance.ui.component
+
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.wear.compose.foundation.CurvedLayout
+import androidx.wear.compose.foundation.CurvedTextStyle
+import androidx.wear.compose.material.Text
+import androidx.wear.compose.material.curvedText
+import com.ilustris.alicia.R
+import com.ilustris.alicia.core.theme.FireShape
+import com.ilustris.alicia.core.theme.Flow
+import com.ilustris.alicia.core.theme.HexagonShape
+import com.ilustris.alicia.core.theme.NameHolderShape
+import com.ilustris.alicia.core.theme.Polygon
+import com.ilustris.alicia.core.theme.backGroundBrush
+import com.ilustris.alicia.features.finnance.data.model.Goal
+import com.ilustris.alicia.features.finnance.data.model.TagHelper
+import com.ilustris.alicia.features.finnance.data.model.findTag
+import com.ilustris.alicia.utils.DateFormats
+import com.ilustris.alicia.utils.OutLineText
+import com.ilustris.alicia.utils.darker
+import com.ilustris.alicia.utils.format
+import com.ilustris.alicia.utils.glow
+import com.ilustris.alicia.utils.gradientFill
+import com.ilustris.alicia.utils.toDate
+import java.util.Locale
+
+@Suppress("ktlint:standard:function-naming")
+@Composable
+fun HexBadge(
+    goal: Goal,
+    showText: Boolean,
+    isAnimated: Boolean,
+    modifier: Modifier,
+) {
+    val tag =
+        remember {
+            goal.tag.findTag()
+        }
+
+    val mainColor =
+        remember {
+            tag.colors.last().darker()
+        }
+
+    val shape =
+        remember {
+            HexagonShape()
+        }
+
+    val icon =
+        remember {
+            TagHelper.findBadgeResource(goal.badge, tag)
+        }
+
+    val brush = tag.tagGradient(isAnimated)
+
+    val textStyle =
+        MaterialTheme.typography.bodyMedium.copy(
+            fontWeight = FontWeight.Black,
+            letterSpacing = 5.sp,
+        )
+
+    val smallTextStyle =
+        MaterialTheme.typography.labelSmall.copy(
+            color = MaterialTheme.colorScheme.onBackground,
+            letterSpacing = 5.sp,
+        )
+
+    Box(
+        modifier
+            .border(3.dp, MaterialTheme.colorScheme.onBackground, shape)
+            .padding(4.dp)
+            .background(brush, shape)
+            .clip(shape),
+    ) {
+        Image(
+            painter = painterResource(id = icon),
+            contentDescription = goal.name,
+            contentScale = ContentScale.Crop,
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .align(Alignment.Center)
+                    .border(5.dp, mainColor, shape)
+                    .clip(shape),
+        )
+        if (showText) {
+            Text(
+                goal.name.uppercase(Locale.getDefault()),
+                style = textStyle,
+                textAlign = TextAlign.Center,
+                color = Color.White,
+                maxLines = 1,
+                modifier =
+                    Modifier
+                        .offset(y = (-5).dp)
+                        .background(mainColor)
+                        .padding(8.dp)
+                        .fillMaxWidth()
+                        .align(Alignment.BottomCenter)
+                        .offset(y = (-5).dp),
+            )
+        }
+    }
+}
+
+@Composable
+fun ShieldBadge(
+    goal: Goal,
+    showText: Boolean,
+    isAnimated: Boolean,
+    modifier: Modifier,
+) {
+    val tag =
+        remember {
+            goal.tag.findTag()
+        }
+    val shape =
+        remember {
+            RoundedCornerShape(
+                topStart = 5.dp,
+                topEnd = 5.dp,
+                bottomStart = 50.dp,
+                bottomEnd = 50.dp,
+            )
+        }
+
+    val icon =
+        remember {
+            TagHelper.findBadgeResource(goal.badge, tag)
+        }
+
+    val mainColor =
+        remember {
+            tag.colors.last()
+        }
+    val brush = tag.tagGradient(isAnimated)
+
+    val textStyle =
+        MaterialTheme.typography.bodySmall.copy(
+            fontWeight = FontWeight.Bold,
+            letterSpacing = 5.sp,
+        )
+
+    val smallTextStyle =
+        MaterialTheme.typography.bodySmall.copy(
+            color = MaterialTheme.colorScheme.onBackground,
+            letterSpacing = 5.sp,
+        )
+
+    Column(
+        modifier
+            .border(3.dp, MaterialTheme.colorScheme.onBackground, shape)
+            .padding(2.dp)
+            .border(2.dp, brush, shape)
+            .background(mainColor, shape)
+            .clip(shape),
+    ) {
+        if (showText) {
+            Text(
+                goal.name.uppercase(Locale.getDefault()),
+                style = textStyle,
+                textAlign = TextAlign.Center,
+                color = Color.White,
+                maxLines = 1,
+                modifier =
+                    Modifier
+                        .padding(8.dp)
+                        .fillMaxWidth(),
+            )
+        }
+
+        Box {
+            Image(
+                painter = painterResource(id = icon),
+                contentDescription = goal.name,
+                contentScale = ContentScale.Crop,
+                modifier =
+                    Modifier
+                        .padding(horizontal = 8.dp)
+                        .fillMaxSize()
+                        .clip(shape),
+            )
+
+            Text(
+                tag.name.uppercase(Locale.getDefault()),
+                style = smallTextStyle,
+                maxLines = 1,
+                textAlign = TextAlign.Center,
+                color = Color.White.copy(alpha = .5f),
+                modifier =
+                    Modifier
+                        .wrapContentSize()
+                        .background(
+                            tag.colors.last().darker(0.9f),
+                            RoundedCornerShape(
+                                topStart = 15.dp,
+                                topEnd = 15.dp,
+                                bottomStart = 5.dp,
+                                bottomEnd = 5.dp,
+                            ),
+                        ).padding(horizontal = 20.dp, vertical = 6.dp)
+                        .align(Alignment.BottomCenter),
+            )
+        }
+    }
+}
+
+@Composable
+fun TriangleBadge(
+    goal: Goal,
+    showText: Boolean,
+    isAnimated: Boolean,
+    reversed: Boolean,
+    modifier: Modifier,
+) {
+    val tag =
+        remember {
+            goal.tag.findTag()
+        }
+
+    val shape =
+        remember {
+            Polygon(3, if (reversed) 90f else -90f)
+        }
+
+    val icon =
+        remember {
+            TagHelper.findBadgeResource(goal.badge, tag)
+        }
+
+    val mainColor =
+        remember {
+            tag.colors.last()
+        }
+    val brush = tag.tagGradient(isAnimated)
+
+    val textStyle =
+        MaterialTheme.typography.bodySmall.copy(
+            fontWeight = FontWeight.Bold,
+            letterSpacing = 5.sp,
+        )
+
+    val smallTextStyle =
+        MaterialTheme.typography.labelSmall.copy(
+            color = MaterialTheme.colorScheme.onBackground,
+            fontWeight = FontWeight.Bold,
+        )
+
+    val alignment =
+        remember {
+            if (reversed) Alignment.TopCenter else Alignment.BottomCenter
+        }
+
+    Box(
+        modifier
+            .clip(shape)
+            .border(3.dp, MaterialTheme.colorScheme.onBackground, shape)
+            .padding(2.dp)
+            .border(4.dp, brush, shape)
+            .padding(4.dp)
+            .border(5.dp, mainColor, shape),
+    ) {
+        Image(
+            painter = painterResource(id = icon),
+            contentDescription = goal.name,
+            contentScale = ContentScale.Crop,
+            modifier =
+                Modifier.fillMaxSize(),
+        )
+
+        if (showText) {
+            val textShape =
+                if (reversed) {
+                    RoundedCornerShape(bottomStart = 15.dp, bottomEnd = 15.dp)
+                } else {
+                    RoundedCornerShape(topStart = 15.dp, topEnd = 15.dp)
+                }
+
+            Text(
+                goal.name.uppercase(Locale.getDefault()),
+                style = smallTextStyle,
+                maxLines = 1,
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onBackground,
+                modifier =
+                    Modifier
+                        .offset(y = if (reversed) (45).dp else (-45).dp)
+                        .background(
+                            mainColor,
+                            textShape,
+                        ).padding(8.dp)
+                        .align(alignment),
+            )
+        }
+    }
+}
+
+@Composable
+fun HealthBadge(
+    goal: Goal,
+    showText: Boolean,
+    isAnimated: Boolean,
+    modifier: Modifier,
+) {
+    val tag =
+        remember {
+            goal.tag.findTag()
+        }
+
+    val shape =
+        remember {
+            Polygon(6)
+        }
+
+    val icon =
+        remember {
+            TagHelper.findBadgeResource(goal.badge, tag)
+        }
+
+    val mainColor =
+        remember {
+            tag.colors.last()
+        }
+    val brush = tag.tagGradient(isAnimated)
+
+    val textStyle =
+        MaterialTheme.typography.bodyMedium.copy(
+            fontWeight = FontWeight.Black,
+            letterSpacing = 6.sp,
+        )
+
+    val smallTextStyle =
+        MaterialTheme.typography.labelSmall.copy(
+            color = MaterialTheme.colorScheme.onBackground,
+            fontWeight = FontWeight.Bold,
+        )
+
+    val alignment =
+        remember { Alignment.BottomCenter }
+
+    Box(
+        modifier.clip(shape),
+    ) {
+        Image(
+            painter = painterResource(id = icon),
+            contentDescription = goal.name,
+            contentScale = ContentScale.Crop,
+            modifier =
+                Modifier
+                    .padding(16.dp)
+                    .clip(shape)
+                    .fillMaxSize()
+                    .border(3.dp, MaterialTheme.colorScheme.onBackground, shape)
+                    .padding(2.dp)
+                    .border(10.dp, brush, shape)
+                    .padding(8.dp),
+        )
+
+        if (showText) {
+            val textShape = NameHolderShape()
+
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(32.dp)
+                        .align(Alignment.BottomCenter)
+                        .border(2.dp, tag.tagTextColor(), textShape)
+                        .background(brush, textShape),
+            ) {
+                Text(
+                    goal.name.uppercase(Locale.getDefault()),
+                    style = textStyle,
+                    maxLines = 1,
+                    textAlign = TextAlign.Center,
+                    color = Color.White,
+                    modifier = Modifier.padding(8.dp),
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun PetBadge(
+    goal: Goal,
+    showText: Boolean,
+    isAnimated: Boolean,
+    modifier: Modifier,
+) {
+    val tag =
+        remember {
+            goal.tag.findTag()
+        }
+
+    val shape =
+        remember {
+            CircleShape
+        }
+
+    val icon =
+        remember {
+            TagHelper.findBadgeResource(goal.badge, tag)
+        }
+
+    val mainColor =
+        remember {
+            tag.colors.last()
+        }
+    val brush = tag.tagGradient(isAnimated)
+
+    val nameStyle =
+        MaterialTheme.typography.titleMedium.copy(
+            fontWeight = FontWeight.Black,
+            color = mainColor,
+            letterSpacing = 4.sp,
+            fontFamily =
+                FontFamily(
+                    Font(R.font.schoolbell_regular, FontWeight.Normal),
+                ),
+        )
+
+    val textStyle =
+        MaterialTheme.typography.titleMedium.copy(
+            fontWeight = FontWeight.Black,
+            color = MaterialTheme.colorScheme.onBackground,
+            shadow =
+                Shadow(
+                    color = Color.White,
+                    offset = Offset(1f, 1f),
+                    blurRadius = 10f,
+                ),
+            letterSpacing = 4.sp,
+            fontFamily =
+                FontFamily(
+                    Font(R.font.schoolbell_regular, FontWeight.Normal),
+                ),
+        )
+
+    val smallTextStyle =
+        MaterialTheme.typography.bodyMedium.copy(
+            color = MaterialTheme.colorScheme.onBackground.copy(alpha = .7f),
+            fontWeight = FontWeight.SemiBold,
+            shadow =
+                Shadow(
+                    color = mainColor,
+                    offset = Offset(1f, 1f),
+                    blurRadius = 2f,
+                ),
+            fontFamily =
+                FontFamily(
+                    Font(R.font.schoolbell_regular, FontWeight.Normal),
+                ),
+        )
+
+    val alignment =
+        remember { Alignment.BottomCenter }
+
+    Box(
+        modifier.clip(shape),
+    ) {
+        Image(
+            painter = painterResource(id = icon),
+            contentDescription = goal.name,
+            contentScale = ContentScale.Fit,
+            modifier =
+                Modifier
+                    .padding(16.dp)
+                    .border(2.dp, MaterialTheme.colorScheme.onBackground, shape)
+                    .clip(shape)
+                    .background(brush, shape)
+                    .padding(22.dp)
+                    .background(tag.colors.first(), shape)
+                    .clip(shape)
+                    .fillMaxSize(),
+        )
+
+        AnimatedVisibility(showText, enter = scaleIn(), exit = slideOutVertically()) {
+            CurvedLayout(modifier = Modifier.padding(16.dp).fillMaxSize()) {
+                curvedText(
+                    tag.description.uppercase(Locale.getDefault()),
+                    color = tag.tagTextColor(),
+                    style = CurvedTextStyle(textStyle),
+                )
+            }
+
+            CurvedLayout(modifier = Modifier.padding(16.dp).fillMaxSize(), anchor = 90f) {
+                curvedText(
+                    goal.createdAt.toDate().format(DateFormats.DD_OF_MM),
+                    style = CurvedTextStyle(smallTextStyle),
+                )
+            }
+        }
+
+        Image(
+            painterResource(tag.icon),
+            contentDescription = "Pet",
+            colorFilter = ColorFilter.tint(tag.tagTextColor()),
+            modifier =
+                Modifier
+                    .padding(16.dp)
+                    .size(24.dp)
+                    .align(Alignment.CenterStart)
+                    .padding(4.dp),
+        )
+
+        Image(
+            painterResource(tag.icon),
+            colorFilter = ColorFilter.tint(tag.tagTextColor()),
+            contentDescription = "Pet",
+            modifier =
+                Modifier
+                    .padding(16.dp)
+                    .size(24.dp)
+                    .align(Alignment.CenterEnd)
+                    .padding(4.dp),
+        )
+
+        @Suppress("ktlint:standard:function-naming")
+        AnimatedVisibility(showText, modifier = Modifier.align(Alignment.BottomCenter)) {
+            OutLineText(
+                text = goal.name.uppercase(Locale.getDefault()),
+                width = 4.dp,
+                strokeColor = MaterialTheme.colorScheme.background,
+                textStyle = nameStyle,
+                fontFamily = "schoolbell_regular",
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+    }
+}
+
+@Composable
+fun FoodBadge(
+    goal: Goal,
+    showText: Boolean,
+    isAnimated: Boolean,
+    modifier: Modifier,
+) {
+    val context = LocalContext.current
+    val tag =
+        remember {
+            goal.tag.findTag()
+        }
+
+    val shape =
+        remember {
+           Flow(context)
+        }
+
+    val icon =
+        remember {
+            TagHelper.findBadgeResource(goal.badge, tag)
+        }
+
+    val tagIcon = remember {
+        tag.icon
+    }
+
+    val mainColor =
+        remember {
+            tag.colors.last()
+        }
+    val brush = tag.tagGradient(isAnimated)
+
+    val textStyle =
+        MaterialTheme.typography.titleMedium.copy(
+            fontWeight = FontWeight.Black,
+            letterSpacing = 5.sp,
+        )
+
+    val smallTextStyle =
+        MaterialTheme.typography.titleSmall.copy(
+            color = tag.tagTextColor(),
+            fontWeight = FontWeight.Bold,
+            letterSpacing = 5.sp,
+        )
+
+
+    Box(
+        modifier
+            .border(3.dp, MaterialTheme.colorScheme.onBackground, shape)
+            .padding(2.dp)
+            .border(4.dp, brush, shape)
+            .background(mainColor, shape)
+            .clip(shape),
+    ) {
+        Image(
+            painter = painterResource(id = icon),
+            contentDescription = goal.name,
+            contentScale = ContentScale.Fit,
+            modifier =
+                Modifier
+                    .align(Alignment.Center)
+                    .padding(16.dp)
+                    .fillMaxSize()
+                    .clip(shape),
+        )
+
+        AnimatedVisibility(showText, enter = scaleIn(), exit = slideOutVertically()) {
+            CurvedLayout(modifier = Modifier.padding(16.dp).fillMaxSize()) {
+                curvedText(
+                    goal.name.uppercase(),
+                    color = textStyle.color,
+                    style = CurvedTextStyle(textStyle),
+                )
+            }
+
+            CurvedLayout(modifier = Modifier.padding(16.dp).fillMaxSize(), anchor = 90f) {
+                curvedText(
+                    goal.createdAt.toDate().format(DateFormats.DD_OF_MM).uppercase(),
+                    color = smallTextStyle.color,
+                    style = CurvedTextStyle(smallTextStyle),
+                )
+            }
+        }
+
+
+        Image(
+            painterResource(tagIcon),
+            contentDescription = null,
+            colorFilter = ColorFilter.tint(textStyle.color),
+            modifier =
+            Modifier
+                .padding(16.dp)
+                .size(24.dp)
+                .align(Alignment.CenterStart)
+                .padding(4.dp),
+        )
+
+        Image(
+            painterResource(tagIcon),
+            contentDescription = null,
+            colorFilter = ColorFilter.tint(textStyle.color),
+            modifier =
+            Modifier
+                .padding(16.dp)
+                .size(24.dp)
+                .align(Alignment.CenterEnd)
+                .padding(4.dp),
+        )
+
+
+    }
+}
+
+@Composable
+fun BillsBadge(
+    goal: Goal,
+    showText: Boolean,
+    isAnimated: Boolean,
+    modifier: Modifier,
+) {
+    val tag =
+        remember {
+            goal.tag.findTag()
+        }
+
+    val shape =
+        remember {
+            CircleShape
+        }
+
+    val icon =
+        remember {
+            TagHelper.findBadgeResource(goal.badge, tag)
+        }
+
+    val mainColor =
+        remember {
+            tag.colors.last()
+        }
+    val brush = tag.tagGradient(isAnimated)
+
+    val textStyle =
+        MaterialTheme.typography.titleMedium.copy(
+            fontWeight = FontWeight.Black,
+            letterSpacing = 5.sp,
+            color = tag.tagTextColor()
+        )
+
+    val smallTextStyle =
+        MaterialTheme.typography.titleSmall.copy(
+            color = MaterialTheme.colorScheme.onBackground,
+            fontWeight = FontWeight.Bold,
+            letterSpacing = 5.sp,
+        )
+
+
+    Box(
+        modifier
+            .background(MaterialTheme.colorScheme.onBackground, shape)
+            .padding(4.dp)
+            .border(8.dp, mainColor, shape)
+            .background(brush, shape).clip(shape),
+    ) {
+        Image(
+            painter = painterResource(id = icon),
+            contentDescription = goal.name,
+            contentScale = ContentScale.Fit,
+            colorFilter = ColorFilter.tint(mainColor.darker(0.6f)),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(32.dp)
+                    .glow(glowingColor = Color.White, containerColor = Color.Transparent, cornersRadius = 50.dp)
+                    .clip(shape)
+                    .background(backGroundBrush(), shape)
+                    .padding(8.dp)
+                    .gradientFill(brush)
+                    .clip(shape)
+            ,
+        )
+
+        if (showText) {
+            CurvedLayout(modifier = Modifier.fillMaxSize()) {
+                curvedText(
+                    goal.name.uppercase(Locale.getDefault()),
+                    color = textStyle.color,
+                    style = CurvedTextStyle(textStyle),
+                )
+            }
+            CurvedLayout(modifier = Modifier.padding(8.dp).fillMaxSize(), anchor = 90f) {
+                curvedText(
+                    goal.createdAt.toDate().format(DateFormats.DD_OF_MM).uppercase(),
+                    color = textStyle.color,
+                    style = CurvedTextStyle(smallTextStyle),
+                )
+            }
+        }
+
+        Image(
+            painterResource(tag.icon),
+            contentDescription = null,
+            colorFilter = ColorFilter.tint(textStyle.color),
+            modifier =
+                Modifier
+                    .padding(8.dp)
+                    .size(24.dp)
+                    .align(Alignment.CenterStart)
+                    .padding(4.dp),
+        )
+
+        Image(
+            painterResource(tag.icon),
+            contentDescription = null,
+            colorFilter = ColorFilter.tint(textStyle.color),
+            modifier =
+            Modifier
+                .padding(8.dp)
+                .size(24.dp)
+                .align(Alignment.CenterEnd)
+                .padding(4.dp),
+        )
+    }
+}
+
+@Composable
+fun TransportBadge(
+    goal: Goal,
+    showText: Boolean,
+    isAnimated: Boolean,
+    modifier: Modifier,
+) {
+    val tag =
+        remember {
+            goal.tag.findTag()
+        }
+
+    val icon =
+        remember {
+            TagHelper.findBadgeResource(goal.badge, tag)
+        }
+
+    val mainColor =
+        remember {
+            tag.colors.last()
+        }
+    val brush = tag.tagGradient(isAnimated)
+
+    val textStyle =
+        MaterialTheme.typography.bodyLarge.copy(
+            fontWeight = FontWeight.Black,
+            color = tag.tagTextColor(),
+            fontFamily = FontFamily(
+                Font(R.font.goldman_bold, FontWeight.Normal),
+            )
+        )
+
+    val smallTextStyle =
+        MaterialTheme.typography.bodySmall.copy(
+            color = MaterialTheme.colorScheme.onBackground,
+            fontWeight = FontWeight.Bold,
+            fontFamily = FontFamily(
+                Font(R.font.goldman_bold, FontWeight.Normal),
+            )
+        )
+
+    Box(modifier.fillMaxSize()) {
+        Box(modifier = Modifier
+            .fillMaxSize(.5f)
+            .offset(y = 40.dp, x = 75.dp)
+            .background(brush, CircleShape)
+            .blur(25.dp)
+        )
+        Image(
+            painter = painterResource(id = icon),
+            contentDescription = goal.name,
+            contentScale = ContentScale.Fit,
+            modifier =
+            Modifier
+                .align(Alignment.Center)
+                .fillMaxSize(),
+        )
+        AnimatedVisibility(showText) {
+            Column(modifier = Modifier.align(Alignment.TopStart)) {
+                Text(
+                    goal.name.uppercase(Locale.getDefault()),
+                    style = textStyle,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    textAlign = TextAlign.Left,
+                    modifier =
+                    Modifier
+                        .padding(4.dp)
+                        .fillMaxWidth(),
+                )
+                Row(modifier = Modifier.fillMaxWidth().align(Alignment.End),
+                    horizontalArrangement = Arrangement.spacedBy((-2).dp)) {
+
+
+
+
+                    Text(
+                        tag.name.uppercase(Locale.getDefault()),
+                        style = smallTextStyle,
+                        color = MaterialTheme.colorScheme.background,
+                        textAlign = TextAlign.End,
+                        modifier =
+                        Modifier
+                            .background(mainColor)
+                            .padding(horizontal = 8.dp, vertical = 4.dp),
+                    )
+
+                    for (i in 0..3) {
+                        val align = if (i % 2 == 0) Alignment.Top else Alignment.Bottom
+                        val color = if (i % 2 == 0) mainColor else
+                            mainColor.darker()
+                        Box(Modifier.background(color).size(12.dp).align(align)) {}
+                    }
+
+                    Image(
+                        painterResource(tag.icon),
+                        contentDescription = null,
+                        colorFilter = ColorFilter.tint(mainColor.darker()),
+                        modifier = Modifier
+                            .size(24.dp)
+                            .rotate(30f)
+                    )
+
+                }
+
+
+
+            }
+
+        }
+
+    }
+}
+
+@Composable
+fun DefaultBadge(
+    goal: Goal,
+    showText: Boolean,
+    isAnimated: Boolean,
+    modifier: Modifier,
+) {
+    val tag =
+        remember {
+            goal.tag.findTag()
+        }
+    val shape =
+        remember {
+            CircleShape
+        }
+
+    val icon =
+        remember {
+            TagHelper.findBadgeResource(goal.badge, tag)
+        }
+
+    val brush = tag.tagGradient(isAnimated)
+
+    val textColor =
+        MaterialTheme.colorScheme.onBackground.copy(
+            alpha = .7f,
+        )
+    val textStyle =
+        MaterialTheme.typography.headlineSmall.copy(
+            color = tag.tagTextColor(),
+            fontWeight = FontWeight.Bold,
+            letterSpacing = 5.sp,
+        )
+
+    val smallTextStyle =
+        MaterialTheme.typography.bodyLarge.copy(
+            color = tag.tagTextColor().copy(alpha = .4f),
+            letterSpacing = 10.5.sp,
+        )
+
+    Box(
+        modifier
+            .border(3.dp, MaterialTheme.colorScheme.onBackground, shape)
+            .background(brush, shape),
+    ) {
+        Image(
+            painter = painterResource(id = icon),
+            contentDescription = goal.name,
+            contentScale = ContentScale.Crop,
+            modifier =
+                Modifier
+                    .padding(36.dp)
+                    .align(Alignment.Center)
+                    .fillMaxSize()
+                    .border(2.dp, tag.colors.last(), shape)
+                    .clip(shape),
+        )
+
+        if (showText) {
+            CurvedLayout(
+                modifier =
+                    Modifier
+                        .fillMaxHeight()
+                        .fillMaxWidth(),
+            ) {
+                curvedText(
+                    text = goal.name.uppercase(Locale.getDefault()),
+                    style = CurvedTextStyle(textStyle),
+                    color = tag.tagTextColor(),
+                )
+            }
+
+            CurvedLayout(
+                modifier =
+                    Modifier
+                        .padding(4.dp)
+                        .fillMaxHeight()
+                        .fillMaxWidth()
+                        .align(Alignment.BottomCenter),
+                anchor = 90f,
+            ) {
+                curvedText(
+                    text = tag.description.uppercase(Locale.getDefault()),
+                    color = textColor,
+                    style =
+                        CurvedTextStyle(style = smallTextStyle),
+                )
+            }
+        }
+    }
+}

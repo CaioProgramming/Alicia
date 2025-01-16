@@ -61,7 +61,6 @@ class ChatUseCaseImpl
 
         private suspend fun getExtraData(message: Message): Any? {
             try {
-                Log.d(javaClass.simpleName, "getExtraData: Looking for extra data on $message")
                 val key = message.extraDataKey
                 when (message.findType()) {
                     Type.MOVIMENTATION -> {
@@ -78,7 +77,7 @@ class ChatUseCaseImpl
                         if (key == null) return null
                         return financeUseCase.getGoalByIdSync(key.toLong())
                     }
-                    Type.AMOUNT -> {
+                    Type.BALANCE -> {
                         return financeUseCase.getAmount().lastOrNull()
                     }
                     else -> return null
@@ -90,7 +89,7 @@ class ChatUseCaseImpl
         }
 
         private suspend fun mapMessages(messages: List<Message>): List<MessageGroup> {
-            Log.i(javaClass.simpleName, "mapMessages: Mapping messages $messages")
+            // Log.i(javaClass.simpleName, "mapMessages: Mapping messages $messages")
             val groupedByDay =
                 messages.groupBy {
                     val calendar =
@@ -99,9 +98,9 @@ class ChatUseCaseImpl
                         }
                     calendar[java.util.Calendar.DAY_OF_YEAR]
                 }
-            Log.i(javaClass.simpleName, "mapMessages: ${groupedByDay.size} groups found")
+            // Log.i(javaClass.simpleName, "mapMessages: ${groupedByDay.size} groups found")
             return groupedByDay.map {
-                Log.i(javaClass.simpleName, "mapMessages: Mapping group ${it.key} with ${it.value.size} messages")
+                // Log.i(javaClass.simpleName, "mapMessages: Mapping group ${it.key} with ${it.value.size} messages")
                 val firstMessage = messages.first()
                 val calendar =
                     java.util.Calendar.getInstance().apply {
@@ -111,9 +110,9 @@ class ChatUseCaseImpl
                     val attachment = getExtraData(message)
 
                     attachment?.let {
-                        Log.d(javaClass.simpleName, "mapMessages: Extra data founded $attachment for $message")
+                        // Log.d(javaClass.simpleName, "mapMessages: Extra data founded $attachment for $message")
                         message.extraData = attachment
-                        Log.d(javaClass.simpleName, "mapMessages: attachment added to message $message")
+                        Log.d(javaClass.simpleName, "mapMessages: attachment\n$it\n added to message $message")
                     }
                 }
                 val dataGroup =
@@ -121,7 +120,7 @@ class ChatUseCaseImpl
                         title = calendar.time.format(DateFormats.DD_OF_MM),
                         messages = messages,
                     )
-                Log.i(javaClass.simpleName, "mapMessages: Group mapped $dataGroup")
+                // Log.i(javaClass.simpleName, "mapMessages: Group mapped $dataGroup")
                 dataGroup
             }
         }

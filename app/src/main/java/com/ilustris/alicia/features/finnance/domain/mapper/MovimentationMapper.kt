@@ -87,7 +87,7 @@ class MovimentationMapper {
                 val groupSum = info.movimentations.sumOf { it.value }
                 val yValue = if (groupSum < 0) groupSum * -1 else groupSum
                 CircleData(
-                    color = info.tag.color,
+                    color = info.tag.colors.last(),
                     xValue = info.tag.description,
                     yValue = yValue.toFloat(),
                 )

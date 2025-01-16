@@ -242,6 +242,7 @@ class ChatViewModel
                     .generateResponse(
                         buildPrompt {
                             addPrompt(PromptConfig.CallBackConfig(message).description)
+                            addPrompt(PromptConfig.ActionConfig.description)
                         },
                         AICallBack::class.java,
                         requireTranslation = false,
@@ -287,7 +288,10 @@ class ChatViewModel
                                 )
 
                             Action.GOAL -> saveGoal(it as Goal)
-                            Action.NONE -> saveAIMessage(it as AIResponse)
+                            Action.NONE, Action.BALANCE ->
+                                saveAIMessage(
+                                    it as AIResponse,
+                                )
                         }
                     }.onFailure {
                         sendError("Erro ao processar mensagem :(, vamos tentar novamente.")

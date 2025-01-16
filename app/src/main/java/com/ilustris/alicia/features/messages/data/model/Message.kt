@@ -37,6 +37,6 @@ enum class Sender {
 enum class Type {
     MOVIMENTATION,
     GOAL,
-    AMOUNT,
+    BALANCE,
     HISTORY,
 }

@@ -46,7 +46,7 @@ fun Banner(
                     .background(aliciaBrush()),
         ) {
             Text(
-                text = "Você alcançou sua meta ${goal.description} de ${goal.value.formatToCurrencyText()} 🥳",
+                text = "Você alcançou sua meta ${goal.name} de ${goal.value.formatToCurrencyText()} 🥳",
                 modifier = Modifier.padding(32.dp),
                 color = MaterialTheme.colors.onPrimary,
                 textAlign = TextAlign.Center,
@@ -64,7 +64,7 @@ fun BannerPreview() {
             modifier = Modifier.fillMaxSize(),
             goal =
                 Goal(
-                    description = "Nike air",
+                    name = "Nike air",
                     value = 500.00,
                     createdAt = Calendar.getInstance().timeInMillis,
                     tag = Tag.SHOPPING.name,

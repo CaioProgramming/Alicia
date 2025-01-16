@@ -8,12 +8,12 @@ data class Goal(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val value: Double,
-    val description: String,
+    val name: String,
     val createdAt: Long,
     val tag: String,
     val isComplete: Boolean = false,
     val completedAt: Long = 0L,
     val badge: Int = 0,
 ) {
-    fun promptDescription() = "goal $description with value $value at $tag"
+    fun promptDescription() = "goal $name with value $value at $tag"
 }

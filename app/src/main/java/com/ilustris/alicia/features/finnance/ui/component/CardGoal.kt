@@ -85,7 +85,7 @@ fun CardGoal(
                         }.padding(16.dp),
             )
             Text(
-                text = goal.description,
+                text = goal.name,
                 modifier =
                     Modifier
                         .constrainAs(description) {
@@ -140,7 +140,7 @@ fun goalPreview() {
         goal =
             Goal(
                 value = 500.00,
-                description = "Casa",
+                name = "Casa",
                 tag = Tag.SHOPPING.name,
                 createdAt = Random.nextLong(),
             ),

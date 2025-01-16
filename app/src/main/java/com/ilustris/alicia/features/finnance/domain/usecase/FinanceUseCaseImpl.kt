@@ -50,7 +50,7 @@ class FinanceUseCaseImpl
             val doubleValue = value.toDouble() / 100
             val goal =
                 Goal(
-                    description = description,
+                    name = description,
                     value = doubleValue,
                     tag = tag.name,
                     createdAt = Calendar.getInstance().timeInMillis,

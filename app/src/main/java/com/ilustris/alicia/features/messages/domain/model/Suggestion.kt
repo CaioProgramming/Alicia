@@ -18,6 +18,7 @@ enum class Action {
     PROFIT,
     LOSS,
     GOAL,
+    BALANCE,
     NONE,
 }
 
@@ -26,7 +27,7 @@ fun Action.bodyClass(): Class<*> =
         Action.NAME -> NameBody::class.java
         Action.PROFIT, Action.LOSS -> Movimentation::class.java
         Action.GOAL -> Goal::class.java
-        Action.NONE -> AIResponse::class.java
+        else -> AIResponse::class.java
     }
 
 fun Action.actionBody(): String =
@@ -42,7 +43,7 @@ fun Action.actionBody(): String =
                 Tag::class.java.simpleName,
                 "[${Tag.entries.joinToString(",") { it.name }}]",
             )
-        Action.NONE -> toJsonSchema<AIResponse>()
+        else -> toJsonSchema<AIResponse>()
     }
 
 fun List<Action>.actionBodies(): String =

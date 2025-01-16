@@ -24,11 +24,11 @@ import com.ilustris.alicia.core.theme.themeBrush
 import com.ilustris.alicia.features.finnance.data.model.Goal
 import com.ilustris.alicia.features.finnance.data.model.Movimentation
 import com.ilustris.alicia.features.finnance.data.model.Tag
-import com.ilustris.alicia.features.finnance.data.model.findTag
 import com.ilustris.alicia.features.finnance.domain.data.MovimentationInfo
 import com.ilustris.alicia.features.finnance.ui.component.AmountComponent
 import com.ilustris.alicia.features.finnance.ui.component.CardStatement
 import com.ilustris.alicia.features.finnance.ui.component.GoalMedal
+import com.ilustris.alicia.features.finnance.ui.component.GoalMedalV3
 import com.ilustris.alicia.features.messages.data.model.Message
 import com.ilustris.alicia.features.messages.data.model.Sender
 import com.ilustris.alicia.features.messages.data.model.Type
@@ -55,24 +55,28 @@ fun MessageBubble(
                     StatementCard(
                         movimentation = data as Movimentation,
                         showDivider = false,
-                        modifier = Modifier
-                            .padding(8.dp)
-                            .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = .4f), RoundedCornerShape(10.dp))
+                        modifier =
+                            Modifier
+                                .padding(8.dp)
+                                .background(
+                                    MaterialTheme.colorScheme.primaryContainer.copy(alpha = .4f),
+                                    RoundedCornerShape(10.dp),
+                                ),
                     )
                 Type.GOAL ->
-                    GoalMedal(
+                    GoalMedalV3(
                         goal = data as Goal,
-                        size = 50.dp,
-                        enabled = false,
-                        onClick = { openMessage(message) },
+                        showText = false,
+                        isAnimated = true,
+                        Modifier.size(200.dp),
                     )
-                Type.AMOUNT ->
+                Type.BALANCE ->
                     AmountComponent(
                         amount = data as Double,
                     )
                 Type.HISTORY ->
                     MovimentationHorizontalList(
-                        movimentations = (data as MovimentationInfo).movimentations,
+                        movimentations = (data as List<MovimentationInfo>),
                         modifier = modifier,
                     )
                 null -> Text("No extra data.")
@@ -96,8 +100,8 @@ fun MessageBubble(
                     when (message.findType()) {
                         Type.MOVIMENTATION -> it as Movimentation
                         Type.GOAL -> it as Goal
-                        Type.AMOUNT -> it as Double
-                        Type.HISTORY -> it as MovimentationInfo
+                        Type.BALANCE -> it as Double
+                        Type.HISTORY -> it as List<MovimentationInfo>
                         else -> null
                     }
                 } catch (e: Exception) {
@@ -123,13 +127,11 @@ fun MessageBubble(
                     .border(
                         1.dp,
                         MaterialTheme.colorScheme.onBackground.copy(alpha = .1f),
-                        shape
-                    )
-                    .background(
+                        shape,
+                    ).background(
                         brush = color,
                         shape = shape,
-                    )
-                    .padding(16.dp)
+                    ).padding(16.dp)
                     .clickable {
                         showDate.value = !showDate.value
                         openMessage(message)
@@ -158,18 +160,10 @@ fun MessageBubble(
 
 @Composable
 private fun MovimentationHorizontalList(
-    movimentations: List<Movimentation>,
+    movimentations: List<MovimentationInfo>,
     modifier: Modifier,
 ) {
-    val movimentationGroups =
-        remember {
-            movimentations.groupBy { it.tag.findTag() }.map {
-                MovimentationInfo(
-                    tag = it.key,
-                    movimentations = it.value,
-                )
-            }
-        }
+    val movimentationGroups = movimentations
     LazyRow(
         modifier = modifier,
         horizontalArrangement = Arrangement.SpaceEvenly,
@@ -195,7 +189,7 @@ private fun GoalHorizontalList(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         items(goals) {
-            GoalMedal(goal = it, size = 50.dp, enabled = false)
+            GoalMedal(goal = it, preffSize = 50.dp, enabled = false)
         }
     }
 }
@@ -244,7 +238,7 @@ fun DefaultPreview() {
                                 Tag.EDUCATION.name,
                                 badge = R.drawable.car_badge_1,
                             )
-                        Type.AMOUNT ->
+                        Type.BALANCE ->
                             5000.00
 
                         Type.HISTORY ->

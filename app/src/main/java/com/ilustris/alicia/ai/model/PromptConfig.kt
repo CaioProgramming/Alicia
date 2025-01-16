@@ -24,10 +24,8 @@ sealed class PromptConfig(
             "react that \"$data\" have been saved.",
         )
 
-    object ActionsConfig : PromptConfig(
-        "The action property is a enum, use one of these values [ ${ Action.values().joinToString(
-            ",",
-        ) { it.name } } ]",
+    object ActionConfig : PromptConfig(
+        "Define a action and a value for this message",
     )
 
     data class SuggestionsConfig(
@@ -67,6 +65,12 @@ sealed class PromptConfig(
     ) : PromptConfig(
             "Use a teenage girl ${humor.name.toLowerCase()} tone for your response." +
                 "\nEnsure that ${humor.description.toLowerCase()}\nYou are free to use emojis",
+        )
+
+    data class ReplyConfig(
+        val message: String,
+    ) : PromptConfig(
+            "Reply this message \"$message\" from the user",
         )
 
     object KeepOnContext : PromptConfig(

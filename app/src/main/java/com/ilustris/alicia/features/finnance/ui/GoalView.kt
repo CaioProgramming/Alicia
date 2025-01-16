@@ -30,7 +30,8 @@ import com.ilustris.alicia.R
 import com.ilustris.alicia.core.theme.AliciaTheme
 import com.ilustris.alicia.core.theme.toolbarColor
 import com.ilustris.alicia.features.finnance.presentation.GoalViewModel
-import com.ilustris.alicia.features.finnance.ui.component.GoalMedal
+import com.ilustris.alicia.features.finnance.ui.component.GoalMedalV2
+import com.ilustris.alicia.features.finnance.ui.component.GoalMedalV3
 import com.ilustris.alicia.features.finnance.ui.component.SheetInfo
 import com.ilustris.alicia.features.home.ui.getAvatars
 import kotlinx.coroutines.launch
@@ -130,7 +131,7 @@ fun GoalScreen(navController: NavController) {
                             }
                         }
                         items(it.goals.size) { index ->
-                            GoalMedal(goal = it.goals[index], 150.dp, true) {}
+                            GoalMedalV3(goal = it.goals[index], true, false, Modifier.size(200.dp))
                         }
                     }
                 }
