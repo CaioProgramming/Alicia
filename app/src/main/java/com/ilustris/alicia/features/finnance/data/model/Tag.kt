@@ -15,6 +15,7 @@ enum class Tag(
     val colors: List<Color> = emptyList(),
     @DrawableRes
     val icon: Int = R.drawable.ic_round_star_24,
+    val textColor: Color = colors.last().darker(0.9f),
 ) {
     PETS(
         "🐶",
@@ -43,7 +44,7 @@ enum class Tag(
             Color(0xFF66BB6A),
             Color(0xFF43A047),
         ),
-        R.drawable.ic_restaurant_menu_24
+        R.drawable.ic_restaurant_menu_24,
     ),
     HEALTH(
         "💊",
@@ -71,7 +72,7 @@ enum class Tag(
             Color(0xFFFFA726),
             Color(0xFFFB8C00),
         ),
-        R.drawable.ic_race_flag
+        R.drawable.ic_race_flag,
     ),
     EDUCATION(
         "📓",
@@ -86,10 +87,14 @@ enum class Tag(
         "🍿",
         "Entretenimento",
         listOf(
-            Color(0xFFCE93D8),
-            Color(0xFFAB47BC),
-            Color(0xFF8E24AA),
+            MaterialColor.Cyan500,
+            MaterialColor.Yellow300,
+            MaterialColor.BlueGray200,
+            MaterialColor.PinkA400,
+            MaterialColor.Blue500
         ),
+        textColor = Color.Black,
+        icon = R.drawable.bill_badge_1
     ),
     TRAVEL(
         "✈️",
@@ -113,9 +118,11 @@ enum class Tag(
         "🎮",
         "Jogos",
         listOf(
-            Color(0xFFB39DDB),
-            Color(0xFF7E57C2),
-            Color(0xFF5E35B1),
+            MaterialColor.PurpleA700,
+            MaterialColor.Purple300,
+            MaterialColor.Blue900,
+            MaterialColor.Orange100,
+            MaterialColor.LightBlue400
         ),
     ),
 
@@ -123,18 +130,24 @@ enum class Tag(
         "❓",
         "Desconhecido",
         listOf(
-            MaterialColor.Gray50,
-            MaterialColor.Gray100,
-            MaterialColor.Gray200,
+            MaterialColor.Yellow200,
+            MaterialColor.Yellow400,
+            MaterialColor.YellowA700,
+            MaterialColor.YellowA400,
+            MaterialColor.DeepOrange500
         ),
-    );
+    ),
+    ;
 
     @Composable
-    fun tagGradient(isAnimated: Boolean = false) = if (isAnimated) Brush.verticalGradient(
-        colors = colors,
-    ) else gradientAnimation(colors)
-
-    fun tagTextColor() = colors.last().darker(0.9f)
+    fun tagGradient(isAnimated: Boolean = false) =
+        if (isAnimated) {
+            Brush.verticalGradient(
+                colors = colors,
+            )
+        } else {
+            gradientAnimation(colors)
+        }
 
     fun badges() =
         when (this) {
@@ -159,3 +172,5 @@ fun String?.findTag(): Tag {
     if (this == null) return Tag.UNKNOWN
     return Tag.entries.find { it.name == this } ?: Tag.UNKNOWN
 }
+
+

@@ -66,7 +66,7 @@ fun MessageBubble(
                 Type.GOAL ->
                     GoalMedalV3(
                         goal = data as Goal,
-                        showText = false,
+                        showText = true,
                         isAnimated = true,
                         Modifier.size(200.dp),
                     )
@@ -89,8 +89,8 @@ fun MessageBubble(
     val isUserMessage = message.sender == Sender.USER
     val shape = getCardShape(isUserMessage)
     val color =
-        if (isUserMessage) brushBackground else backGroundBrush()
-    val textColor = MaterialTheme.colorScheme.onBackground
+        if (isUserMessage) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.secondaryContainer
+    val textColor = if (isUserMessage) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondary
     val horizontalAlignment = if (isUserMessage) Alignment.End else Alignment.Start
     val showDate = remember { mutableStateOf(false) }
     val extraDataObject =
@@ -129,7 +129,7 @@ fun MessageBubble(
                         MaterialTheme.colorScheme.onBackground.copy(alpha = .1f),
                         shape,
                     ).background(
-                        brush = color,
+                        color = color,
                         shape = shape,
                     ).padding(16.dp)
                     .clickable {

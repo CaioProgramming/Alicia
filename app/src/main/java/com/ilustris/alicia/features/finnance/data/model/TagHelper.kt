@@ -11,11 +11,16 @@ import com.ilustris.alicia.R
 import com.ilustris.alicia.core.theme.HexagonShape
 import com.ilustris.alicia.features.finnance.ui.component.BillsBadge
 import com.ilustris.alicia.features.finnance.ui.component.DefaultBadge
+import com.ilustris.alicia.features.finnance.ui.component.EducationBadge
 import com.ilustris.alicia.features.finnance.ui.component.FoodBadge
+import com.ilustris.alicia.features.finnance.ui.component.GameBadge
 import com.ilustris.alicia.features.finnance.ui.component.HealthBadge
+import com.ilustris.alicia.features.finnance.ui.component.PartyBadge
 import com.ilustris.alicia.features.finnance.ui.component.PetBadge
 import com.ilustris.alicia.features.finnance.ui.component.ShieldBadge
+import com.ilustris.alicia.features.finnance.ui.component.ShoppingBadge
 import com.ilustris.alicia.features.finnance.ui.component.TransportBadge
+import com.ilustris.alicia.features.finnance.ui.component.TravelBadge
 import kotlin.random.Random
 
 object TagHelper {
@@ -104,12 +109,13 @@ fun BadgeForTag(
 ) {
     val tag = remember { goal.tag.findTag() }
     when (tag) {
-        Tag.WORK -> ShieldBadge(
-            goal,
-            showText,
-            isAnimated,
-            modifier,
-        )
+        Tag.WORK ->
+            ShieldBadge(
+                goal,
+                showText,
+                isAnimated,
+                modifier,
+            )
         Tag.PETS ->
             PetBadge(
                 goal,
@@ -117,29 +123,65 @@ fun BadgeForTag(
                 isAnimated,
                 modifier,
             )
-        Tag.GROCERIES -> FoodBadge(
+        Tag.GROCERIES ->
+            FoodBadge(
+                goal,
+                showText,
+                isAnimated,
+                modifier,
+            )
+        Tag.HEALTH ->
+            HealthBadge(
+                goal,
+                showText,
+                isAnimated,
+                modifier,
+            )
+        Tag.BILLS ->
+            BillsBadge(
+                goal,
+                showText,
+                isAnimated,
+                modifier,
+            )
+        Tag.TRANSPORT ->
+            TransportBadge(
+                goal,
+                showText,
+                isAnimated,
+                modifier,
+            )
+        Tag.EDUCATION ->
+            EducationBadge(
+                goal,
+                showText,
+                isAnimated,
+                modifier,
+            )
+        Tag.ENTERTAINMENT ->
+            PartyBadge(
+                goal,
+                showText,
+                isAnimated,
+                modifier,
+            )
+        Tag.TRAVEL -> TravelBadge(
             goal,
             showText,
             isAnimated,
             modifier,
         )
-        Tag.HEALTH -> HealthBadge(
+        Tag.SHOPPING -> ShoppingBadge(
             goal,
             showText,
             isAnimated,
-            modifier
+            modifier,
         )
-        Tag.BILLS -> BillsBadge(
+        Tag.GAMES -> GameBadge(
             goal,
             showText,
             isAnimated,
-            modifier
-        )
-        Tag.TRANSPORT -> TransportBadge(
-            goal,
-            showText,
-            isAnimated,
-            modifier
+            modifier,
         )
         else ->
             DefaultBadge(
