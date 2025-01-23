@@ -236,7 +236,7 @@ fun GoalMedal(
 fun GoalPreview() {
     AliciaTheme {
         LazyVerticalGrid(columns = GridCells.Fixed(2)) {
-            items(Tag.entries.reversed()) { tag ->
+            items(Tag.entries) { tag ->
                 GoalMedalV3(
                     modifier =
                         Modifier

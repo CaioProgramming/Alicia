@@ -169,60 +169,15 @@ fun ChatView(
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        topBar = {
-            TopAppBar(
-                colors =
-                    TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.background.copy(topBarAlpha.value),
-                    ),
-                navigationIcon = {
-                    IconButton(
-                        {
-                            navController.popBackStack()
-                        },
-                        colors =
-                            IconButtonDefaults.filledIconButtonColors(
-                                contentColor = MaterialTheme.colorScheme.onBackground,
-                                containerColor = Color.Transparent,
-                            ),
-                    ) {
-                        Icon(
-                            Icons.AutoMirrored.Rounded.KeyboardArrowLeft,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onBackground,
-                        )
-                    }
-                },
-                title = {
-                    AnimatedVisibility(
-                        !isExpanded,
-                        enter = slideInVertically(),
-                        exit = fadeOut(),
-                        modifier = Modifier.fillMaxSize(),
-                    ) {
-                        Column(verticalArrangement = Arrangement.Top, modifier = Modifier.fillMaxSize()) {
-                            Text(
-                                stringResource(R.string.app_name),
-                                modifier = Modifier.padding(12.dp).fillMaxWidth().wrapContentHeight(),
-                                style = MaterialTheme.typography.titleMedium,
-                                color = MaterialTheme.colorScheme.onBackground,
-                            )
-                        }
-                    }
-                },
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .height(COLLAPSED_TOP_BAR_HEIGHT),
-            )
-        },
         bottomBar = {
             ChatInput(
                 suggestions,
                 onDone = onSendMessage,
                 state = state,
                 brush = loadingBrush,
-                modifier = Modifier.padding(16.dp).wrapContentHeight(),
+                modifier = Modifier
+                    .padding(16.dp)
+                    .wrapContentHeight(),
             )
         },
         modifier = modifier.fillMaxSize(),
@@ -230,7 +185,9 @@ fun ChatView(
         MessagesList(
             messages = appMessages,
             listState = listState,
-            modifier = Modifier.padding(it).fillMaxSize(),
+            modifier = Modifier
+                .padding(it)
+                .fillMaxSize(),
             brush = loadingBrush,
         ) { }
     }
@@ -263,31 +220,31 @@ fun ChatInput(
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier =
-            modifier
-                .wrapContentSize()
-                .background(backgroundColor.value, RoundedCornerShape(25.dp))
-                .clip(RoundedCornerShape(25.dp))
-                .animateContentSize(),
+        modifier
+            .wrapContentSize()
+            .background(backgroundColor.value, RoundedCornerShape(25.dp))
+            .clip(RoundedCornerShape(25.dp))
+            .animateContentSize(),
     ) {
         AnimatedVisibility(suggestions.isNotEmpty() && state is ChatState.Idle, modifier = Modifier.wrapContentSize()) {
             LazyRow(
                 modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
-                        .clip(RoundedCornerShape(25.dp)),
+                Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+                    .clip(RoundedCornerShape(25.dp)),
             ) {
                 items(suggestions.size) { index ->
                     val suggestion = suggestions[index]
                     Box(
                         modifier =
-                            Modifier
-                                .padding(8.dp)
-                                .clip(RoundedCornerShape(25.dp))
-                                .background(MaterialTheme.colorScheme.primary)
-                                .clickable {
-                                    message = suggestion
-                                },
+                        Modifier
+                            .padding(8.dp)
+                            .clip(RoundedCornerShape(25.dp))
+                            .background(MaterialTheme.colorScheme.primary)
+                            .clickable {
+                                message = suggestion
+                            },
                     ) {
                         Text(
                             text = suggestion,
@@ -399,7 +356,9 @@ fun ChatInput(
             ) { }
         }
 
-        AnimatedVisibility(state is ChatState.Error, modifier = Modifier.wrapContentSize().padding(16.dp)) {
+        AnimatedVisibility(state is ChatState.Error, modifier = Modifier
+            .wrapContentSize()
+            .padding(16.dp)) {
             Text(
                 (state as? ChatState.Error)?.message ?: stringResource(R.string.default_error),
                 style = MaterialTheme.typography.bodyMedium,
@@ -433,9 +392,9 @@ fun CollapseToolbar(modifier: Modifier) {
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier =
-                Modifier
-                    .size(100.dp)
-                    .clip(CircleShape),
+            Modifier
+                .size(100.dp)
+                .clip(CircleShape),
         )
 
         Text(

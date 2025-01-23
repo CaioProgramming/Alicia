@@ -1,21 +1,30 @@
 package com.ilustris.alicia.features.messages.ui
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.ilustris.alicia.R
 import com.ilustris.alicia.core.theme.themeBrush
 import com.ilustris.alicia.features.messages.data.model.Message
 import com.ilustris.alicia.features.messages.domain.model.MessageGroup
@@ -55,8 +64,28 @@ fun MessagesList(
             }
         }
 
-        item(key = "collapse_toolbar") {
-            CollapseToolbar(Modifier.padding(8.dp).fillMaxWidth().wrapContentHeight())
+        item {
+            Box(Modifier.fillMaxWidth()) {
+                Image(
+                    painterResource(id = R.drawable.pretty_girl),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier =
+                        Modifier
+                            .align(Alignment.Center)
+                            .size(100.dp)
+                            .clip(CircleShape),
+                )
+            }
+        }
+
+        stickyHeader {
+            Text(
+                stringResource(R.string.app_name),
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                style = androidx.compose.material3.MaterialTheme.typography.titleMedium,
+            )
         }
     }
 

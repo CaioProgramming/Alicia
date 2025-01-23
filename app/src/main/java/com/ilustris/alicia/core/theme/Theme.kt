@@ -2,41 +2,40 @@ package com.ilustris.alicia.core.theme
 
 import ai.atick.material.MaterialColor
 import android.app.Activity
-import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.ViewCompat
 
 private val DarkColorScheme =
     darkColorScheme(
-        primary = MaterialColor.Blue500,
-        secondary = MaterialColor.Blue800,
-        tertiary = MaterialColor.BlueA200,
-        background = MaterialColor.Black,
-        surface = MaterialColor.Gray900,
-        secondaryContainer = MaterialColor.Blue800.copy(alpha = 0.2f),
-        onPrimary = MaterialColor.White,
-        onSurface = MaterialColor.Gray100,
-        onBackground = MaterialColor.White,
+        primary = Color(0xFF303F9F),
+        secondary = Color(0xFF1A237E),
+        tertiary = Color(0xFF182E2F),
+        background = Color.Black,
+        surface = MaterialColor.Gray800,
+        onSurface = Color.White,
+        onBackground = Color.White,
+        primaryContainer = Color(0xFF2962FF),
+        secondaryContainer = Color(0xFF283593),
+        onPrimaryContainer = Color.White,
     )
 
 private val LightColorScheme =
     lightColorScheme(
-        primary = MaterialColor.Blue500,
-        secondary = MaterialColor.Blue800,
-        tertiary = MaterialColor.BlueA400,
-        background = MaterialColor.White,
-        surface = MaterialColor.Gray300,
-        secondaryContainer = MaterialColor.Blue500.copy(alpha = 0.2f),
-        onSurface = MaterialColor.Gray900,
-        onBackground = MaterialColor.Black,
+        primary = Color(0xFF2196F3),
+        secondary = Color(0xFF3D5AFE),
+        tertiary = Color(0xFF00B8D4),
+        background = Color.White,
+        surface = MaterialColor.Gray200,
+        onSurface = Color.Black,
+        onBackground = Color.Black,
     /* Other default colors to override
     background = Color(0xFFFFFBFE),
     surface = Color(0xFFFFFBFE),
@@ -63,10 +62,6 @@ fun AliciaTheme(
 ) {
     val colorScheme =
         when {
-            dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-                val context = LocalContext.current
-                if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-            }
             darkTheme -> DarkColorScheme
             else -> LightColorScheme
         }

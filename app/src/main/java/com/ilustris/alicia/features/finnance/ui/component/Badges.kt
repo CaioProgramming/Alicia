@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -43,6 +44,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -372,14 +374,13 @@ fun HealthBadge(
     val brush = tag.tagGradient(isAnimated)
 
     val textStyle =
-        MaterialTheme.typography.bodyMedium.copy(
-            fontWeight = FontWeight.Black,
-            letterSpacing = 6.sp,
+        MaterialTheme.typography.bodyLarge.copy(
+            fontWeight = FontWeight.Black
         )
 
     val smallTextStyle =
         MaterialTheme.typography.labelSmall.copy(
-            color = MaterialTheme.colorScheme.onBackground,
+            color = MaterialTheme.colorScheme.background,
             fontWeight = FontWeight.Bold,
         )
 
@@ -387,47 +388,51 @@ fun HealthBadge(
         remember { Alignment.BottomCenter }
 
     Box(
-        modifier.clip(shape),
+        modifier,
     ) {
+
+        Column(
+            horizontalAlignment = Alignment.Start,
+            modifier = Modifier
+            .offset(x = 20.dp, y = 20.dp)
+            .wrapContentSize()
+            .align(Alignment.TopStart)) {
+            Text(
+                goal.name.uppercase(Locale.getDefault()),
+                style = textStyle.copy(
+                    fontStyle = FontStyle.Italic
+                ),
+                maxLines = 1,
+                textAlign = TextAlign.Start,
+                modifier = Modifier
+                    .wrapContentSize()
+                .background(mainColor)
+                    .padding(vertical = 8.dp, horizontal = 24.dp),
+            )
+            Text(
+                tag.description,
+                style = smallTextStyle.copy(
+                    fontStyle = FontStyle.Italic
+                ),
+                maxLines = 1,
+                textAlign = TextAlign.Start,
+                modifier = Modifier
+                    .align(Alignment.End)
+                    .wrapContentSize()
+                    .background(mainColor)
+                    .padding(vertical = 4.dp, horizontal = 24.dp),
+            )
+        }
+
+
         Image(
             painter = painterResource(id = icon),
             contentDescription = goal.name,
-            contentScale = ContentScale.Crop,
-            modifier =
-                Modifier
-                    .padding(16.dp)
-                    .clip(shape)
-                    .fillMaxSize()
-                    .border(3.dp, MaterialTheme.colorScheme.onBackground, shape)
-                    .padding(2.dp)
-                    .border(10.dp, brush, shape)
-                    .padding(8.dp),
+            contentScale = ContentScale.Fit,
+            colorFilter = ColorFilter.tint(mainColor),
+            modifier = Modifier.align(Alignment.CenterEnd).offset(x = 25.dp)
         )
 
-        if (showText) {
-            val textShape = NameHolderShape()
-
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(32.dp)
-                        .align(Alignment.BottomCenter)
-                        .border(2.dp, tag.textColor, textShape)
-                        .background(brush, textShape),
-            ) {
-                Text(
-                    goal.name.uppercase(Locale.getDefault()),
-                    style = textStyle,
-                    maxLines = 1,
-                    textAlign = TextAlign.Center,
-                    color = Color.White,
-                    modifier = Modifier.padding(8.dp),
-                )
-            }
-        }
     }
 }
 

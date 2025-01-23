@@ -131,7 +131,7 @@ fun GoalScreen(navController: NavController) {
                             }
                         }
                         items(it.goals.size) { index ->
-                            GoalMedalV3(goal = it.goals[index], true, false, Modifier.size(200.dp))
+                            GoalMedalV3(goal = it.goals[index], true, true, Modifier.size(200.dp))
                         }
                     }
                 }
