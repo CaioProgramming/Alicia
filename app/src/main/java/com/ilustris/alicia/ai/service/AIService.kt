@@ -41,11 +41,11 @@ class AIService {
         Log.i(javaClass.simpleName, "requestPrompt: Initiating chat with prompt $prompt")
         val aiChats =
             chat.filter { it.sender == Sender.BOT }.map {
-                content(role = "model") { text(it.message) }
+                content(role = "model") { text(it.text) }
             }
         val userChats =
             chat.filter { it.sender == Sender.USER }.map {
-                content(role = "user") { text(it.message) }
+                content(role = "user") { text(it.text) }
             }
         val history =
             listOf(

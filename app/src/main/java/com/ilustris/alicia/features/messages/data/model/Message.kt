@@ -9,7 +9,7 @@ import java.util.Calendar
 data class Message(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
-    val message: String,
+    val text: String,
     val sender: Sender = Sender.USER,
     val type: String? = null,
     val sentTime: Long = Calendar.getInstance().time.time,
@@ -19,12 +19,12 @@ data class Message(
 ) {
     constructor(
         id: Int,
-        message: String,
+        text: String,
         sender: Sender,
         type: String?,
         sentTime: Long,
         extraDataKey: String?,
-    ) : this(id, message, sender, type, sentTime, extraDataKey, null)
+    ) : this(id, text, sender, type, sentTime, extraDataKey, null)
 
     fun findType() = Type.entries.find { it.name == type }
 }

@@ -3,7 +3,9 @@ package com.ilustris.alicia.core.theme
 import ai.atick.material.MaterialColor
 import android.app.Activity
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Brush
@@ -24,6 +26,7 @@ private val DarkColorScheme =
         onBackground = Color.White,
         primaryContainer = Color(0xFF2962FF),
         secondaryContainer = Color(0xFF283593),
+        onSecondaryContainer = Color.White,
         onPrimaryContainer = Color.White,
     )
 
@@ -32,6 +35,10 @@ private val LightColorScheme =
         primary = Color(0xFF2196F3),
         secondary = Color(0xFF3D5AFE),
         tertiary = Color(0xFF00B8D4),
+        primaryContainer = Color(0xFF2962FF),
+        secondaryContainer = Color(0xff8999ff),
+        onPrimaryContainer = Color.White,
+        onSecondaryContainer = Color.White,
         background = Color.White,
         surface = MaterialColor.Gray200,
         onSurface = Color.Black,

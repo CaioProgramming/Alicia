@@ -20,6 +20,7 @@ class AIUseCaseImpl
             clazz: Class<T>,
             specificReplacement: Pair<String, String>?,
             requireTranslation: Boolean,
+            useContext: Boolean,
         ): RequestResult<Exception, T> {
             try {
                 prompt.addPrompt(
@@ -37,7 +38,9 @@ class AIUseCaseImpl
                 )
                 prompt.addPrompt(PromptConfig.KeepStructure.description)
                 prompt.addPrompt(PromptConfig.DataConfig.description)
-                prompt.addPrompt(PromptConfig.KeepOnContext.description)
+                if (useContext) {
+                    prompt.addPrompt(PromptConfig.KeepOnContext.description)
+                }
                 val aiRequest = aiService.requestCustomPrompt(prompt.build(), requireTranslation)
 
                 val aiResponse = aiRequest.success.value

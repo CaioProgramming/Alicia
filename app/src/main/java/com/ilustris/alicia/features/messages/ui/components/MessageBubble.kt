@@ -19,7 +19,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ilustris.alicia.R
 import com.ilustris.alicia.core.theme.AliciaTheme
-import com.ilustris.alicia.core.theme.backGroundBrush
 import com.ilustris.alicia.core.theme.themeBrush
 import com.ilustris.alicia.features.finnance.data.model.Goal
 import com.ilustris.alicia.features.finnance.data.model.Movimentation
@@ -90,7 +89,7 @@ fun MessageBubble(
     val shape = getCardShape(isUserMessage)
     val color =
         if (isUserMessage) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.secondaryContainer
-    val textColor = if (isUserMessage) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondary
+    val textColor = MaterialTheme.colorScheme.onPrimaryContainer
     val horizontalAlignment = if (isUserMessage) Alignment.End else Alignment.Start
     val showDate = remember { mutableStateOf(false) }
     val extraDataObject =
@@ -119,7 +118,7 @@ fun MessageBubble(
                 .padding(16.dp),
     ) {
         Text(
-            text = message.message,
+            text = message.text,
             style = MaterialTheme.typography.bodyLarge.copy(color = textColor),
             modifier =
                 Modifier
@@ -215,7 +214,7 @@ fun DefaultPreview() {
                 type = null,
                 sender = Sender.USER,
                 sentTime = 1674477903527,
-                message = "Hello",
+                text = "Hello",
             )
             items(Type.values()) {
                 val extraData: Any? =
@@ -264,7 +263,7 @@ fun DefaultPreview() {
                             extraData = extraData,
                             sender = Sender.BOT,
                             sentTime = 1674477903527,
-                            message = "This a message!",
+                            text = "This a message!",
                         ),
                     modifier = Modifier.wrapContentSize(),
                     openMessage = { },
@@ -277,7 +276,7 @@ fun DefaultPreview() {
                     type = null,
                     sender = Sender.USER,
                     sentTime = 1674477903527,
-                    message = "Bye bye",
+                    text = "Bye bye",
                 )
             }
         }
@@ -289,7 +288,7 @@ fun DefaultPreview() {
                         type = null,
                         sender = Sender.USER,
                         sentTime = 1674477903527,
-                        message = "Hello",
+                        text = "Hello",
                     ),
                 modifier = Modifier.wrapContentSize(),
                 openMessage = { },
@@ -301,7 +300,7 @@ fun DefaultPreview() {
                         94151,
                         sender = Sender.BOT,
                         sentTime = 1674477903527,
-                        message = "Hello Human",
+                        text = "Hello Human",
                     ),
                 modifier = Modifier.wrapContentSize(),
                 openMessage = { },

@@ -165,24 +165,27 @@ fun BadgeForTag(
                 isAnimated,
                 modifier,
             )
-        Tag.TRAVEL -> TravelBadge(
-            goal,
-            showText,
-            isAnimated,
-            modifier,
-        )
-        Tag.SHOPPING -> ShoppingBadge(
-            goal,
-            showText,
-            isAnimated,
-            modifier,
-        )
-        Tag.GAMES -> GameBadge(
-            goal,
-            showText,
-            isAnimated,
-            modifier,
-        )
+        Tag.TRAVEL ->
+            TravelBadge(
+                goal,
+                showText,
+                isAnimated,
+                modifier,
+            )
+        Tag.SHOPPING ->
+            ShoppingBadge(
+                goal,
+                showText,
+                isAnimated,
+                modifier,
+            )
+        Tag.GAMES ->
+            GameBadge(
+                goal,
+                showText,
+                isAnimated,
+                modifier,
+            )
         else ->
             DefaultBadge(
                 goal,

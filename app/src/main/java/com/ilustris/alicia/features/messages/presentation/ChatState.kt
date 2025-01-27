@@ -5,8 +5,6 @@ sealed class ChatState {
 
     data object Loading : ChatState()
 
-    data object UserRequired : ChatState()
-
     data class Error(
         val message: String?,
     ) : ChatState()

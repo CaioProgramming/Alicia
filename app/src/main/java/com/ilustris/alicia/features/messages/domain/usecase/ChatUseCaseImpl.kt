@@ -128,7 +128,7 @@ class ChatUseCaseImpl
 
 fun AIResponse.mapToMessage(extraData: String? = null): Message? =
     Message(
-        message = this.text,
+        text = this.text,
         sender = Sender.BOT,
         type = getMessageType()?.name,
         extraData = extraData ?: "",

@@ -18,6 +18,13 @@ sealed class PromptConfig(
             "return a callback for this message \"$message\"",
         )
 
+    data class ReplyConfig(
+        val message: String,
+        val userName: String,
+    ) : PromptConfig(
+            "$userName sent a message \"$message\". Reply to this message",
+        )
+
     data class CallBackSuccessConfig(
         val data: String,
     ) : PromptConfig(
@@ -28,13 +35,18 @@ sealed class PromptConfig(
         "Define a action and a value for this message",
     )
 
-    data class SuggestionsConfig(
-        val message: String,
-    ) : PromptConfig(
-            "Return a List of input suggestions based on this last message \"$message\"" +
-                "\nThe user can Perfom one of the following actions: " +
-                Action.entries.joinToString { it.name },
-        )
+    object SuggestionsConfig : PromptConfig(
+        "Return a list of relevant, humorous input hints in the first person." +
+            "\nThe user can Perform one of the following actions: " +
+            Action.entries
+                .filter {
+                    it != Action.NAME && it != Action.NONE
+                }.joinToString { it.name } +
+            "Provide personalized and playful hints that are tailored to the user's context," +
+            "reflecting what they might want to do next, but with a humorous twist." +
+            "Do not just return the enum values, but a human-readable description of the actions," +
+            "Ensure the suggestions are phrased as incomplete sentences or input hints that the user can easily complete",
+    )
 
     object AIntroduction : PromptConfig(
         "Introduce yourself as Alicia." +
@@ -67,14 +79,11 @@ sealed class PromptConfig(
                 "\nEnsure that ${humor.description.toLowerCase()}\nYou are free to use emojis",
         )
 
-    data class ReplyConfig(
-        val message: String,
-    ) : PromptConfig(
-            "Reply this message \"$message\" from the user",
-        )
-
     object KeepOnContext : PromptConfig(
-        "Keep the context of the request in mind when responding",
+        "Keep the context of the request in mind when responding" +
+            "Ensure all suggestions are relevant to the financial app, even if the tone is playful. " +
+            "The AI should feel like a helpful financial assistant," +
+            "remember you are the AI named Alicia, and you are a financial assistant",
     )
 
     object FeaturesExamples : PromptConfig(

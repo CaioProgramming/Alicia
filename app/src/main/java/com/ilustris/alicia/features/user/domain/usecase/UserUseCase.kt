@@ -4,11 +4,14 @@ import com.ilustris.alicia.features.user.data.model.User
 import kotlinx.coroutines.flow.Flow
 
 interface UserUseCase {
-
     suspend fun updateUser(user: User)
 
-    suspend fun saveUser(username: String, avatar: Int = 0) : Long
+    suspend fun saveUser(
+        username: String,
+        avatar: Int = 0,
+    ): Long
 
     fun getUserById(): Flow<User?>
 
+    suspend fun getUserByIdAsync(): User?
 }

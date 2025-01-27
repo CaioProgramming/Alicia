@@ -13,10 +13,8 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
-import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -25,7 +23,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -41,8 +38,8 @@ import androidx.compose.material.Icon
 import androidx.compose.material.SnackbarHost
 import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.rounded.KeyboardArrowLeft
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
@@ -94,6 +91,7 @@ import com.ilustris.alicia.features.messages.domain.model.MessageGroup
 import com.ilustris.alicia.features.messages.presentation.ChatAction
 import com.ilustris.alicia.features.messages.presentation.ChatState
 import com.ilustris.alicia.features.messages.presentation.ChatViewModel
+import com.ilustris.alicia.utils.glow
 import com.ilustris.alicia.utils.gradientAnimation
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.seconds
@@ -123,6 +121,10 @@ fun ChatScreen(
         loadingBrush = generalBrush,
     ) {
         viewModel.launchAction(ChatAction.SendMessage(it))
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.startChat()
     }
 }
 
@@ -161,6 +163,18 @@ fun ChatView(
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
+    val borderBrush =
+        if (state is ChatState.Loading) {
+            loadingBrush
+        } else {
+            Brush.verticalGradient(
+                listOf(
+                    Color.Transparent,
+                    Color.Transparent,
+                ),
+            )
+        }
+
     LaunchedEffect(appMessages) {
         if (appMessages.isNotEmpty()) {
             listState.scrollToItem(appMessages.size - 1)
@@ -175,9 +189,10 @@ fun ChatView(
                 onDone = onSendMessage,
                 state = state,
                 brush = loadingBrush,
-                modifier = Modifier
-                    .padding(16.dp)
-                    .wrapContentHeight(),
+                modifier =
+                    Modifier
+                        .padding(16.dp)
+                        .wrapContentHeight(),
             )
         },
         modifier = modifier.fillMaxSize(),
@@ -185,9 +200,10 @@ fun ChatView(
         MessagesList(
             messages = appMessages,
             listState = listState,
-            modifier = Modifier
-                .padding(it)
-                .fillMaxSize(),
+            modifier =
+                Modifier
+                    .padding(it)
+                    .fillMaxSize(),
             brush = loadingBrush,
         ) { }
     }
@@ -212,7 +228,7 @@ fun ChatInput(
             if (state is ChatState.Error) {
                 Color.Red.copy(alpha = .60f)
             } else {
-                MaterialTheme.colorScheme.primaryContainer.copy(alpha = .20f)
+                MaterialTheme.colorScheme.surface
             },
             tween(1500, easing = EaseIn),
         )
@@ -220,31 +236,32 @@ fun ChatInput(
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier =
-        modifier
-            .wrapContentSize()
-            .background(backgroundColor.value, RoundedCornerShape(25.dp))
-            .clip(RoundedCornerShape(25.dp))
-            .animateContentSize(),
+            modifier
+                .wrapContentSize()
+                .glow(MaterialTheme.colorScheme.primary, cornersRadius = 25.dp, glowingRadius = 50.dp)
+                .background(backgroundColor.value, RoundedCornerShape(25.dp))
+                .clip(RoundedCornerShape(25.dp))
+                .animateContentSize(),
     ) {
         AnimatedVisibility(suggestions.isNotEmpty() && state is ChatState.Idle, modifier = Modifier.wrapContentSize()) {
             LazyRow(
                 modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp)
-                    .clip(RoundedCornerShape(25.dp)),
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                        .clip(RoundedCornerShape(25.dp)),
             ) {
                 items(suggestions.size) { index ->
                     val suggestion = suggestions[index]
                     Box(
                         modifier =
-                        Modifier
-                            .padding(8.dp)
-                            .clip(RoundedCornerShape(25.dp))
-                            .background(MaterialTheme.colorScheme.primary)
-                            .clickable {
-                                message = suggestion
-                            },
+                            Modifier
+                                .padding(8.dp)
+                                .clip(RoundedCornerShape(25.dp))
+                                .background(MaterialTheme.colorScheme.primary)
+                                .clickable {
+                                    message = suggestion
+                                },
                     ) {
                         Text(
                             text = suggestion,
@@ -356,15 +373,19 @@ fun ChatInput(
             ) { }
         }
 
-        AnimatedVisibility(state is ChatState.Error, modifier = Modifier
-            .wrapContentSize()
-            .padding(16.dp)) {
+        AnimatedVisibility(
+            state is ChatState.Error,
+            modifier =
+                Modifier
+                    .wrapContentSize()
+                    .padding(16.dp),
+        ) {
             Text(
                 (state as? ChatState.Error)?.message ?: stringResource(R.string.default_error),
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color.White,
                 modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
             )
         }
     }
@@ -392,9 +413,9 @@ fun CollapseToolbar(modifier: Modifier) {
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier =
-            Modifier
-                .size(100.dp)
-                .clip(CircleShape),
+                Modifier
+                    .size(100.dp)
+                    .clip(CircleShape),
         )
 
         Text(
@@ -412,13 +433,12 @@ fun CollapseToolbar(modifier: Modifier) {
     uiMode = Configuration.UI_MODE_TYPE_NORMAL,
     backgroundColor = 0xFF000000,
 )
-
 @Suppress("ktlint:standard:function-naming")
 @Composable
 fun DefaultPreview() {
     AliciaTheme {
         ChatView(
-            state = ChatState.Error(null),
+            state = ChatState.Idle,
             loadingBrush = gradientAnimation(aliciaColors(), duration = 5.seconds),
             suggestions =
                 Action
@@ -433,7 +453,7 @@ fun DefaultPreview() {
                             List(5) {
                                 Message(
                                     id = Random.nextInt(),
-                                    message = "Hello $it",
+                                    text = "Hello $it",
                                     type = null,
                                     sender = if (it % 2 == 0) Sender.USER else Sender.BOT,
                                 )

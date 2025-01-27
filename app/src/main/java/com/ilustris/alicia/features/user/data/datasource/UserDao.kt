@@ -17,4 +17,7 @@ interface UserDao {
 
     @Query("SELECT * FROM users WHERE uid = (:uid)")
     fun getUserById(uid: Long): Flow<User?>
+
+    @Query("SELECT * FROM users WHERE uid = (:uid)")
+    fun getUserByIdAsync(uid: Long): User?
 }

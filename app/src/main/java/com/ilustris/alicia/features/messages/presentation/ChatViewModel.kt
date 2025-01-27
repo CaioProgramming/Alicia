@@ -25,6 +25,7 @@ import com.ilustris.alicia.features.messages.domain.model.MessageGroup
 import com.ilustris.alicia.features.messages.domain.model.NameBody
 import com.ilustris.alicia.features.messages.domain.model.bodyClass
 import com.ilustris.alicia.features.messages.domain.usecase.ChatUseCase
+import com.ilustris.alicia.features.user.data.model.User
 import com.ilustris.alicia.features.user.domain.usecase.UserUseCase
 import com.ilustris.alicia.utils.containsNull
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -33,6 +34,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.lastOrNull
 import kotlinx.coroutines.launch
+import java.time.temporal.ChronoUnit
 import java.util.Calendar
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.seconds
@@ -46,10 +48,11 @@ class ChatViewModel
         private val aiUseCase: AIUseCase,
         private val financeUseCase: FinanceUseCase,
     ) : ViewModel() {
-        init {
+        fun startChat() {
             getUser()
             observeGoals()
             observeMessages()
+            generateSuggestions()
         }
 
         private fun observeMessages() {
@@ -64,8 +67,8 @@ class ChatViewModel
         val humor = PromptConfig.HumorConfig()
         val messages = MutableStateFlow<List<MessageGroup>>(emptyList())
         val suggestions = MutableStateFlow<List<String>>(emptyList())
-        val user = userUseCase.getUserById()
-        val state = MutableStateFlow<ChatState?>(null)
+        val user = MutableStateFlow<User?>(null)
+        val state = MutableStateFlow<ChatState?>(ChatState.Loading)
 
         fun launchAction(homeAction: ChatAction) {
             state.value = ChatState.Loading
@@ -151,12 +154,13 @@ class ChatViewModel
             }
         }
 
-        private fun generateSuggestions(lastMessage: String) {
+        private fun generateSuggestions() {
             viewModelScope.launch(Dispatchers.IO) {
+                if (user.value == null) return@launch
                 aiUseCase
                     .generateResponse(
                         buildPrompt {
-                            addPrompt(PromptConfig.SuggestionsConfig(lastMessage).description)
+                            addPrompt(PromptConfig.SuggestionsConfig.description)
                         },
                         AISuggestions::class.java,
                         specificReplacement = Pair("suggestions", "List<String>"),
@@ -183,10 +187,12 @@ class ChatViewModel
                         },
                         useTypes = false,
                         onComplete = {
-                            generateSuggestions(it.message)
+                            generateSuggestions()
                         },
                     )
                 }
+                val newUser = userUseCase.getUserByIdAsync()
+                user.emit(newUser)
             }
         }
 
@@ -231,23 +237,53 @@ class ChatViewModel
             viewModelScope.launch(Dispatchers.IO) {
                 val userMessage =
                     Message(
-                        message = message,
+                        text = message,
                         sender = Sender.USER,
                         sentTime = Calendar.getInstance().timeInMillis,
                     )
                 chatUseCase.saveMessage(
                     userMessage,
                 )
+
+                user.value?.let {
+                    replyMessage(userMessage, it)
+                } ?: run {
+                    executeCallback(userMessage)
+                }
+            }
+        }
+
+        private fun replyMessage(
+            userMessage: Message,
+            it: User,
+        ) {
+            generateMessage(
+                buildPrompt {
+                    addPrompt(PromptConfig.ReplyConfig(userMessage.text, it.name).description)
+                    addPrompt(humor.description)
+                },
+                useTypes = false,
+                onComplete = {
+                    executeCallback(
+                        userMessage,
+                    )
+                },
+            )
+        }
+
+        private fun executeCallback(message: Message) {
+            viewModelScope.launch {
                 aiUseCase
                     .generateResponse(
                         buildPrompt {
-                            addPrompt(PromptConfig.CallBackConfig(message).description)
+                            addPrompt(PromptConfig.CallBackConfig(message.text).description)
                             addPrompt(PromptConfig.ActionConfig.description)
                         },
                         AICallBack::class.java,
                         requireTranslation = false,
+                        useContext = false,
                     ).onSuccess {
-                        handleCallBack(it, userMessage)
+                        handleCallBack(it, message)
                     }.onFailure {
                         sendError("Erro ao processar mensagem :(, vamos tentar novamente.")
                     }
@@ -263,7 +299,7 @@ class ChatViewModel
                     .generateResponse(
                         buildPrompt {
                             supportMessage?.let {
-                                addPrompt(PromptConfig.MessageResourceConfig(it.message).description)
+                                addPrompt(PromptConfig.MessageResourceConfig(it.text).description)
                             }
                             addPrompt(PromptConfig.FormatResponseConfig(callBack.value).description)
                             addPrompt(PromptConfig.ExtractValuableDataConfig.description)
@@ -326,7 +362,7 @@ class ChatViewModel
                         true,
                         extraKey = newGoal.toString(),
                         onComplete = {
-                            generateSuggestions(it.message)
+                            generateSuggestions()
                         },
                     )
                 } catch (e: Exception) {
@@ -356,8 +392,12 @@ class ChatViewModel
                     )
                 val newMovimentation = financeUseCase.saveMovimentation(formattedMovimentation)
 
-                handleCallBackSuccess(movimentation.promptDescription(), true, extraKey = newMovimentation.toString()) {
-                    generateSuggestions(it.message)
+                handleCallBackSuccess(
+                    movimentation.promptDescription(),
+                    true,
+                    extraKey = newMovimentation.toString(),
+                ) {
+                    generateSuggestions()
                 }
             }
         }
@@ -369,48 +409,46 @@ class ChatViewModel
                 Calendar.getInstance().apply {
                     timeInMillis = lastMessage.sentTime
                 }
-            return lastMessageDate[Calendar.DAY_OF_YEAR] < todayDate[Calendar.DAY_OF_YEAR]
+            return ChronoUnit.DAYS.between(lastMessageDate.toInstant(), todayDate.toInstant()) > 0
         }
 
         private fun getUser() {
             viewModelScope.launch(Dispatchers.IO) {
-                userUseCase.getUserById().collect { user ->
-                    val lastMessage = chatUseCase.getLastMessage()
-                    if (user == null) {
-                        if (shouldSendNewMessage(lastMessage)) {
-                            generateMessage(
-                                buildPrompt {
-                                    addPrompt(PromptConfig.AIntroduction.description)
-                                },
-                                useTypes = false,
-                                onComplete = {
-                                    generateMessage(
-                                        buildPrompt {
-                                            addPrompt(PromptConfig.NameConfig.description)
-                                        },
-                                        useTypes = false,
-                                    )
-                                },
-                            )
-                        } else {
-                            setToIdle()
-                        }
-                        state.emit(ChatState.UserRequired)
-                    } else {
-                        if (shouldSendNewMessage(lastMessage)) {
-                            val prompt = Prompts.Greeting.prompt.replace("[username]", user.name)
-                            generateMessage(
-                                buildPrompt {
-                                    addPrompt(prompt)
-                                    addPrompt(humor.description)
-                                },
-                                useTypes = false,
-                            )
-                        } else {
-                            setToIdle()
-                        }
+                val currentUser = userUseCase.getUserByIdAsync()
+                val lastMessage = chatUseCase.getLastMessage()
+
+                if (currentUser == null) {
+                    if (shouldSendNewMessage(lastMessage)) {
+                        generateMessage(
+                            buildPrompt {
+                                addPrompt(PromptConfig.AIntroduction.description)
+                            },
+                            useTypes = false,
+                            onComplete = {
+                                generateMessage(
+                                    buildPrompt {
+                                        addPrompt(PromptConfig.NameConfig.description)
+                                    },
+                                    useTypes = false,
+                                )
+                            },
+                        )
                     }
+                } else {
+                    if (shouldSendNewMessage(lastMessage)) {
+                        val prompt = Prompts.Greeting.prompt.replace("[username]", currentUser.name)
+                        generateMessage(
+                            buildPrompt {
+                                addPrompt(prompt)
+                                addPrompt(humor.description)
+                            },
+                            useTypes = false,
+                        )
+                    }
+                    lastMessage?.let { generateSuggestions() }
+                    user.emit(currentUser)
                 }
+                setToIdle()
             }
         }
     }

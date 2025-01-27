@@ -8,6 +8,7 @@ interface AIUseCase {
         clazz: Class<T>,
         specificReplacement: Pair<String, String>? = null,
         requireTranslation: Boolean = true,
+        useContext: Boolean = true,
     ): RequestResult<Exception, T>
 }
 
