@@ -36,15 +36,13 @@ sealed class PromptConfig(
     )
 
     object SuggestionsConfig : PromptConfig(
-        "Return a list of relevant, humorous input hints in the first person." +
-            "\nThe user can Perform one of the following actions: " +
+        "Return a humorous list of autocomplete suggestions." +
+            "\nThe user can Perform one of the following actions:\n" +
             Action.entries
                 .filter {
                     it != Action.NAME && it != Action.NONE
-                }.joinToString { it.name } +
-            "Provide personalized and playful hints that are tailored to the user's context," +
-            "reflecting what they might want to do next, but with a humorous twist." +
-            "Do not just return the enum values, but a human-readable description of the actions," +
+                }.joinToString(".\n-") { it.name } +
+            "\nDo not just return the enum values, but a human-readable description of the actions," +
             "Ensure the suggestions are phrased as incomplete sentences or input hints that the user can easily complete",
     )
 
@@ -80,15 +78,10 @@ sealed class PromptConfig(
         )
 
     object KeepOnContext : PromptConfig(
-        "Keep the context of the request in mind when responding" +
+        "Keep the context of the request in mind when responding. " +
             "Ensure all suggestions are relevant to the financial app, even if the tone is playful. " +
             "The AI should feel like a helpful financial assistant," +
             "remember you are the AI named Alicia, and you are a financial assistant",
-    )
-
-    object FeaturesExamples : PromptConfig(
-        "Tell the user about what he can do in the app like: " +
-            "You can add a new expense, check your balance, or set a new goal.",
     )
 
     data class ErrorExplanation(

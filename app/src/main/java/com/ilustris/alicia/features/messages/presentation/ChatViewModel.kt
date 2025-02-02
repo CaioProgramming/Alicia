@@ -3,36 +3,26 @@ package com.ilustris.alicia.features.messages.presentation
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ilustris.alicia.ai.callback.CallbackExecutor
+import com.ilustris.alicia.ai.inputs.InputGenerator
+import com.ilustris.alicia.ai.message.MessageGenerator
 import com.ilustris.alicia.ai.model.PromptBuilder
 import com.ilustris.alicia.ai.model.PromptConfig
 import com.ilustris.alicia.ai.model.Prompts
-import com.ilustris.alicia.ai.model.ai.AICallBack
 import com.ilustris.alicia.ai.model.ai.AIResponse
-import com.ilustris.alicia.ai.model.ai.AISuggestions
 import com.ilustris.alicia.ai.model.buildPrompt
-import com.ilustris.alicia.ai.usecase.AIUseCase
-import com.ilustris.alicia.features.finnance.data.model.Goal
-import com.ilustris.alicia.features.finnance.data.model.Movimentation
-import com.ilustris.alicia.features.finnance.data.model.Tag
-import com.ilustris.alicia.features.finnance.data.model.TagHelper
-import com.ilustris.alicia.features.finnance.data.model.findTag
-import com.ilustris.alicia.features.finnance.domain.usecase.FinanceUseCase
 import com.ilustris.alicia.features.messages.data.model.Message
 import com.ilustris.alicia.features.messages.data.model.Sender
-import com.ilustris.alicia.features.messages.data.model.Type
 import com.ilustris.alicia.features.messages.domain.model.Action
 import com.ilustris.alicia.features.messages.domain.model.MessageGroup
-import com.ilustris.alicia.features.messages.domain.model.NameBody
-import com.ilustris.alicia.features.messages.domain.model.bodyClass
+import com.ilustris.alicia.features.messages.domain.usecase.ChatDataManager
 import com.ilustris.alicia.features.messages.domain.usecase.ChatUseCase
 import com.ilustris.alicia.features.user.data.model.User
 import com.ilustris.alicia.features.user.domain.usecase.UserUseCase
-import com.ilustris.alicia.utils.containsNull
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.lastOrNull
 import kotlinx.coroutines.launch
 import java.time.temporal.ChronoUnit
 import java.util.Calendar
@@ -45,12 +35,13 @@ class ChatViewModel
     constructor(
         private val userUseCase: UserUseCase,
         private val chatUseCase: ChatUseCase,
-        private val aiUseCase: AIUseCase,
-        private val financeUseCase: FinanceUseCase,
+        private val messageGenerator: MessageGenerator,
+        private val callbackExecutor: CallbackExecutor,
+        private val inputGenerator: InputGenerator,
+        private val chatDataManager: ChatDataManager,
     ) : ViewModel() {
         fun startChat() {
             getUser()
-            observeGoals()
             observeMessages()
             generateSuggestions()
         }
@@ -85,23 +76,6 @@ class ChatViewModel
             }
         }
 
-        private fun observeGoals() =
-            viewModelScope.launch(Dispatchers.IO) {
-                financeUseCase.getGoals().collect { goals ->
-                    goals.forEach { goal ->
-                        val ammount = financeUseCase.getAmount().lastOrNull() ?: 0.0
-                        if (goal.isComplete.not() && ammount >= goal.value) {
-                            val today = Calendar.getInstance()
-                            val goalDate =
-                                Calendar.getInstance().apply { timeInMillis = goal.createdAt }
-                            if (today[Calendar.DAY_OF_YEAR] == goalDate[Calendar.DAY_OF_YEAR]) {
-                                completeGoal(goal)
-                            }
-                        }
-                    }
-                }
-            }
-
         private fun sendError(text: String? = null) {
             viewModelScope.launch(Dispatchers.IO) {
                 state.emit(ChatState.Error(text))
@@ -124,7 +98,7 @@ class ChatViewModel
                         onComplete?.invoke(it)
                         setToIdle()
                     }.onFailure {
-                        sendError("Erro ao salvar mensagem :(, vamos tentar novamente.")
+                        sendError("Erro ao salvar mensagem :(")
                     }
             }
         }
@@ -135,64 +109,27 @@ class ChatViewModel
             useTypes: Boolean,
             errorMessage: String? = null,
             onComplete: ((Message) -> Unit)? = null,
-            onError: () -> Unit = {},
+            onError: () -> Unit = { sendError() },
         ) {
             viewModelScope.launch(Dispatchers.IO) {
-                val typeReplacement = if (useTypes) Type.entries.joinToString(("|")) else "null"
-                aiUseCase
-                    .generateResponse(
-                        promptBuilder,
-                        AIResponse::class.java,
-                        specificReplacement = Pair("type", typeReplacement),
-                    ).onSuccess {
+                messageGenerator
+                    .generateMessage(
+                        promptBuilder.build(),
+                        useTypes,
+                    )?.let {
                         saveAIMessage(it, extraKey, onComplete)
-                        setToIdle()
-                    }.onFailure {
-                        sendError(errorMessage)
-                        onError()
-                    }
+                    } ?: {
+                    onError()
+                }
+                setToIdle()
             }
         }
 
         private fun generateSuggestions() {
             viewModelScope.launch(Dispatchers.IO) {
                 if (user.value == null) return@launch
-                aiUseCase
-                    .generateResponse(
-                        buildPrompt {
-                            addPrompt(PromptConfig.SuggestionsConfig.description)
-                        },
-                        AISuggestions::class.java,
-                        specificReplacement = Pair("suggestions", "List<String>"),
-                    ).onSuccess {
-                        suggestions.value = it.suggestions
-                    }.onFailure {
-                        sendError("Erro ao processar sugestões :(, vamos tentar novamente.")
-                    }
-            }
-        }
-
-        private fun saveUser(userBody: NameBody) {
-            viewModelScope.launch(Dispatchers.IO) {
-                if (userBody.name.containsNull()) {
-                    sendError("Erro ao salvar usuário vamos tentar novamente :(")
-                }
-                userUseCase.saveUser(userBody.name)
-
-                handleCallBackSuccess(userBody.name, false, isUser = true, extraKey = null) {
-                    generateMessage(
-                        buildPrompt {
-                            addPrompt(PromptConfig.FeaturesExamples.description)
-                            addPrompt(humor.description)
-                        },
-                        useTypes = false,
-                        onComplete = {
-                            generateSuggestions()
-                        },
-                    )
-                }
-                val newUser = userUseCase.getUserByIdAsync()
-                user.emit(newUser)
+                val inputs = inputGenerator.generateInputs()
+                suggestions.emit(inputs)
             }
         }
 
@@ -263,142 +200,38 @@ class ChatViewModel
                     addPrompt(humor.description)
                 },
                 useTypes = false,
-                onComplete = {
-                    executeCallback(
-                        userMessage,
-                    )
-                },
+                onComplete = { executeCallback(userMessage) },
             )
         }
 
         private fun executeCallback(message: Message) {
             viewModelScope.launch {
-                aiUseCase
-                    .generateResponse(
-                        buildPrompt {
-                            addPrompt(PromptConfig.CallBackConfig(message.text).description)
-                            addPrompt(PromptConfig.ActionConfig.description)
-                        },
-                        AICallBack::class.java,
-                        requireTranslation = false,
-                        useContext = false,
-                    ).onSuccess {
-                        handleCallBack(it, message)
-                    }.onFailure {
-                        sendError("Erro ao processar mensagem :(, vamos tentar novamente.")
-                    }
+                val callBack = callbackExecutor.execute(message.text)
+                if (callBack == null) {
+                    sendError("Erro ao salvar as informações, vamos tentar novamente.")
+                    return@launch
+                } else {
+                    saveCallbackResult(callBack)
+                }
             }
         }
 
-        private fun handleCallBack(
-            callBack: AICallBack,
-            supportMessage: Message? = null,
-        ) {
-            viewModelScope.launch(Dispatchers.IO) {
-                aiUseCase
-                    .generateResponse(
-                        buildPrompt {
-                            supportMessage?.let {
-                                addPrompt(PromptConfig.MessageResourceConfig(it.text).description)
-                            }
-                            addPrompt(PromptConfig.FormatResponseConfig(callBack.value).description)
-                            addPrompt(PromptConfig.ExtractValuableDataConfig.description)
-                        },
-                        callBack.action.bodyClass(),
-                        requireTranslation = false,
-                        specificReplacement = Pair("tag", Tag.entries.joinToString("|")),
-                    ).onSuccess {
-                        if (it == null) {
-                            sendError("Erro ao processar mensagem :(, vamos tentar novamente.")
-                            return@onSuccess
-                        }
-                        when (callBack.action) {
-                            Action.NAME -> {
-                                saveUser(it as NameBody)
-                            }
-
-                            Action.PROFIT, Action.LOSS ->
-                                saveMovimentation(
-                                    it as Movimentation,
-                                    callBack.action,
-                                )
-
-                            Action.GOAL -> saveGoal(it as Goal)
-                            Action.NONE, Action.BALANCE ->
-                                saveAIMessage(
-                                    it as AIResponse,
-                                )
-                        }
-                    }.onFailure {
-                        sendError("Erro ao processar mensagem :(, vamos tentar novamente.")
-                    }
-            }
-        }
-
-        private fun completeGoal(goal: Goal) {
-            viewModelScope.launch(Dispatchers.IO) {
-                financeUseCase.updateGoal(
-                    goal.copy(
-                        isComplete = true,
-                        completedAt = Calendar.getInstance().timeInMillis,
-                    ),
-                )
-            }
-        }
-
-        private fun saveGoal(goal: Goal) {
-            viewModelScope.launch(Dispatchers.IO) {
-                try {
-                    val formattedGoal =
-                        goal.copy(
-                            id = 0,
-                            createdAt = Calendar.getInstance().timeInMillis,
-                            badge = TagHelper.getRandomBadgeForTag(goal.tag.findTag()),
-                        )
-                    val newGoal = financeUseCase.saveGoal(formattedGoal)
-
-                    handleCallBackSuccess(
-                        goal.toString(),
-                        true,
-                        extraKey = newGoal.toString(),
-                        onComplete = {
+        private fun saveCallbackResult(callBack: Pair<Action, Any>) {
+            viewModelScope.launch {
+                chatDataManager
+                    .saveData(callBack)
+                    .onSuccess {
+                        handleCallBackSuccess(
+                            callBack.second.toString(),
+                            isUser = callBack.first == Action.NAME,
+                            useTypes = callBack.first != Action.NAME,
+                            extraKey = it.toString(),
+                        ) {
                             generateSuggestions()
-                        },
-                    )
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    sendError("Ocorreu um erro ao salvar as informações, vamos tentar novamente.")
-                }
-            }
-        }
-
-        private fun saveMovimentation(
-            movimentation: Movimentation,
-            action: Action,
-        ) {
-            viewModelScope.launch(Dispatchers.IO) {
-                val validValue =
-                    if (action == Action.LOSS) {
-                        movimentation.value.unaryMinus()
-                    } else {
-                        movimentation.value.unaryPlus()
+                        }
+                    }.onFailure {
+                        sendError("Erro ao salvar as informações, vamos tentar novamente.")
                     }
-
-                val formattedMovimentation =
-                    movimentation.copy(
-                        id = 0,
-                        value = validValue,
-                        spendAt = Calendar.getInstance().timeInMillis,
-                    )
-                val newMovimentation = financeUseCase.saveMovimentation(formattedMovimentation)
-
-                handleCallBackSuccess(
-                    movimentation.promptDescription(),
-                    true,
-                    extraKey = newMovimentation.toString(),
-                ) {
-                    generateSuggestions()
-                }
             }
         }
 

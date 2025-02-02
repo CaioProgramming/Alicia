@@ -4,6 +4,8 @@ import com.ilustris.alicia.features.messages.data.datasource.MessageDao
 import com.ilustris.alicia.features.messages.data.datasource.MessageDaoImpl
 import com.ilustris.alicia.features.messages.data.repository.MessageRepositoryImpl
 import com.ilustris.alicia.features.messages.domain.repository.MessageRepository
+import com.ilustris.alicia.features.messages.domain.usecase.ChatDataManager
+import com.ilustris.alicia.features.messages.domain.usecase.ChatDataManagerImpl
 import com.ilustris.alicia.features.messages.domain.usecase.ChatUseCase
 import com.ilustris.alicia.features.messages.domain.usecase.ChatUseCaseImpl
 import dagger.Binds
@@ -22,4 +24,7 @@ abstract class MessagesModule {
 
     @Binds
     abstract fun bindMessageUseCase(messagesUseCaseImpl: ChatUseCaseImpl): ChatUseCase
+
+    @Binds
+    abstract fun bindsChatDataManager(chatDataManagerImpl: ChatDataManagerImpl): ChatDataManager
 }

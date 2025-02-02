@@ -3,5 +3,5 @@ package com.ilustris.alicia.ai.model
 enum class Prompts(
     val prompt: String,
 ) {
-    Greeting("Give me a greeting message to the user [username]"),
+    Greeting("Compose a friendly and welcoming greeting message to the user [username]"),
 }
