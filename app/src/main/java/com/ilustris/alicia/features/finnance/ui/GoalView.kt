@@ -19,6 +19,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -54,7 +55,7 @@ fun GoalScreen(navController: NavController) {
                 val avatar = getAvatars().last()
                 SheetInfo(
                     title = "Conheça a ${avatar.name}",
-                    description = "A ${avatar.name} está aqui para te ajudar a acompanhar suas metas, você pode clicar no ícone dela e ter uma visão melhor de todas as suas metas.",
+                    description = stringResource(R.string.goal_tutorial, avatar.name),
                     avatar = avatar,
                 ) {
                     scope.launch {
@@ -70,27 +71,6 @@ fun GoalScreen(navController: NavController) {
                         .fillMaxSize()
                         .background(toolbarColor(isSystemInDarkTheme())),
             ) {
-                IconButton(
-                    onClick = {
-                        navController.popBackStack()
-                    },
-                    colors = IconButtonDefaults.iconButtonColors(contentColor = MaterialTheme.colorScheme.onPrimary),
-                ) {
-                    Image(
-                        imageVector = ImageVector.vectorResource(id = R.drawable.round_chevron_left_24),
-                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground),
-                        contentDescription = "Voltar",
-                    )
-                }
-                Text(
-                    text = "Metas",
-                    modifier = Modifier.padding(16.dp),
-                    style =
-                        MaterialTheme.typography.headlineLarge.copy(
-                            color = MaterialTheme.colorScheme.onBackground,
-                            fontWeight = FontWeight.Black,
-                        ),
-                )
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(2),
                     horizontalArrangement = Arrangement.Center,

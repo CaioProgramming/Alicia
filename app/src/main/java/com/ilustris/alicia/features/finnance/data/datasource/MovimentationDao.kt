@@ -22,4 +22,7 @@ interface MovimentationDao {
 
     @Query("Select * from Movimentation ORDER BY spendAt DESC")
     fun getMovimentationsSync(): List<Movimentation>
+
+    @Query("DELETE FROM Movimentation WHERE id = :id")
+    fun deleteMovimentation(id: Long)
 }

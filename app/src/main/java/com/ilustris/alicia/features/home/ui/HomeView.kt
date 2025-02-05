@@ -1,5 +1,6 @@
 package com.ilustris.alicia.features.home.ui
 
+import ai.atick.material.MaterialColor
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,10 +21,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.ilustris.alicia.CHAT_SCREEN
-import com.ilustris.alicia.GOAL_SCREEN
 import com.ilustris.alicia.R
-import com.ilustris.alicia.STATEMENT_SCREEN
+import com.ilustris.alicia.core.navigation.Routes
 import com.ilustris.alicia.core.theme.AliciaTheme
 import com.ilustris.alicia.features.finnance.ui.StatementList
 import com.ilustris.alicia.features.home.domain.model.Avatar
@@ -44,10 +43,10 @@ fun MainScreen(navController: NavHostController) {
     ) {
         val avatars = ArrayList(getAvatars())
         if (goals.value.isEmpty()) {
-            avatars.remove(avatars.find { it.redirect == GOAL_SCREEN })
+            avatars.remove(avatars.find { it.redirect == Routes.GOAL.name })
         }
         if (movimentations.value.isEmpty()) {
-            avatars.remove(avatars.find { it.redirect == STATEMENT_SCREEN })
+            avatars.remove(avatars.find { it.redirect == Routes.STATEMENT.name })
         }
         user.value?.let {
             Text(
@@ -91,20 +90,20 @@ fun getAvatars() =
         Avatar(
             stringResource(R.string.history_girl_name),
             R.drawable.history_girl,
-            MaterialTheme.colorScheme.secondary,
-            STATEMENT_SCREEN,
+            MaterialColor.Purple700,
+            Routes.STATEMENT.name,
         ),
         Avatar(
             stringResource(id = R.string.app_name),
             R.drawable.pretty_girl,
             MaterialTheme.colorScheme.primary,
-            CHAT_SCREEN,
+            Routes.CHAT.name,
         ),
         Avatar(
             stringResource(R.string.goal_girl_name),
             R.drawable.goal_girl,
-            MaterialTheme.colorScheme.tertiary,
-            GOAL_SCREEN,
+            MaterialColor.Orange900,
+            Routes.GOAL.name,
         ),
     )
 

@@ -42,6 +42,8 @@ class FinanceUseCaseImpl
 
         override suspend fun saveMovimentation(movimentation: Movimentation) = finnanceRepository.saveMovimentation(movimentation)
 
+        override suspend fun deleteMovimentation(movimentation: Movimentation) = finnanceRepository.deleteMovimentation(movimentation)
+
         override suspend fun saveGoal(
             description: String,
             value: String,
@@ -83,6 +85,8 @@ class FinanceUseCaseImpl
                     emit(it.sumOf { movimentation -> movimentation.value })
                 }
             }
+
+        override fun getAmountSync(): Double = finnanceRepository.getMovimentationsSync().sumOf { movimentation -> movimentation.value }
 
         override fun getAllMovimentations(): Flow<List<MovimentationInfo>> =
             flow {

@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -56,7 +55,6 @@ import androidx.wear.compose.material.curvedText
 import com.ilustris.alicia.R
 import com.ilustris.alicia.core.theme.Flow
 import com.ilustris.alicia.core.theme.HexagonShape
-import com.ilustris.alicia.core.theme.NameHolderShape
 import com.ilustris.alicia.core.theme.Polygon
 import com.ilustris.alicia.core.theme.TriangleShape
 import com.ilustris.alicia.core.theme.backGroundBrush
@@ -375,7 +373,7 @@ fun HealthBadge(
 
     val textStyle =
         MaterialTheme.typography.bodyLarge.copy(
-            fontWeight = FontWeight.Black
+            fontWeight = FontWeight.Black,
         )
 
     val smallTextStyle =
@@ -390,49 +388,52 @@ fun HealthBadge(
     Box(
         modifier,
     ) {
-
         Column(
             horizontalAlignment = Alignment.Start,
-            modifier = Modifier
-            .offset(x = 20.dp, y = 20.dp)
-            .wrapContentSize()
-            .align(Alignment.TopStart)) {
+            modifier =
+                Modifier
+                    .offset(x = 20.dp, y = 20.dp)
+                    .wrapContentSize()
+                    .align(Alignment.TopStart),
+        ) {
             Text(
                 goal.name.uppercase(Locale.getDefault()),
-                style = textStyle.copy(
-                    fontStyle = FontStyle.Italic
-                ),
+                style =
+                    textStyle.copy(
+                        fontStyle = FontStyle.Italic,
+                    ),
                 maxLines = 1,
                 textAlign = TextAlign.Start,
-                modifier = Modifier
-                    .wrapContentSize()
-                .background(mainColor)
-                    .padding(vertical = 8.dp, horizontal = 24.dp),
+                modifier =
+                    Modifier
+                        .wrapContentSize()
+                        .background(mainColor)
+                        .padding(vertical = 8.dp, horizontal = 24.dp),
             )
             Text(
                 tag.description,
-                style = smallTextStyle.copy(
-                    fontStyle = FontStyle.Italic
-                ),
+                style =
+                    smallTextStyle.copy(
+                        fontStyle = FontStyle.Italic,
+                    ),
                 maxLines = 1,
                 textAlign = TextAlign.Start,
-                modifier = Modifier
-                    .align(Alignment.End)
-                    .wrapContentSize()
-                    .background(mainColor)
-                    .padding(vertical = 4.dp, horizontal = 24.dp),
+                modifier =
+                    Modifier
+                        .align(Alignment.End)
+                        .wrapContentSize()
+                        .background(mainColor)
+                        .padding(vertical = 4.dp, horizontal = 24.dp),
             )
         }
-
 
         Image(
             painter = painterResource(id = icon),
             contentDescription = goal.name,
             contentScale = ContentScale.Fit,
             colorFilter = ColorFilter.tint(mainColor),
-            modifier = Modifier.align(Alignment.CenterEnd).offset(x = 25.dp)
+            modifier = Modifier.align(Alignment.CenterEnd).offset(x = 25.dp),
         )
-
     }
 }
 
@@ -1036,15 +1037,13 @@ fun PartyBadge(
     isAnimated: Boolean,
     modifier: Modifier,
 ) {
-
-    fun fillIconResource(index: Int): Int {
-       return when (index) {
+    fun fillIconResource(index: Int): Int =
+        when (index) {
             0 -> R.drawable.party_badge_1_fill
             1 -> R.drawable.party_badge_2_fill
             2 -> R.drawable.party_badge_3_fill
             else -> R.drawable.ic_round_star_24
         }
-    }
 
     val tag =
         remember {
@@ -1061,9 +1060,10 @@ fun PartyBadge(
             TagHelper.findBadgeResource(goal.badge, tag)
         }
 
-    val fillIcon = remember {
-        fillIconResource(goal.badge)
-    }
+    val fillIcon =
+        remember {
+            fillIconResource(goal.badge)
+        }
 
     val mainColor =
         remember {
@@ -1089,7 +1089,6 @@ fun PartyBadge(
         remember { Alignment.BottomCenter }
 
     Box(modifier) {
-
         if (showText) {
             CurvedLayout(modifier = Modifier.gradientFill(brush)) {
                 curvedText(
@@ -1123,16 +1122,14 @@ fun PartyBadge(
         Image(
             painterResource(tag.icon),
             contentDescription = null,
-            modifier = Modifier.align(Alignment.CenterEnd).size(20.dp).gradientFill(brush)
+            modifier = Modifier.align(Alignment.CenterEnd).size(20.dp).gradientFill(brush),
         )
 
         Image(
             painterResource(tag.icon),
             contentDescription = null,
-            modifier = Modifier.align(Alignment.CenterStart).size(20.dp).gradientFill(brush)
+            modifier = Modifier.align(Alignment.CenterStart).size(20.dp).gradientFill(brush),
         )
-
-
     }
 }
 
@@ -1143,38 +1140,42 @@ fun TravelBadge(
     isAnimated: Boolean,
     modifier: Modifier,
 ) {
-
-    val tag = remember {
-        goal.tag.findTag()
-    }
+    val tag =
+        remember {
+            goal.tag.findTag()
+        }
     val brush = tag.tagGradient(isAnimated)
 
-    val icon = remember {
-        TagHelper.findBadgeResource(goal.badge, tag)
-    }
+    val icon =
+        remember {
+            TagHelper.findBadgeResource(goal.badge, tag)
+        }
 
-    val mainColor = remember {
-        tag.colors.last()
-    }
+    val mainColor =
+        remember {
+            tag.colors.last()
+        }
 
-    val textStyle = MaterialTheme.typography.displaySmall.copy(
-        fontWeight = FontWeight.Black,
-        letterSpacing = 2.sp,
-        fontFamily =
-        FontFamily(
-            Font(R.font.lobster_regular, FontWeight.Normal),
+    val textStyle =
+        MaterialTheme.typography.displaySmall.copy(
+            fontWeight = FontWeight.Black,
+            letterSpacing = 2.sp,
+            fontFamily =
+                FontFamily(
+                    Font(R.font.lobster_regular, FontWeight.Normal),
+                ),
         )
-    )
 
     Box(modifier) {
-        Box(Modifier
-            .border(2.dp, MaterialTheme.colorScheme.onBackground, CircleShape)
-            .padding(2.dp)
-            .border(3.dp, brush, CircleShape)
-            .fillMaxSize(.85f)
-            .align(Alignment.Center)
-            .clip(CircleShape)) {
-
+        Box(
+            Modifier
+                .border(2.dp, MaterialTheme.colorScheme.onBackground, CircleShape)
+                .padding(2.dp)
+                .border(3.dp, brush, CircleShape)
+                .fillMaxSize(.85f)
+                .align(Alignment.Center)
+                .clip(CircleShape),
+        ) {
             Image(
                 painter = painterResource(icon),
                 contentDescription = goal.name,
@@ -1183,29 +1184,34 @@ fun TravelBadge(
             )
 
             AnimatedVisibility(showText, Modifier.align(Alignment.BottomCenter)) {
-
                 Text(
                     tag.description.uppercase(Locale.getDefault()),
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = .6f),
-                        letterSpacing = 3.sp
-                    ),
+                    style =
+                        MaterialTheme.typography.bodyMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onBackground.copy(alpha = .6f),
+                            letterSpacing = 3.sp,
+                        ),
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                        .background(brush = Brush.verticalGradient(
-                            colors = listOf(
-                                mainColor.copy(0f),
-                                mainColor.copy(.3f),
-                                mainColor.copy(.6f),
-                                mainColor.copy(.7f),
-                                mainColor
-                            )
-                        ))
-                        .padding(16.dp))
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .background(
+                                brush =
+                                    Brush.verticalGradient(
+                                        colors =
+                                            listOf(
+                                                mainColor.copy(0f),
+                                                mainColor.copy(.3f),
+                                                mainColor.copy(.6f),
+                                                mainColor.copy(.7f),
+                                                mainColor,
+                                            ),
+                                    ),
+                            ).padding(16.dp),
+                )
             }
         }
-
 
         val textScale = 1.6f
         val textModifier = Modifier.align(Alignment.Center).scale(textScale).rotate(-15f)
@@ -1216,7 +1222,7 @@ fun TravelBadge(
                 maxLines = 1,
                 style = textStyle.copy(brush = brush),
                 textAlign = TextAlign.Center,
-                modifier = textModifier.gradientFill(brush).offset((-2).dp, 3.dp)
+                modifier = textModifier.gradientFill(brush).offset((-2).dp, 3.dp),
             )
 
             Text(
@@ -1224,15 +1230,11 @@ fun TravelBadge(
                 maxLines = 1,
                 style = textStyle,
                 textAlign = TextAlign.Center,
-                modifier = textModifier
+                modifier = textModifier,
             )
         }
-
-
-
     }
 }
-
 
 @Composable
 fun ShoppingBadge(
@@ -1265,8 +1267,8 @@ fun ShoppingBadge(
     val textStyle =
         MaterialTheme.typography.headlineLarge.copy(
             letterSpacing = 0.sp,
-            fontFamily = FontFamily(Font(R.font.flexi_goo_regular, FontWeight.Normal)),
-            color = tag.textColor
+            fontFamily = FontFamily(Font(R.font.delta_phoenix, FontWeight.Normal)),
+            color = tag.textColor,
         )
 
     val smallTextStyle =
@@ -1301,21 +1303,22 @@ fun ShoppingBadge(
                     .fillMaxSize(.75f),
         )
 
-
         Text(
-                goal.name.uppercase(Locale.getDefault()),
-                style = textStyle.copy(
-                    shadow = Shadow(
-                        color = MaterialTheme.colorScheme.onBackground,
-                        offset = Offset(5f, 5f),
-                        blurRadius = 0f
-                    )
+            goal.name.uppercase(Locale.getDefault()),
+            style =
+                textStyle.copy(
+                    shadow =
+                        Shadow(
+                            color = MaterialTheme.colorScheme.onBackground,
+                            offset = Offset(5f, 5f),
+                            blurRadius = 0f,
+                        ),
                 ),
-                textAlign = TextAlign.Center,
-                maxLines = 2,
-                modifier =
-                    Modifier.align(Alignment.Center),
-            )
+            textAlign = TextAlign.Center,
+            maxLines = 2,
+            modifier =
+                Modifier.align(Alignment.Center),
+        )
     }
 }
 
@@ -1326,13 +1329,10 @@ fun GameBadge(
     isAnimated: Boolean,
     modifier: Modifier,
 ) {
-
     val tag =
         remember {
             goal.tag.findTag()
         }
-
-
 
     val icon =
         remember {
@@ -1347,39 +1347,43 @@ fun GameBadge(
 
     val shape = TriangleShape(true)
 
-    val textStyle = MaterialTheme.typography.displaySmall.copy(
-        color = MaterialTheme.colorScheme.background,
-        fontFamily =
-        FontFamily(
-            Font(R.font.corporate_games, FontWeight.Normal),
+    val textStyle =
+        MaterialTheme.typography.displaySmall.copy(
+            color = MaterialTheme.colorScheme.background,
+            fontFamily =
+                FontFamily(
+                    Font(R.font.corporate_games, FontWeight.Normal),
+                ),
         )
-    )
 
     Box(modifier) {
-
-
         Image(
             painter = painterResource(id = icon),
-            contentDescription =  null,
+            contentDescription = null,
             contentScale = ContentScale.Crop,
             colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground),
-            modifier = Modifier.padding(16.dp).fillMaxSize().align(Alignment.Center).offset(2.dp, 4.dp)
+            modifier =
+                Modifier
+                    .padding(16.dp)
+                    .fillMaxSize()
+                    .align(Alignment.Center)
+                    .offset(2.dp, 4.dp),
         )
 
-        Box(Modifier
-            .fillMaxWidth()
-            .fillMaxHeight(.7f)
-            .background(brush, shape)
-            .border(2.dp, MaterialTheme.colorScheme.onBackground, shape)
-            .align(Alignment.BottomCenter)
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(.7f)
+                .background(brush, shape)
+                .border(2.dp, MaterialTheme.colorScheme.onBackground, shape)
+                .align(Alignment.BottomCenter),
         )
-
 
         Image(
             painter = painterResource(id = icon),
             contentDescription = goal.name,
             contentScale = ContentScale.Crop,
-            modifier = Modifier.padding(16.dp).fillMaxSize().align(Alignment.Center)
+            modifier = Modifier.padding(16.dp).fillMaxSize().align(Alignment.Center),
         )
 
         Text(
@@ -1388,24 +1392,24 @@ fun GameBadge(
             color = MaterialTheme.colorScheme.onBackground,
             maxLines = 1,
             textAlign = TextAlign.Start,
-            modifier = Modifier.align(Alignment.BottomCenter)
+            modifier = Modifier.align(Alignment.BottomCenter),
         )
         Text(
             tag.description.uppercase(Locale.getDefault()),
-            style = textStyle.copy(
-
-                shadow = Shadow(
-                    color = tag.colors.first(),
-                    offset = Offset(2f, 5f),
-                    blurRadius = 0f,
-                )),
+            style =
+                textStyle.copy(
+                    shadow =
+                        Shadow(
+                            color = tag.colors.first(),
+                            offset = Offset(2f, 5f),
+                            blurRadius = 0f,
+                        ),
+                ),
             maxLines = 1,
             textAlign = TextAlign.Start,
-            modifier = Modifier.align(Alignment.BottomCenter).offset(x = (-2).dp)
+            modifier = Modifier.align(Alignment.BottomCenter).offset(x = (-2).dp),
         )
     }
-
-
 }
 
 @Composable
@@ -1466,9 +1470,9 @@ fun DefaultBadge(
                     .fillMaxSize()
                     .padding(16.dp)
                     .background(
-                        tag.colors.first(), CircleShape
+                        tag.colors.first(),
+                        CircleShape,
                     ).border(1.dp, brush, CircleShape),
         )
-
     }
 }

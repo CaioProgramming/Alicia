@@ -26,4 +26,6 @@ interface FinnanceRepository {
     fun saveGoal(goal: Goal): Long
 
     fun updateGoal(goal: Goal)
+
+    fun deleteMovimentation(movimentation: Movimentation)
 }

@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import com.ilustris.alicia.R
 import com.ilustris.alicia.core.theme.themeBrush
 import com.ilustris.alicia.features.messages.data.model.Message
+import com.ilustris.alicia.features.messages.data.model.Type
 import com.ilustris.alicia.features.messages.domain.model.MessageGroup
 import com.ilustris.alicia.features.messages.ui.components.MessageBubble
 
@@ -36,7 +37,8 @@ fun MessagesList(
     modifier: Modifier,
     listState: LazyListState,
     brush: Brush = themeBrush(),
-    onOpenMessage: (Message) -> Unit,
+    onOpenMessage: (Message) -> Unit = {},
+    onOpenAttachment: (Type) -> Unit = {},
 ) {
     LazyColumn(
         reverseLayout = true,
@@ -47,9 +49,9 @@ fun MessagesList(
             items(it.messages, key = { m -> m.id }) {
                 MessageBubble(
                     it,
-                    brushBackground = brush,
                     modifier = Modifier.animateItemPlacement(),
                     openMessage = onOpenMessage,
+                    openAttachment = onOpenAttachment,
                 )
             }
 

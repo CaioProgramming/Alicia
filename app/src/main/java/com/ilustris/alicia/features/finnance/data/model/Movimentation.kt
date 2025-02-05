@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 @Entity
 data class Movimentation(
     @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
+    val id: Long = 0,
     var value: Double,
     val description: String?,
     val tag: String? = Tag.UNKNOWN.name,

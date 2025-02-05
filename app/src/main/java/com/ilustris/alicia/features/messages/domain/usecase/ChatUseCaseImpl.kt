@@ -13,7 +13,6 @@ import com.ilustris.alicia.features.messages.domain.repository.MessageRepository
 import com.ilustris.alicia.utils.DateFormats
 import com.ilustris.alicia.utils.format
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.lastOrNull
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
@@ -78,7 +77,7 @@ class ChatUseCaseImpl
                         return financeUseCase.getGoalByIdSync(key.toLong())
                     }
                     Type.BALANCE -> {
-                        return financeUseCase.getAmount().lastOrNull()
+                        return financeUseCase.getAmountSync()
                     }
                     else -> return null
                 }

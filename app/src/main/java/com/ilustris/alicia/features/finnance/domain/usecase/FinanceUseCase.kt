@@ -20,11 +20,15 @@ interface FinanceUseCase {
 
     suspend fun saveMovimentation(movimentation: Movimentation): Long
 
+    suspend fun deleteMovimentation(movimentation: Movimentation)
+
     fun getProfit(): Flow<List<MovimentationInfo>>
 
     fun getLoss(): Flow<List<MovimentationInfo>>
 
     fun getAmount(): Flow<Double>
+
+    fun getAmountSync(): Double
 
     fun getAllMovimentations(): Flow<List<MovimentationInfo>>
 

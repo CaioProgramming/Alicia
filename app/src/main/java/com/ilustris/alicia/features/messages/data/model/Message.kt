@@ -3,6 +3,7 @@ package com.ilustris.alicia.features.messages.data.model
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
+import com.ilustris.alicia.core.navigation.Routes
 import java.util.Calendar
 
 @Entity
@@ -34,9 +35,11 @@ enum class Sender {
     BOT,
 }
 
-enum class Type {
-    MOVIMENTATION,
-    GOAL,
-    BALANCE,
-    HISTORY,
+enum class Type(
+    val route: String,
+) {
+    MOVIMENTATION(Routes.STATEMENT.name),
+    GOAL(Routes.GOAL.name),
+    BALANCE(Routes.STATEMENT.name),
+    HISTORY(Routes.STATEMENT.name),
 }

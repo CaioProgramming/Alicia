@@ -14,12 +14,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ilustris.alicia.R
 import com.ilustris.alicia.core.theme.AliciaTheme
-import com.ilustris.alicia.core.theme.themeBrush
 import com.ilustris.alicia.features.finnance.data.model.Goal
 import com.ilustris.alicia.features.finnance.data.model.Movimentation
 import com.ilustris.alicia.features.finnance.data.model.Tag
@@ -40,11 +39,12 @@ import java.util.*
 fun MessageBubble(
     message: Message,
     modifier: Modifier,
-    brushBackground: Brush = themeBrush(),
     openMessage: (Message) -> Unit,
+    openAttachment: (Type) -> Unit = {},
 ) {
     @Composable
     fun viewForExtraData(
+        modifier: Modifier = Modifier,
         type: Type?,
         data: Any?,
     ) {
@@ -55,7 +55,7 @@ fun MessageBubble(
                         movimentation = data as Movimentation,
                         showDivider = false,
                         modifier =
-                            Modifier
+                            modifier
                                 .padding(8.dp)
                                 .background(
                                     MaterialTheme.colorScheme.primaryContainer.copy(alpha = .4f),
@@ -67,11 +67,12 @@ fun MessageBubble(
                         goal = data as Goal,
                         showText = true,
                         isAnimated = true,
-                        Modifier.size(200.dp),
+                        modifier.size(200.dp),
                     )
                 Type.BALANCE ->
                     AmountComponent(
                         amount = data as Double,
+                        modifier = modifier,
                     )
                 Type.HISTORY ->
                     MovimentationHorizontalList(
@@ -123,18 +124,18 @@ fun MessageBubble(
             modifier =
                 Modifier
                     .padding(4.dp)
-                    .border(
+                    .clip(shape)
+                    .clickable {
+                        showDate.value = !showDate.value
+                        openMessage(message)
+                    }.border(
                         1.dp,
                         MaterialTheme.colorScheme.onBackground.copy(alpha = .1f),
                         shape,
                     ).background(
                         color = color,
                         shape = shape,
-                    ).padding(16.dp)
-                    .clickable {
-                        showDate.value = !showDate.value
-                        openMessage(message)
-                    },
+                    ).padding(16.dp),
         )
 
         AnimatedVisibility(visible = showDate.value) {
@@ -152,7 +153,17 @@ fun MessageBubble(
         }
 
         extraDataObject?.let {
-            viewForExtraData(message.findType(), it)
+            viewForExtraData(
+                modifier =
+                    Modifier
+                        .padding(8.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .clickable {
+                            message.findType()?.let { type -> openAttachment(type) }
+                        },
+                type = message.findType(),
+                data = it,
+            )
         }
     }
 }

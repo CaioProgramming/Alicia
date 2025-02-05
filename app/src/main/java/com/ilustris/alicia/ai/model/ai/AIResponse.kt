@@ -8,7 +8,6 @@ data class AIResponse(
 )
 
 data class AICallBack(
-    val value: String,
     val action: Action,
 )
 

@@ -24,4 +24,5 @@ class MovimentationDaoImpl
         override fun getMovimentationByIdSync(id: Long): Movimentation = database.movimentationDao().getMovimentationByIdSync(id)
 
         override fun getMovimentationsSync(): List<Movimentation> = database.movimentationDao().getMovimentationsSync()
-    }
+    override fun deleteMovimentation(id: Long) = database.movimentationDao().deleteMovimentation(id)
+}

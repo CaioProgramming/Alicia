@@ -17,8 +17,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ilustris.alicia.CHAT_SCREEN
 import com.ilustris.alicia.R
+import com.ilustris.alicia.core.navigation.Routes
 import com.ilustris.alicia.core.theme.AliciaTheme
 import com.ilustris.alicia.features.home.domain.model.Avatar
 
@@ -39,10 +39,10 @@ fun AvatarProfile(
             contentScale = ContentScale.Crop,
             modifier =
                 Modifier
-                    .padding(8.dp)
+                    .padding(4.dp)
                     .size(75.dp)
                     .background(color = avatar.backColor, CircleShape)
-                    .padding(4.dp)
+                    .padding(12.dp)
                     .clickable(enabled = enabled) {
                         onSelectChat(avatar.redirect)
                     },
@@ -70,7 +70,7 @@ fun AvatarPreview() {
                     stringResource(id = R.string.app_name),
                     R.drawable.pretty_girl,
                     MaterialTheme.colorScheme.primary,
-                    CHAT_SCREEN,
+                    Routes.CHAT.name,
                 ),
                 true,
             ) {

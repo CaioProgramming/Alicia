@@ -11,7 +11,7 @@ import com.ilustris.alicia.features.messages.data.model.Message
 import com.ilustris.alicia.features.user.data.datasource.UserDao
 import com.ilustris.alicia.features.user.data.model.User
 
-@Database(entities = [User::class, Goal::class, Message::class, Movimentation::class], version = 15)
+@Database(entities = [User::class, Goal::class, Message::class, Movimentation::class], version = 16)
 abstract class AliciaDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao
 

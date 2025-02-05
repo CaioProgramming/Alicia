@@ -10,12 +10,12 @@ sealed class PromptConfig(
         val body: String,
     ) : PromptConfig("Make sure the response is a JSON object with the following structure:$body")
 
-    object KeepStructure : PromptConfig("Note: Keep the JSON property names. Do not translate them")
+    object KeepStructure : PromptConfig("Note: Keep the JSON property names. Do not translate them. Do not comment on structure")
 
     data class CallBackConfig(
         val message: String,
     ) : PromptConfig(
-            "return a callback for this message \"$message\"",
+            "Choose an action to app perform for this message: \"$message\"",
         )
 
     data class ReplyConfig(
@@ -28,11 +28,13 @@ sealed class PromptConfig(
     data class CallBackSuccessConfig(
         val data: String,
     ) : PromptConfig(
-            "react that \"$data\" have been saved.",
+            "Send a message saying that \"$data\" have been saved successfully" +
+                "Don't expose the data, extract the key information and return a human-readable message",
         )
 
     object ActionConfig : PromptConfig(
-        "Define a action and a value for this message",
+        "You have theses actions to choose:\n" +
+            Action.entries.joinToString(".\n-") { it.name },
     )
 
     object SuggestionsConfig : PromptConfig(
@@ -67,7 +69,7 @@ sealed class PromptConfig(
     data class FormatResponseConfig(
         val value: String,
     ) : PromptConfig(
-            "Format this data \"value\": \"$value\".",
+            "map this message: \"$value\"",
         )
 
     data class HumorConfig(
@@ -91,27 +93,21 @@ sealed class PromptConfig(
         )
 
     object ExtractValuableDataConfig : PromptConfig(
-        "Extract valuable data like the description, the value and the possible tags from the message",
+        "Extract key values the possible tags from the message",
+    )
+
+    object FeaturesExamples : PromptConfig(
+        "Tell the user about what he can do in the app like: " +
+            "You can add a new expense, check your balance, or set a new goal.",
     )
 }
 
 enum class Humors(
     val description: String = emptyString(),
 ) {
-    ANGRY("Respond in an annoyed, frustrated tone, as if everything is the worst."),
-    BORED("Respond in a disinterested, uninterested tone, like you're over it."),
     SARCASTIC("Respond with heavy sarcasm, making it clear you're not taking things seriously."),
-    IRONIC("Respond with a tone of ironic appreciation, subtly showing the opposite of what you mean."),
     SASSY("Respond with a sharp, cutting tone, as if you're too cool for this."),
-    SNARKY("Respond with a tone of mocking or cynical humor, as if you're making fun of the situation."),
-    DRAMATIC("Respond with an exaggerated, over-the-top tone, as if everything is a big deal."),
-    IMPATIENT("Respond with a hurried, irritated tone, as if you can't wait for this to be over."),
-    JUDGMENTAL("Respond with a critical, disapproving tone, as if you're looking down on the situation."),
-    WHINY("Respond with a complaining, high-pitched tone, as if you're not happy with anything."),
-    ENTHUSIASTIC("Respond with an overly excited, eager tone, as if everything is amazing."),
-    GOSSIPY("Respond with a tone of sharing juicy details, as if you're spilling the tea."),
     FLIRTY("Respond with a playful, teasing tone, as if you're trying to charm the other person."),
-    INDIFFERENT("Respond with a tone of complete lack of interest, as if you couldn't care less."),
 }
 
 class PromptBuilder {

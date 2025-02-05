@@ -1,5 +1,6 @@
 package com.ilustris.alicia.features.messages.presentation
 
+import ai.atick.material.MaterialColor
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -55,7 +56,6 @@ class ChatViewModel
             }
         }
 
-        val humor = PromptConfig.HumorConfig()
         val messages = MutableStateFlow<List<MessageGroup>>(emptyList())
         val suggestions = MutableStateFlow<List<String>>(emptyList())
         val user = MutableStateFlow<User?>(null)
@@ -78,7 +78,17 @@ class ChatViewModel
 
         private fun sendError(text: String? = null) {
             viewModelScope.launch(Dispatchers.IO) {
-                state.emit(ChatState.Error(text))
+                state.emit(ChatState.Notification(text))
+
+                delay(10.seconds)
+
+                state.emit(ChatState.Idle)
+            }
+        }
+
+        private fun sendNotification(text: String? = null) {
+            viewModelScope.launch(Dispatchers.IO) {
+                state.emit(ChatState.Notification(text, MaterialColor.Blue300))
 
                 delay(10.seconds)
 
@@ -107,7 +117,7 @@ class ChatViewModel
             promptBuilder: PromptBuilder,
             extraKey: String? = null,
             useTypes: Boolean,
-            errorMessage: String? = null,
+            humorEnabled: Boolean = true,
             onComplete: ((Message) -> Unit)? = null,
             onError: () -> Unit = { sendError() },
         ) {
@@ -116,20 +126,22 @@ class ChatViewModel
                     .generateMessage(
                         promptBuilder.build(),
                         useTypes,
+                        humorEnabled,
                     )?.let {
                         saveAIMessage(it, extraKey, onComplete)
-                    } ?: {
+                    } ?: run {
                     onError()
                 }
-                setToIdle()
             }
         }
 
         private fun generateSuggestions() {
             viewModelScope.launch(Dispatchers.IO) {
                 if (user.value == null) return@launch
-                val inputs = inputGenerator.generateInputs()
-                suggestions.emit(inputs)
+                if (suggestions.value.isEmpty()) {
+                    val inputs = inputGenerator.generateInputs()
+                    suggestions.emit(inputs)
+                }
             }
         }
 
@@ -147,11 +159,11 @@ class ChatViewModel
                     } else {
                         addPrompt(Prompts.Greeting.prompt.replace("[username]", value))
                     }
-                    addPrompt(humor.description)
                 },
                 extraKey = extraKey,
                 onComplete = onComplete,
                 useTypes = useTypes,
+                humorEnabled = false,
                 onError = {
                     generateMessage(
                         buildPrompt {
@@ -162,7 +174,6 @@ class ChatViewModel
                                             " but the data was saved successfully",
                                     ).description,
                             )
-                            addPrompt(humor.description)
                         },
                         useTypes = false,
                     )
@@ -197,7 +208,6 @@ class ChatViewModel
             generateMessage(
                 buildPrompt {
                     addPrompt(PromptConfig.ReplyConfig(userMessage.text, it.name).description)
-                    addPrompt(humor.description)
                 },
                 useTypes = false,
                 onComplete = { executeCallback(userMessage) },
@@ -217,17 +227,34 @@ class ChatViewModel
         }
 
         private fun saveCallbackResult(callBack: Pair<Action, Any>) {
-            viewModelScope.launch {
+            viewModelScope.launch(Dispatchers.IO) {
                 chatDataManager
                     .saveData(callBack)
                     .onSuccess {
-                        handleCallBackSuccess(
-                            callBack.second.toString(),
-                            isUser = callBack.first == Action.NAME,
-                            useTypes = callBack.first != Action.NAME,
-                            extraKey = it.toString(),
-                        ) {
-                            generateSuggestions()
+                        sendNotification("Informações salvas com sucesso!")
+                        if (callBack.second is AIResponse) {
+                            saveAIMessage(
+                                (callBack.second as AIResponse).copy(type = callBack.first.name),
+                            )
+                        } else {
+                            handleCallBackSuccess(
+                                callBack.second.toString(),
+                                isUser = callBack.first == Action.NAME,
+                                useTypes = callBack.first != Action.NAME,
+                                extraKey = it.toString(),
+                            ) {
+                                if (callBack.first == Action.NAME) {
+                                    generateMessage(
+                                        buildPrompt {
+                                            addPrompt(PromptConfig.FeaturesExamples.description)
+                                        },
+                                        useTypes = false,
+                                        humorEnabled = false,
+                                    )
+                                    getUser()
+                                }
+                                generateSuggestions()
+                            }
                         }
                     }.onFailure {
                         sendError("Erro ao salvar as informações, vamos tentar novamente.")
@@ -257,12 +284,14 @@ class ChatViewModel
                                 addPrompt(PromptConfig.AIntroduction.description)
                             },
                             useTypes = false,
+                            humorEnabled = false,
                             onComplete = {
                                 generateMessage(
                                     buildPrompt {
                                         addPrompt(PromptConfig.NameConfig.description)
                                     },
                                     useTypes = false,
+                                    humorEnabled = false,
                                 )
                             },
                         )
@@ -273,7 +302,6 @@ class ChatViewModel
                         generateMessage(
                             buildPrompt {
                                 addPrompt(prompt)
-                                addPrompt(humor.description)
                             },
                             useTypes = false,
                         )

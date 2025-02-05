@@ -12,6 +12,7 @@ class InputGeneratorImpl
         private val aiUseCase: AIUseCase,
     ) : InputGenerator {
         override suspend fun generateInputs(): List<String> {
+            return emptyList()
             val suggestionsResponse =
                 aiUseCase
                     .generateResponse(
@@ -22,10 +23,10 @@ class InputGeneratorImpl
                         specificReplacement = Pair("suggestions", "List<String>"),
                     )
 
-            if (suggestionsResponse.isFailure()) {
-                return emptyList()
+            return if (suggestionsResponse.isFailure()) {
+                emptyList()
             } else {
-                return suggestionsResponse.success.value.suggestions
+                suggestionsResponse.success.value.suggestions
             }
         }
     }

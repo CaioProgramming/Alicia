@@ -39,7 +39,6 @@ import androidx.compose.material.SnackbarHost
 import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Send
-import androidx.compose.material.icons.rounded.KeyboardArrowLeft
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
@@ -49,8 +48,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -86,6 +83,7 @@ import com.ilustris.alicia.core.theme.aliciaBrush
 import com.ilustris.alicia.core.theme.aliciaColors
 import com.ilustris.alicia.features.messages.data.model.Message
 import com.ilustris.alicia.features.messages.data.model.Sender
+import com.ilustris.alicia.features.messages.data.model.Type
 import com.ilustris.alicia.features.messages.domain.model.Action
 import com.ilustris.alicia.features.messages.domain.model.MessageGroup
 import com.ilustris.alicia.features.messages.presentation.ChatAction
@@ -185,7 +183,7 @@ fun ChatView(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
             ChatInput(
-                suggestions,
+                suggestions ?: emptyList(),
                 onDone = onSendMessage,
                 state = state,
                 brush = loadingBrush,
@@ -204,9 +202,18 @@ fun ChatView(
                 Modifier
                     .padding(it)
                     .fillMaxSize(),
-            brush = loadingBrush,
-        ) { }
+            onOpenAttachment = {
+                openAttachment(navController, it)
+            },
+        )
     }
+}
+
+fun openAttachment(
+    navController: NavHostController,
+    type: Type,
+) {
+    navController.navigate(type.route)
 }
 
 @Composable
@@ -225,8 +232,8 @@ fun ChatInput(
 
     val backgroundColor =
         animateColorAsState(
-            if (state is ChatState.Error) {
-                Color.Red.copy(alpha = .60f)
+            if (state is ChatState.Notification) {
+                state.backgroundColor.copy(alpha = .60f)
             } else {
                 MaterialTheme.colorScheme.surface
             },
@@ -374,14 +381,14 @@ fun ChatInput(
         }
 
         AnimatedVisibility(
-            state is ChatState.Error,
+            state is ChatState.Notification,
             modifier =
                 Modifier
                     .wrapContentSize()
                     .padding(16.dp),
         ) {
             Text(
-                (state as? ChatState.Error)?.message ?: stringResource(R.string.default_error),
+                (state as? ChatState.Notification)?.message ?: stringResource(R.string.default_error),
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color.White,
                 modifier = Modifier.fillMaxWidth(),
@@ -463,6 +470,3 @@ fun DefaultPreview() {
         ) {}
     }
 }
-
-val COLLAPSED_TOP_BAR_HEIGHT = 70.dp
-val EXPANDED_TOP_BAR_HEIGHT = 170.dp

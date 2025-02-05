@@ -35,4 +35,6 @@ class FinnanceRepositoryImpl
         override fun saveGoal(goal: Goal): Long = goalDao.saveGoal(goal)
 
         override fun updateGoal(goal: Goal) = goalDao.updateGoal(goal)
+
+        override fun deleteMovimentation(movimentation: Movimentation) = movimentationDao.deleteMovimentation(movimentation.id)
     }

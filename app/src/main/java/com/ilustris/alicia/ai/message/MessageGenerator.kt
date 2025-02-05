@@ -11,5 +11,6 @@ interface MessageGenerator {
     suspend fun generateMessage(
         prompt: String,
         useTypes: Boolean,
+        humorEnabled: Boolean,
     ): AIResponse?
 }

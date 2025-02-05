@@ -37,16 +37,13 @@ class CallbackExecutorImpl
 
         private suspend fun handleCallBack(
             callBack: AICallBack,
-            supportMessage: String? = null,
+            supportMessage: String,
         ): Pair<Action, Any>? {
             val callBackData =
                 aiUseCase
                     .generateResponse(
                         buildPrompt {
-                            supportMessage?.let {
-                                addPrompt(PromptConfig.MessageResourceConfig(it).description)
-                            }
-                            addPrompt(PromptConfig.FormatResponseConfig(callBack.value).description)
+                            addPrompt(PromptConfig.FormatResponseConfig(supportMessage).description)
                             addPrompt(PromptConfig.ExtractValuableDataConfig.description)
                         },
                         callBack.action.bodyClass(),

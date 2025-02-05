@@ -7,26 +7,24 @@ import androidx.activity.compose.setContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowLeft
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.ilustris.alicia.core.navigation.Routes
 import com.ilustris.alicia.core.theme.AliciaTheme
-import com.ilustris.alicia.features.finnance.ui.GoalScreen
-import com.ilustris.alicia.features.finnance.ui.StatementScreen
-import com.ilustris.alicia.features.home.ui.MainScreen
-import com.ilustris.alicia.features.messages.ui.ChatScreen
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -37,14 +35,22 @@ class MainActivity : ComponentActivity() {
         setContent {
             AliciaTheme {
                 val navController = rememberNavController()
-                val currentDestination = navController.currentDestination?.route
-                val backStackEntry by navController.currentBackStackEntryFlow.collectAsState(null)
+
+                val currentRoute by navController.currentBackStackEntryFlow.collectAsState(initial = navController.currentBackStackEntry)
+                val currentNavRoute =
+                    remember(currentRoute) {
+                        currentRoute?.destination?.route?.let { Routes.valueOf(it) } ?: Routes.HOME
+                    }
+
                 Scaffold(topBar = {
                     TopAppBar(
-                        backgroundColor = MaterialTheme.colors.surface,
+                        backgroundColor = MaterialTheme.colorScheme.background,
                         elevation = 1.dp,
                         title = {
-                            Text(stringResource(R.string.app_name), color = MaterialTheme.colors.onBackground)
+                            Text(
+                                stringResource(currentNavRoute.title),
+                                color = MaterialTheme.colorScheme.onBackground,
+                            )
                         },
                         navigationIcon = {
                             IconButton(onClick = {
@@ -53,7 +59,7 @@ class MainActivity : ComponentActivity() {
                                 Icon(
                                     Icons.AutoMirrored.Rounded.KeyboardArrowLeft,
                                     contentDescription = "Back",
-                                    tint = MaterialTheme.colors.onBackground,
+                                    tint = MaterialTheme.colorScheme.onBackground,
                                 )
                             }
                         },
@@ -61,28 +67,19 @@ class MainActivity : ComponentActivity() {
                 }) { _ ->
                     NavHost(
                         navController = navController,
-                        startDestination = MAIN_SCREEN,
+                        startDestination = Routes.HOME.name,
                     ) {
-                        composable(CHAT_SCREEN) {
-                            ChatScreen(
-                                navController = navController,
-                            )
-                        }
-                        composable(STATEMENT_SCREEN) {
-                            StatementScreen(navController)
-                        }
-                        composable(GOAL_SCREEN) {
-                            GoalScreen(navController)
-                        }
+                        Routes.entries.forEach { route ->
 
-                        composable(MAIN_SCREEN) {
-                            MainScreen(navController)
+                            composable(route.name) {
+                                route.screen(navController)
+                            }
                         }
                     }
                 }
 
                 LaunchedEffect(Unit) {
-                    navController.navigate(CHAT_SCREEN)
+                    navController.navigate(Routes.CHAT.name)
                 }
 
                 LaunchedEffect(navController.currentDestination) {

@@ -40,6 +40,7 @@ class MessageGeneratorImpl
         override suspend fun generateMessage(
             prompt: String,
             useTypes: Boolean,
+            humorEnabled: Boolean,
         ): AIResponse? {
             val typeReplacement = if (useTypes) Type.entries.joinToString(("|")) else "null"
 
@@ -48,7 +49,9 @@ class MessageGeneratorImpl
                     prompt =
                         buildPrompt {
                             addPrompt(prompt)
-                            addPrompt(humor.description)
+                            if (humorEnabled) {
+                                addPrompt(humor.description)
+                            }
                         },
                     clazz = AIResponse::class.java,
                     requireTranslation = true,
