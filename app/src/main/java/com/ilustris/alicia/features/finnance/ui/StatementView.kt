@@ -45,13 +45,13 @@ import com.ilustris.alicia.features.finnance.domain.data.MovimentationInfo
 import com.ilustris.alicia.features.finnance.presentation.SheetType
 import com.ilustris.alicia.features.finnance.presentation.StatementViewModel
 import com.ilustris.alicia.features.finnance.ui.component.AmountComponent
+import com.ilustris.alicia.features.finnance.ui.component.MovimentationSheet
 import com.ilustris.alicia.features.finnance.ui.component.SheetInfo
-import com.ilustris.alicia.features.home.ui.components.MovimentationSheet
 import com.ilustris.alicia.features.home.ui.getAvatars
 import com.ilustris.alicia.features.messages.ui.components.StatementComponent
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun StatementScreen(navController: NavController) {
     val viewModel: StatementViewModel = hiltViewModel()
@@ -274,6 +274,7 @@ fun StatementScreen(navController: NavController) {
 fun StatementList(
     movimentations: List<MovimentationInfo>,
     onRemove: ((Movimentation) -> Unit)? = null,
+    onSelect: (Movimentation) -> Unit = {},
 ) {
     LazyColumn(modifier = Modifier.background(toolbarColor(isSystemInDarkTheme()))) {
         movimentations.forEach {
@@ -306,6 +307,9 @@ fun StatementList(
                                 onRemove(movimentation)
                             }
                         },
+                    onClick = {
+                        onSelect(movimentation)
+                    },
                 )
             }
         }

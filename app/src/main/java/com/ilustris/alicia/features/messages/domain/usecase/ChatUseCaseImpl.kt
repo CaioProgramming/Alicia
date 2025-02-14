@@ -88,38 +88,34 @@ class ChatUseCaseImpl
         }
 
         private suspend fun mapMessages(messages: List<Message>): List<MessageGroup> {
-            // Log.i(javaClass.simpleName, "mapMessages: Mapping messages $messages")
+            val processMessages = messages.map {
+                val attachment = getExtraData(it)
+                it.copy(
+                    extraData = attachment,
+                )
+            }
+
             val groupedByDay =
-                messages.groupBy {
+                processMessages.groupBy {
                     val calendar =
-                        java.util.Calendar.getInstance().apply {
+                        Calendar.getInstance().apply {
                             timeInMillis = it.sentTime
                         }
                     calendar[java.util.Calendar.DAY_OF_YEAR]
                 }
-            // Log.i(javaClass.simpleName, "mapMessages: ${groupedByDay.size} groups found")
+            Log.d(javaClass.simpleName, "mapMessages: day messages => $groupedByDay")
             return groupedByDay.map {
-                // Log.i(javaClass.simpleName, "mapMessages: Mapping group ${it.key} with ${it.value.size} messages")
-                val firstMessage = messages.first()
+                val firstMessage = it.value.first()
                 val calendar =
                     java.util.Calendar.getInstance().apply {
-                        timeInMillis = firstMessage.sentTime
+                        timeInMillis = it.value.first().sentTime
                     }
-                messages.forEach { message ->
-                    val attachment = getExtraData(message)
-
-                    attachment?.let {
-                        // Log.d(javaClass.simpleName, "mapMessages: Extra data founded $attachment for $message")
-                        message.extraData = attachment
-                        Log.d(javaClass.simpleName, "mapMessages: attachment\n$it\n added to message $message")
-                    }
-                }
+                Log.d(javaClass.simpleName, "mapMessages: Creating class for group ${it.key}")
                 val dataGroup =
                     MessageGroup(
                         title = calendar.time.format(DateFormats.DD_OF_MM),
-                        messages = messages,
+                        messages = it.value,
                     )
-                // Log.i(javaClass.simpleName, "mapMessages: Group mapped $dataGroup")
                 dataGroup
             }
         }

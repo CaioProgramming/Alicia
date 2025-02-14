@@ -60,5 +60,5 @@ enum class SheetType(
 ) {
     INCOME(R.string.statement_income_title, R.string.statement_income_message),
     EXPENSE(R.string.statement_expense_title, R.string.statement_expense_message),
-    TUTORIAL(R.string.statement_intro, R.string.statement_intro_message),
+    TUTORIAL(R.string.avatar_introduction, R.string.statement_intro_message),
 }

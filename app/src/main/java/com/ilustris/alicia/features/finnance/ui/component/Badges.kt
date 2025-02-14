@@ -1387,7 +1387,7 @@ fun GameBadge(
         )
 
         Text(
-            tag.description.uppercase(Locale.getDefault()),
+            goal.name.uppercase(Locale.getDefault()),
             style = textStyle,
             color = MaterialTheme.colorScheme.onBackground,
             maxLines = 1,
@@ -1395,7 +1395,7 @@ fun GameBadge(
             modifier = Modifier.align(Alignment.BottomCenter),
         )
         Text(
-            tag.description.uppercase(Locale.getDefault()),
+            goal.name.uppercase(Locale.getDefault()),
             style =
                 textStyle.copy(
                     shadow =

@@ -1,4 +1,4 @@
-package com.ilustris.alicia.features.home.ui.components
+package com.ilustris.alicia.features.finnance.ui.component
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
@@ -47,6 +47,7 @@ import com.ilustris.alicia.core.theme.AliciaTheme
 import com.ilustris.alicia.features.finnance.data.model.Movimentation
 import com.ilustris.alicia.features.finnance.data.model.Tag
 import com.ilustris.alicia.features.finnance.data.model.findTag
+import com.ilustris.alicia.features.home.ui.components.EmojiSheet
 import com.ilustris.alicia.utils.CurrencyVisualTransformation
 import com.ilustris.alicia.utils.DateFormats
 import com.ilustris.alicia.utils.format

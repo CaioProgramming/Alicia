@@ -240,162 +240,166 @@ fun ChatInput(
             tween(1500, easing = EaseIn),
         )
 
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier =
-            modifier
-                .wrapContentSize()
-                .glow(MaterialTheme.colorScheme.primary, cornersRadius = 25.dp, glowingRadius = 50.dp)
-                .background(backgroundColor.value, RoundedCornerShape(25.dp))
-                .clip(RoundedCornerShape(25.dp))
-                .animateContentSize(),
-    ) {
-        AnimatedVisibility(suggestions.isNotEmpty() && state is ChatState.Idle, modifier = Modifier.wrapContentSize()) {
-            LazyRow(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
-                        .clip(RoundedCornerShape(25.dp)),
-            ) {
-                items(suggestions.size) { index ->
-                    val suggestion = suggestions[index]
-                    Box(
-                        modifier =
-                            Modifier
-                                .padding(8.dp)
-                                .clip(RoundedCornerShape(25.dp))
-                                .background(MaterialTheme.colorScheme.primary)
-                                .clickable {
-                                    message = suggestion
-                                },
-                    ) {
-                        Text(
-                            text = suggestion,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onPrimary,
-                            modifier = Modifier.padding(8.dp),
-                        )
+    Box(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier =
+                modifier
+                    .align(Alignment.Center)
+                    .wrapContentSize()
+                    .glow(MaterialTheme.colorScheme.primary, cornersRadius = 25.dp, glowingRadius = 50.dp)
+                    .background(backgroundColor.value, RoundedCornerShape(25.dp))
+                    .clip(RoundedCornerShape(25.dp))
+                    .animateContentSize(),
+        ) {
+            AnimatedVisibility(suggestions.isNotEmpty() && state is ChatState.Idle, modifier = Modifier.wrapContentSize()) {
+                LazyRow(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                            .clip(RoundedCornerShape(25.dp)),
+                ) {
+                    items(suggestions.size) { index ->
+                        val suggestion = suggestions[index]
+                        Box(
+                            modifier =
+                                Modifier
+                                    .padding(8.dp)
+                                    .clip(RoundedCornerShape(25.dp))
+                                    .background(MaterialTheme.colorScheme.primary)
+                                    .clickable {
+                                        message = suggestion
+                                    },
+                        ) {
+                            Text(
+                                text = suggestion,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                modifier = Modifier.padding(8.dp),
+                            )
+                        }
                     }
                 }
             }
-        }
 
-        AnimatedVisibility(state is ChatState.Idle, modifier = Modifier.wrapContentSize()) {
-            TextField(
-                value = message,
-                modifier = Modifier.fillMaxWidth(),
-                colors =
-                    TextFieldDefaults.colors(
-                        cursorColor = MaterialTheme.colorScheme.primary,
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        disabledIndicatorColor = Color.Transparent,
-                        focusedContainerColor = Color.Transparent,
-                        unfocusedContainerColor = Color.Transparent,
-                        disabledContainerColor = Color.Transparent,
-                    ),
-                onValueChange = {
-                    if (it.length <= 300) {
-                        message = it
-                    }
-                },
-                textStyle = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.W500),
-                placeholder = {
-                    Text(
-                        style = MaterialTheme.typography.bodySmall,
-                        text = "Envie uma mensagem para começar",
-                        color = MaterialTheme.colorScheme.onBackground,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                },
-                singleLine = true,
-                keyboardOptions =
-                    KeyboardOptions(
-                        keyboardType = KeyboardType.Text,
-                        imeAction = ImeAction.Done,
-                        capitalization = KeyboardCapitalization.Sentences,
-                        autoCorrect = true,
-                    ),
-                keyboardActions =
-                    KeyboardActions(onDone = {
-                        if (message.isNotEmpty()) {
-                            onDone(message)
-                            message = ""
+            AnimatedVisibility(state is ChatState.Idle, modifier = Modifier.wrapContentSize()) {
+                TextField(
+                    value = message,
+                    modifier = Modifier.fillMaxWidth(),
+                    colors =
+                        TextFieldDefaults.colors(
+                            cursorColor = MaterialTheme.colorScheme.primary,
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                            disabledIndicatorColor = Color.Transparent,
+                            focusedContainerColor = Color.Transparent,
+                            unfocusedContainerColor = Color.Transparent,
+                            disabledContainerColor = Color.Transparent,
+                        ),
+                    onValueChange = {
+                        if (it.length <= 300) {
+                            message = it
                         }
-                    }),
-                trailingIcon = {
-                    IconButton(
-                        enabled = message.isNotEmpty(),
-                        colors =
-                            IconButtonDefaults.iconButtonColors(
-                                contentColor = MaterialTheme.colorScheme.primary,
-                            ),
-                        onClick = {
+                    },
+                    textStyle = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.W500),
+                    placeholder = {
+                        Text(
+                            style = MaterialTheme.typography.bodySmall,
+                            text = "Envie uma mensagem para começar",
+                            color = MaterialTheme.colorScheme.onBackground,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    },
+                    singleLine = true,
+                    keyboardOptions =
+                        KeyboardOptions(
+                            keyboardType = KeyboardType.Text,
+                            imeAction = ImeAction.Done,
+                            capitalization = KeyboardCapitalization.Sentences,
+                            autoCorrect = true,
+                        ),
+                    keyboardActions =
+                        KeyboardActions(onDone = {
                             if (message.isNotEmpty()) {
                                 onDone(message)
                                 message = ""
                             }
-                        },
-                        modifier =
-                            Modifier
-                                .size(48.dp),
-                    ) {
-                        AnimatedVisibility(
-                            visible = message.isNotEmpty(),
-                            enter = scaleIn(),
-                            exit = scaleOut(),
+                        }),
+                    trailingIcon = {
+                        IconButton(
+                            enabled = message.isNotEmpty(),
+                            colors =
+                                IconButtonDefaults.iconButtonColors(
+                                    contentColor = MaterialTheme.colorScheme.primary,
+                                ),
+                            onClick = {
+                                if (message.isNotEmpty()) {
+                                    onDone(message)
+                                    message = ""
+                                }
+                            },
+                            modifier =
+                                Modifier
+                                    .size(48.dp),
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.Send,
-                                contentDescription = "enviar",
-                                tint = MaterialTheme.colorScheme.primary,
-                            )
+                            AnimatedVisibility(
+                                visible = message.isNotEmpty(),
+                                enter = scaleIn(),
+                                exit = scaleOut(),
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Send,
+                                    contentDescription = "enviar",
+                                    tint = MaterialTheme.colorScheme.primary,
+                                )
+                            }
                         }
-                    }
-                },
-            )
-        }
+                    },
+                )
+            }
 
-        AnimatedVisibility(isLoading, modifier = Modifier.padding(8.dp)) {
-            // create a infinite rotation animation
-            val infiniteTransition = rememberInfiniteTransition()
-            val rotation by infiniteTransition.animateFloat(
-                initialValue = 0f,
-                targetValue = 360f,
-                animationSpec =
-                    infiniteRepeatable(
-                        animation = tween(durationMillis = 5000, easing = EaseIn),
-                        repeatMode = RepeatMode.Reverse,
-                    ),
-                label = "loadingRotation",
-            )
+            AnimatedVisibility(isLoading, modifier = Modifier.padding(8.dp)) {
+                // create a infinite rotation animation
+                val infiniteTransition = rememberInfiniteTransition()
+                val rotation by infiniteTransition.animateFloat(
+                    initialValue = 0f,
+                    targetValue = 360f,
+                    animationSpec =
+                        infiniteRepeatable(
+                            animation = tween(durationMillis = 5000, easing = EaseIn),
+                            repeatMode = RepeatMode.Reverse,
+                        ),
+                    label = "loadingRotation",
+                )
 
-            Box(
-                Modifier
-                    .size(32.dp)
-                    .clip(CircleShape)
-                    .rotate(rotation)
-                    .background(brush, CircleShape),
-            ) { }
-        }
+                Box(
+                    Modifier
+                        .size(32.dp)
+                        .clip(CircleShape)
+                        .rotate(rotation)
+                        .background(brush, CircleShape),
+                ) { }
+            }
 
-        AnimatedVisibility(
-            state is ChatState.Notification,
-            modifier =
-                Modifier
-                    .wrapContentSize()
-                    .padding(16.dp),
-        ) {
-            Text(
-                (state as? ChatState.Notification)?.message ?: stringResource(R.string.default_error),
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.White,
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center,
-            )
+            AnimatedVisibility(
+                state is ChatState.Notification,
+                modifier =
+                    Modifier
+                        .wrapContentSize()
+                        .padding(16.dp),
+            ) {
+                Text(
+                    (state as? ChatState.Notification)?.message ?: stringResource(R.string.default_error),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.White,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                )
+            }
         }
     }
+
 }
 
 fun getPlaceHolderMessage(action: Action): String =

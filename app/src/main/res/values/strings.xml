@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Alicia</string>
-    <string name="home_title">Home</string>
+    <string name="home_title"></string>
     <string name="history_title">Movimentações</string>
     <string name="goal_title">Metas</string>
     <string name="history_girl_name">Sophi</string>
@@ -8,9 +8,13 @@
     <string name="default_error">Ocorreu um erro inesperado... 😢</string>
     <string name="statement_intro_message">A %1$s, vai te ajudar a acompanhar todas as suas movimentações de forma detalhada e precisa, assim fica mais fácil de saber quando gastou e quando ganhou mais dinheiro.</string>
     <string name="goal_tutorial">A %1$s está aqui para te ajudar a acompanhar suas metas, você pode clicar no ícone dela e ter uma visão melhor de todas as suas metas.</string>
-    <string name="statement_intro">Conheça a %1$s</string>
+    <string name="avatar_introduction">Conheça a %1$s</string>
     <string name="statement_income_title">Adicionar movimentação</string>
     <string name="statement_income_message">Adicione uma movimentação para atualizar seu status financeiro.</string>
     <string name="statement_expense_title">Adicionar gasto\n</string>
     <string name="statement_expense_message">Adicione um gasto para atualizar suas finanças.</string>
+    <string name="new_goal">Adicione uma nova meta\n</string>
+    <string name="new_goal_description">Adicione uma nova meta para incluir no seu planejamento.\n</string>
+    <string name="edit_goal">Editar meta</string>
+    <string name="edit_goal_description">Edite a meta de sua prefereência\n</string>
 </resources>

@@ -6,6 +6,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -39,6 +40,7 @@ fun StatementComponent(
     movimentation: Movimentation,
     textColor: Color = MaterialTheme.colorScheme.onSecondary,
     onRemove: (() -> Unit)?,
+    onClick: (() -> Unit)? = null,
 ) {
     var visible by remember {
         mutableStateOf(true)
@@ -82,7 +84,13 @@ fun StatementComponent(
             enter = fadeIn(animationSpec = tween(1500)),
             exit = shrinkVertically(animationSpec = tween(1500)),
         ) {
-            ConstraintLayout(modifier = Modifier.background(MaterialTheme.colorScheme.background)) {
+            ConstraintLayout(
+                modifier =
+                    Modifier
+                        .clickable {
+                            onClick?.invoke()
+                        }.background(MaterialTheme.colorScheme.background),
+            ) {
                 val (tag, descriptionText, movimentationDetails, divider) = createRefs()
 
                 Text(
@@ -152,7 +160,7 @@ fun StatementComponent(
                                 bottom.linkTo(parent.bottom)
                             }.height(1.dp)
                             .fillMaxWidth()
-                            .background(MaterialTheme.colorScheme.onBackground.copy(alpha = 0.2f)),
+                            .background(MaterialTheme.colorScheme.onBackground.copy(alpha = 0f)),
                 )
             }
         }

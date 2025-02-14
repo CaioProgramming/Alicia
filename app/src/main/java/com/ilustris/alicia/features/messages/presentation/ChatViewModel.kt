@@ -51,6 +51,7 @@ class ChatViewModel
             viewModelScope.launch(Dispatchers.IO) {
                 chatUseCase.getMessages().collect {
                     Log.d(javaClass.simpleName, "current Messages: $it")
+                    messages.emit(emptyList())
                     this@ChatViewModel.messages.emit(it)
                 }
             }

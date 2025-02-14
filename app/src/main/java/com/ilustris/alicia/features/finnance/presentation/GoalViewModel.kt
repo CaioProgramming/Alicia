@@ -1,7 +1,10 @@
 package com.ilustris.alicia.features.finnance.presentation
 
+import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ilustris.alicia.R
+import com.ilustris.alicia.features.finnance.data.model.Goal
 import com.ilustris.alicia.features.finnance.domain.usecase.FinanceUseCase
 import com.ilustris.alicia.utils.GOAL_KEY
 import com.ilustris.alicia.utils.PreferencesService
@@ -24,4 +27,10 @@ class GoalViewModel @Inject constructor(
         }
     }
 
+}
+
+sealed class GoalSheetType(@StringRes val title: Int, @StringRes val description: Int) {
+    data object Tutorial : GoalSheetType(R.string.avatar_introduction, R.string.goal_tutorial)
+    data object NewGoal: GoalSheetType(R.string.new_goal, R.string.new_goal_description)
+    data class UpdateGoal(val goal: Goal) : GoalSheetType(R.string.edit_goal, R.string.edit_goal_description)
 }

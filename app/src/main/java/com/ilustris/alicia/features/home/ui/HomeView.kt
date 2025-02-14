@@ -79,7 +79,9 @@ fun MainScreen(navController: NavHostController) {
                         fontWeight = FontWeight.W600,
                     ),
             )
-            StatementList(movimentations = movimentations.value)
+            StatementList(movimentations = movimentations.value, onSelect = {
+                navController.navigate(Routes.STATEMENT.name)
+            })
         }
     }
 }
