@@ -240,19 +240,34 @@ fun ChatInput(
             tween(1500, easing = EaseIn),
         )
 
-    Box(modifier = Modifier.fillMaxWidth()) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                brush =
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            MaterialTheme.colorScheme.background,
+                            MaterialTheme.colorScheme.background.copy(alpha = .5f),
+                            Color.Transparent
+                        )
+                    )
+            )
+    ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier =
                 modifier
                     .align(Alignment.Center)
                     .wrapContentSize()
-                    .glow(MaterialTheme.colorScheme.primary, cornersRadius = 25.dp, glowingRadius = 50.dp)
                     .background(backgroundColor.value, RoundedCornerShape(25.dp))
                     .clip(RoundedCornerShape(25.dp))
                     .animateContentSize(),
         ) {
-            AnimatedVisibility(suggestions.isNotEmpty() && state is ChatState.Idle, modifier = Modifier.wrapContentSize()) {
+            AnimatedVisibility(
+                suggestions.isNotEmpty() && state is ChatState.Idle,
+                modifier = Modifier.wrapContentSize()
+            ) {
                 LazyRow(
                     modifier =
                         Modifier
@@ -376,9 +391,15 @@ fun ChatInput(
                 Box(
                     Modifier
                         .size(32.dp)
+                        .glow(
+                            MaterialTheme.colorScheme.primary,
+                            cornersRadius = 25.dp,
+                            glowingRadius = 50.dp
+                        )
                         .clip(CircleShape)
                         .rotate(rotation)
-                        .background(brush, CircleShape),
+                        .background(brush, CircleShape)
+                       ,
                 ) { }
             }
 
@@ -390,7 +411,8 @@ fun ChatInput(
                         .padding(16.dp),
             ) {
                 Text(
-                    (state as? ChatState.Notification)?.message ?: stringResource(R.string.default_error),
+                    (state as? ChatState.Notification)?.message
+                        ?: stringResource(R.string.default_error),
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.White,
                     modifier = Modifier.fillMaxWidth(),

@@ -158,24 +158,20 @@ fun ShieldBadge(
     isAnimated: Boolean,
     modifier: Modifier,
 ) {
-    val tag =
-        remember {
-            goal.tag.findTag()
-        }
+    val tag = goal.tag.findTag()
+
     val shape =
-        remember {
             RoundedCornerShape(
                 topStart = 5.dp,
                 topEnd = 5.dp,
                 bottomStart = 50.dp,
                 bottomEnd = 50.dp,
             )
-        }
+
 
     val icon =
-        remember {
             TagHelper.findBadgeResource(goal.badge, tag)
-        }
+
 
     val mainColor =
         remember {
@@ -351,19 +347,16 @@ fun HealthBadge(
     modifier: Modifier,
 ) {
     val tag =
-        remember {
             goal.tag.findTag()
-        }
+
 
     val shape =
-        remember {
             Polygon(6)
-        }
+
 
     val icon =
-        remember {
             TagHelper.findBadgeResource(goal.badge, tag)
-        }
+
 
     val mainColor =
         remember {
@@ -445,9 +438,8 @@ fun PetBadge(
     modifier: Modifier,
 ) {
     val tag =
-        remember {
             goal.tag.findTag()
-        }
+
 
     val shape =
         remember {
@@ -455,9 +447,8 @@ fun PetBadge(
         }
 
     val icon =
-        remember {
             TagHelper.findBadgeResource(goal.badge, tag)
-        }
+
 
     val mainColor =
         remember {
@@ -595,19 +586,16 @@ fun FoodBadge(
 ) {
     val context = LocalContext.current
     val tag =
-        remember {
             goal.tag.findTag()
-        }
+
 
     val shape =
-        remember {
             Flow(context)
-        }
+
 
     val icon =
-        remember {
             TagHelper.findBadgeResource(goal.badge, tag)
-        }
+
 
     val tagIcon =
         remember {
@@ -708,19 +696,16 @@ fun BillsBadge(
     modifier: Modifier,
 ) {
     val tag =
-        remember {
             goal.tag.findTag()
-        }
+
 
     val shape =
-        remember {
             CircleShape
-        }
+
 
     val icon =
-        remember {
             TagHelper.findBadgeResource(goal.badge, tag)
-        }
+
 
     val mainColor =
         remember {
@@ -821,14 +806,12 @@ fun TransportBadge(
     modifier: Modifier,
 ) {
     val tag =
-        remember {
             goal.tag.findTag()
-        }
+
 
     val icon =
-        remember {
             TagHelper.findBadgeResource(goal.badge, tag)
-        }
+
 
     val mainColor =
         remember {
@@ -936,19 +919,14 @@ fun EducationBadge(
     modifier: Modifier,
 ) {
     val shape =
-        remember {
             CircleShape
-        }
 
-    val tag =
-        remember {
-            goal.tag.findTag()
-        }
 
-    val icon =
-        remember {
-            TagHelper.findBadgeResource(goal.badge, tag)
-        }
+    val tag = goal.tag.findTag()
+
+
+    val icon = TagHelper.findBadgeResource(goal.badge, tag)
+
 
     val mainColor =
         remember {
@@ -1046,24 +1024,19 @@ fun PartyBadge(
         }
 
     val tag =
-        remember {
             goal.tag.findTag()
-        }
+
 
     val shape =
-        remember {
             CircleShape
-        }
+
 
     val icon =
-        remember {
             TagHelper.findBadgeResource(goal.badge, tag)
-        }
 
-    val fillIcon =
-        remember {
-            fillIconResource(goal.badge)
-        }
+
+    val fillIcon = fillIconResource(goal.badge)
+
 
     val mainColor =
         remember {
@@ -1141,20 +1114,17 @@ fun TravelBadge(
     modifier: Modifier,
 ) {
     val tag =
-        remember {
             goal.tag.findTag()
-        }
+
     val brush = tag.tagGradient(isAnimated)
 
     val icon =
-        remember {
             TagHelper.findBadgeResource(goal.badge, tag)
-        }
+
 
     val mainColor =
-        remember {
             tag.colors.last()
-        }
+
 
     val textStyle =
         MaterialTheme.typography.displaySmall.copy(
@@ -1244,19 +1214,16 @@ fun ShoppingBadge(
     modifier: Modifier,
 ) {
     val tag =
-        remember {
             goal.tag.findTag()
-        }
+
 
     val shape =
-        remember {
             CircleShape
-        }
+
 
     val icon =
-        remember {
             TagHelper.findBadgeResource(goal.badge, tag)
-        }
+
 
     val mainColor =
         remember {
@@ -1330,14 +1297,12 @@ fun GameBadge(
     modifier: Modifier,
 ) {
     val tag =
-        remember {
             goal.tag.findTag()
-        }
+
 
     val icon =
-        remember {
             TagHelper.findBadgeResource(goal.badge, tag)
-        }
+
 
     val mainColor =
         remember {
@@ -1421,18 +1386,15 @@ fun DefaultBadge(
 ) {
     val context = LocalContext.current
     val tag =
-        remember {
             goal.tag.findTag()
-        }
+
     val shape =
-        remember {
             Flow(context)
-        }
+
 
     val icon =
-        remember {
             TagHelper.findBadgeResource(goal.badge, tag)
-        }
+
 
     val brush = tag.tagGradient(isAnimated)
 

@@ -3,9 +3,13 @@ package com.ilustris.alicia.features.finnance.ui.component
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -30,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -57,8 +62,6 @@ fun GoalSheet(
     }
 
 
-
-
     val textFieldColors =
         TextFieldDefaults.colors().copy(
             focusedIndicatorColor = Color.Transparent,
@@ -71,15 +74,27 @@ fun GoalSheet(
             unfocusedContainerColor = Color.Transparent,
         )
 
-    LazyColumn(horizontalAlignment = Alignment.CenterHorizontally)  {
+    LazyColumn(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .padding(bottom = 12.dp)
+    ) {
 
         stickyHeader {
-            Box(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.background)) {
+            Row(
+                Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.background),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
 
-                AnimatedVisibility(currentGoal.value.id != 0) {
-                    Button({onSaveGoal(currentGoal.value)},
-                        modifier = Modifier.padding(horizontal = 16.dp)
-                            .align(Alignment.TopStart), colors =
+                AnimatedVisibility(
+                    currentGoal.value.id != 0,
+                    modifier = Modifier
+                        .padding(8.dp)
+                ) {
+                    Button(
+                        { onDelete() },
+                        modifier = Modifier, colors =
                             ButtonDefaults.outlinedButtonColors(
                                 contentColor = MaterialTheme.colorScheme.error
                             )
@@ -88,10 +103,12 @@ fun GoalSheet(
                     }
                 }
 
-                Button({onSaveGoal(currentGoal.value)},
-                    modifier = Modifier.padding(horizontal = 16.dp)
-                    .align(Alignment.TopEnd), colors =
-                ButtonDefaults.outlinedButtonColors()
+                Spacer(modifier = Modifier.weight(1f))
+
+                Button(
+                    { onSaveGoal(currentGoal.value) },
+                    modifier = Modifier, colors =
+                        ButtonDefaults.outlinedButtonColors()
                 ) {
                     Text("Salvar")
                 }
@@ -113,97 +130,143 @@ fun GoalSheet(
                 text = subtitle ?: "",
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center
             )
         }
 
         item() {
-             GoalMedalV3(
-                 goal = currentGoal.value,
-                 showText = false,
-                 isAnimated = true,
-                 modifier = Modifier.size(150.dp).clip(CircleShape)
-             )
-         }
+            Column(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .background(MaterialTheme.colorScheme.background, RoundedCornerShape(15.dp))
+                    .padding(12.dp)
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                GoalMedalV3(
+                    goal = currentGoal.value,
+                    showText = false,
+                    isAnimated = true,
+                    modifier = Modifier
+                        .size(150.dp)
+                )
+
+                TextField(
+                    value = currentGoal.value.name,
+                    onValueChange = { currentGoal.value = currentGoal.value.copy(name = it) },
+                    colors = textFieldColors,
+                    textStyle = MaterialTheme.typography.bodyLarge.copy(
+                        textAlign = TextAlign.Center
+                    ),
+                    placeholder = {
+                        Text(
+                            "Nome da Meta",
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                textAlign = TextAlign.Center
+                            ),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .alpha(.5f)
+                        )
+                    }
+                )
 
 
-        item() {
-            TextField(
-                value = currentGoal.value.name, onValueChange = { currentGoal.value = currentGoal.value.copy(name = it) },
-                colors = textFieldColors,
-                textStyle = MaterialTheme.typography.bodyLarge.copy(
-                    textAlign = TextAlign.Center
-                ),
-                label = { Text("Nome da Meta") }
-            )
-        }
 
-        item() {
-
-            TagPicker(currentGoal.value.tag.findTag()) {
-                currentGoal.value = currentGoal.value.copy(tag = it.name)
+                TextField(
+                    currentGoal.value.toString(),
+                    onValueChange = {
+                        currentGoal.value = currentGoal.value.copy(value = it.toDouble())
+                    },
+                    visualTransformation = CurrencyVisualTransformation(),
+                    textStyle =
+                        MaterialTheme.typography.headlineSmall.copy(
+                            fontWeight = FontWeight.W700,
+                            textAlign = TextAlign.Center,
+                        ),
+                    label = { Text("Valor da Meta") },
+                    placeholder = { Text("R\$ 0,00") },
+                    colors = textFieldColors
+                )
             }
+
+        }
+
+
+        item() {
+            Text(
+                "Categoria",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            )
         }
 
 
         item {
-            TextField(
-                currentGoal.value.toString(),
-                onValueChange = {
-                    currentGoal.value = currentGoal.value.copy(value = it.toDouble())
+            TagIconsCard(
+                Modifier.fillMaxWidth(),
+                currentGoal.value.name,
+                currentGoal.value.tag.findTag(),
+                onUpdateTag = {
+                    currentGoal.value = currentGoal.value.copy(tag = it.name)
                 },
-                visualTransformation = CurrencyVisualTransformation(),
-                textStyle =
-                    MaterialTheme.typography.headlineSmall.copy(
-                        fontWeight = FontWeight.W700,
-                        textAlign = TextAlign.Center,
-                    ),
-                label = { Text("Valor da Meta") },
-                colors = textFieldColors
+                onBadgeSelect = {
+                    currentGoal.value = currentGoal.value.copy(badge = it)
+                }
             )
         }
 
-
-        item() {
-            Text("Ícones",
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(16.dp))
-        }
-
-
-            item {
-                TagIconsCard(
-                    Modifier.fillMaxWidth(),
-                    currentGoal.value.name,
-                    currentGoal.value.tag.findTag(),
-                    onBadgeSelect = {
-                        currentGoal.value = currentGoal.value.copy(badge = it)
-                    }
-                )
+        item {
+            Button(
+                { onSaveGoal(currentGoal.value) },
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth()
+            ) {
+                Text("Salvar")
             }
-
+        }
 
     }
 
 }
 
 @Composable
-fun TagIconsCard(modifier: Modifier = Modifier, title: String, tag: Tag, onBadgeSelect: (Int) -> Unit = {}) {
+fun TagIconsCard(
+    modifier: Modifier = Modifier,
+    title: String,
+    tag: Tag,
+    onUpdateTag: (Tag) -> Unit = {},
+    onBadgeSelect: (Int) -> Unit = {}
+) {
 
-    val badges = remember {
-        tag.badges()
-    }
-    Column(modifier = modifier
-        .background(MaterialTheme.colorScheme.surface)
-        .padding(16.dp).background(MaterialTheme.colorScheme.background, RoundedCornerShape(15.dp))) {
+
+    Column(
+        modifier = modifier
+            .padding(16.dp)
+            .background(MaterialTheme.colorScheme.background, RoundedCornerShape(15.dp))
+            .border(2.dp, tag.tagGradient(true), RoundedCornerShape(15.dp))
+            .padding(16.dp)
+    ) {
+
+        TagPicker(tag = tag) {
+            onUpdateTag(it)
+        }
+
+
         Text(
-            text = tag.description,
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(16.dp)
-
+            "Medalhas",
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.W500,
+            modifier = Modifier.padding(
+                vertical = 8.dp
+            )
         )
 
         LazyRow(modifier = Modifier.padding(vertical = 8.dp)) {
-            items(badges.size) { index ->
+            items(tag.badges().size) { index ->
                 GoalMedalV3(
                     goal = Goal(
                         name = title,
@@ -212,9 +275,12 @@ fun TagIconsCard(modifier: Modifier = Modifier, title: String, tag: Tag, onBadge
                     ),
                     showText = true,
                     isAnimated = true,
-                    modifier = Modifier.padding(8.dp).clip(CircleShape).clickable {
-                        onBadgeSelect(index)
-                    }.size(120.dp)
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .clickable {
+                            onBadgeSelect(index)
+                        }
+                        .size(100.dp)
                 )
             }
         }
@@ -229,7 +295,7 @@ fun GoalSheetPreview() {
         GoalSheet(
             title = "Nova Meta",
             subtitle = "Adicione uma nova meta",
-            goal = Goal(name = "Meta 1", value = 1000.0, id = 2, tag = Tag.TRAVEL.name),
+            goal = Goal(name = "", value = 1000.0, id = 2, tag = Tag.TRAVEL.name),
             onSaveGoal = {}
         )
     }

@@ -107,7 +107,7 @@ fun BadgeForTag(
     isAnimated: Boolean,
     modifier: Modifier,
 ) {
-    val tag = remember { goal.tag.findTag() }
+    val tag = goal.tag.findTag()
     when (tag) {
         Tag.WORK ->
             ShieldBadge(

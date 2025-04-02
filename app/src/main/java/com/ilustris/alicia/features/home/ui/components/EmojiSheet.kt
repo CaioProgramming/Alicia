@@ -27,14 +27,7 @@ fun EmojiSheet(onSelectTag: (Tag) -> Unit) {
             .wrapContentHeight()
             .padding(16.dp)
     ) {
-        Text(
-            text = "Categoria",
-            style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onBackground),
-            fontWeight = FontWeight.W500,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 4.dp)
-        )
+
         LazyRow(
             horizontalArrangement = Arrangement.Center
         ) {

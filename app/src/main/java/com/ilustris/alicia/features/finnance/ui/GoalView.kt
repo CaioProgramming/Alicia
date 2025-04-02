@@ -1,9 +1,15 @@
 package com.ilustris.alicia.features.finnance.ui
 
+import ai.atick.material.MaterialColor
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.EaseIn
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -16,7 +22,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -26,6 +38,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.ilustris.alicia.R
 import com.ilustris.alicia.core.theme.AliciaTheme
+import com.ilustris.alicia.core.theme.Flow
 import com.ilustris.alicia.features.finnance.presentation.GoalSheetType
 import com.ilustris.alicia.features.finnance.presentation.GoalViewModel
 import com.ilustris.alicia.features.finnance.ui.component.GoalMedalV3
@@ -40,7 +53,9 @@ fun GoalScreen(navController: NavController) {
     val goalViewModel: GoalViewModel = hiltViewModel()
     val goals = goalViewModel.goals.collectAsState(initial = emptyList())
     val bottomSheetState =
-        rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
+        rememberModalBottomSheetState(
+            initialValue = ModalBottomSheetValue.Hidden,
+        )
 
     val scope = rememberCoroutineScope()
     var sheetType =
@@ -48,10 +63,21 @@ fun GoalScreen(navController: NavController) {
             mutableStateOf<GoalSheetType>(GoalSheetType.Tutorial)
         }
 
+    val contentBlur = animateDpAsState(
+        if (bottomSheetState.isVisible) 25.dp else 0.dp,
+        tween(800, easing = EaseIn)
+    )
+    val sheetBorderRadius = animateDpAsState(
+        if (bottomSheetState.targetValue == ModalBottomSheetValue.Expanded) 0.dp else 15.dp,
+        tween(800, easing = EaseIn)
+    )
+
     AliciaTheme {
         ModalBottomSheetLayout(
             sheetState = bottomSheetState,
-            sheetShape = RoundedCornerShape(15.dp),
+            sheetShape = RoundedCornerShape(topEnd = sheetBorderRadius.value, topStart = sheetBorderRadius.value),
+            sheetBackgroundColor = MaterialTheme.colorScheme.background.copy(alpha = .7f),
+            sheetElevation = 0.dp,
             sheetContent = {
                 AnimatedContent(sheetType.value) {
                     when (it) {
@@ -68,7 +94,12 @@ fun GoalScreen(navController: NavController) {
                                 }
                             }
                         }
-                        is GoalSheetType.NewGoal -> GoalSheet(stringResource(it.title), stringResource(it.description), onSaveGoal = { })
+
+                        is GoalSheetType.NewGoal -> GoalSheet(
+                            stringResource(it.title),
+                            stringResource(it.description),
+                            onSaveGoal = { })
+
                         is GoalSheetType.UpdateGoal ->
                             GoalSheet(
                                 stringResource(it.title),
@@ -93,14 +124,58 @@ fun GoalScreen(navController: NavController) {
             },
         ) {
             LazyVerticalGrid(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .blur(contentBlur.value),
                 columns = GridCells.Fixed(2),
                 horizontalArrangement = Arrangement.Center,
                 verticalArrangement = Arrangement.Center,
             ) {
+                item(span = { GridItemSpan(2) }) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        val shape = Flow(
+                            LocalContext.current
+                        )
+                        Box(
+                            modifier = Modifier
+                                .padding(vertical = 16.dp)
+                                .size(100.dp)
+                                .background(
+                                    MaterialColor.Gray300,
+                                    shape = shape
+                                )
+                                .clip(shape)
+                                .clickable {
+                                    scope.launch {
+                                        sheetType.value = GoalSheetType.NewGoal
+                                        bottomSheetState.show()
+                                    }
+                                }
+                        )
+
+                        Text(
+                            "Adicionar nova meta",
+                            color = MaterialTheme.colorScheme.secondary,
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.clickable {
+                                scope.launch {
+                                    sheetType.value = GoalSheetType.NewGoal
+                                    bottomSheetState.show()
+                                }
+                            }
+                        )
+                    }
+                }
                 goals.value.forEach {
                     item(span = { GridItemSpan(2) }) {
-                        Row(modifier = Modifier.padding(16.dp)) {
+                        Row(
+                            modifier = Modifier.padding(16.dp),
+                            horizontalArrangement = Arrangement.SpaceEvenly,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
                             Text(
                                 modifier = Modifier.padding(horizontal = 8.dp),
                                 text = it.header,
@@ -110,6 +185,16 @@ fun GoalScreen(navController: NavController) {
                                         fontWeight = FontWeight.W800,
                                     ),
                             )
+
+                            Box(
+                                modifier = Modifier
+                                    .padding(horizontal = 8.dp)
+                                    .fillMaxWidth(.3f)
+                                    .height(1.dp)
+                                    .background(
+                                        MaterialTheme.colorScheme.surface
+                                    )
+                            ) { }
                             Text(
                                 text = it.description,
                                 style =
@@ -131,7 +216,8 @@ fun GoalScreen(navController: NavController) {
                                         sheetType.value = GoalSheetType.UpdateGoal(it.goals[index])
                                         bottomSheetState.show()
                                     }
-                                }.size(200.dp),
+                                }
+                                .size(150.dp),
                         )
                     }
                 }

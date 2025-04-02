@@ -1,11 +1,13 @@
 package com.ilustris.alicia.features.finnance.ui.component
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -32,9 +34,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.ilustris.alicia.features.finnance.data.model.Tag
 import com.ilustris.alicia.features.home.ui.components.EmojiSheet
+import com.ilustris.alicia.utils.gradientAnimation
 
 @Composable
-fun TagPicker(tag: Tag, onSelect: (Tag) -> Unit) {
+fun TagPicker(modifier: Modifier = Modifier, tag: Tag, onSelect: (Tag) -> Unit) {
 
     var categoryVisible by remember {
         mutableStateOf(false)
@@ -42,12 +45,13 @@ fun TagPicker(tag: Tag, onSelect: (Tag) -> Unit) {
 
 
 
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(modifier.fillMaxWidth().animateContentSize()) {
         Row(
             modifier =
-                Modifier
+                modifier
                     .wrapContentWidth()
-                    .background(tag.textColor, RoundedCornerShape(25.dp))
+                    .border(2.dp, tag.tagGradient(), RoundedCornerShape(25.dp))
+                    .background(tag.tagGradient(), RoundedCornerShape(25.dp))
                     .padding(8.dp)
                     .clip(RoundedCornerShape(25.dp))
                     .clickable {
@@ -60,6 +64,7 @@ fun TagPicker(tag: Tag, onSelect: (Tag) -> Unit) {
                 text = tag.description,
                 style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.W500,
+                color = MaterialTheme.colorScheme.background,
             )
             Image(
                 painterResource(id = tag.icon),
@@ -70,6 +75,7 @@ fun TagPicker(tag: Tag, onSelect: (Tag) -> Unit) {
                         .padding(start = 8.dp)
                         .size(24.dp)
                         .background(MaterialTheme.colorScheme.background, CircleShape)
+                        .gradientAnimation(tag.colors)
                         .padding(4.dp),
             )
         }
